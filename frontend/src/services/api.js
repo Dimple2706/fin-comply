@@ -28,8 +28,9 @@ export const downloadPdfReport = async (tenantId) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error('Failed to generate PDF. Is the endpoint ready?');
+      const detail = error.response.data?.detail;
+      throw new Error(detail || 'Failed to generate PDF.');
     }
-    throw new Error('Network error.');
+    throw new Error('Network error. Ensure the backend is running.');
   }
 };

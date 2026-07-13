@@ -189,7 +189,7 @@ export default function Onboarding({ onComplete }) {
             transition={{ delay: 0.5 }}
             className="text-body text-secondary max-w-[560px] mx-auto mb-8"
           >
-            Run a complete compliance assessment across all 14 DPDP Act obligations in under 60 seconds. Powered by weighted signal scoring and SHAP explainability.
+            Run a complete compliance assessment across all 16 DPDP Act obligations in under 60 seconds. Powered by weighted signal scoring and SHAP explainability.
           </motion.p>
 
           <motion.div 
@@ -198,7 +198,7 @@ export default function Onboarding({ onComplete }) {
             transition={{ delay: 0.6 }}
             className="flex justify-center items-center gap-4 text-sm font-medium text-muted"
           >
-            <span className="flex items-center gap-1.5"><HiOutlineCheckCircle className="text-low" /> 14 DPDP Rules</span>
+            <span className="flex items-center gap-1.5"><HiOutlineCheckCircle className="text-low" /> 16 DPDP Rules</span>
             <span className="w-1 h-1 rounded-full bg-subtle" />
             <span className="flex items-center gap-1.5"><HiOutlineCheckCircle className="text-low" /> SHAP Attribution</span>
             <span className="w-1 h-1 rounded-full bg-subtle" />

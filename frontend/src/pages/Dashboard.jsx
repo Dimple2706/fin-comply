@@ -38,7 +38,7 @@ export default function Dashboard({ data, onReset }) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      alert("Failed to generate PDF. Make sure the backend PDF endpoint is running.");
+      alert(err.message || 'Failed to generate PDF.');
     } finally {
       setDownloadingPdf(false);
     }
