@@ -1,0 +1,11 @@
+policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
+POL-GEN-021-e4110a4abc43,GEN-021,consent,Consent Management Policy,365,days,2024-09-10,2024-09-10,True,{}
+POL-GEN-021-72f88c822f99,GEN-021,consent,Consent Management Policy,365,days,2026-02-01,2026-02-01,False,{}
+POL-GEN-021-16526e796861,GEN-021,consent,Consent Management Policy,365,days,2025-07-02,2025-07-02,True,{}
+POL-GEN-021-69ce18ccd22f,GEN-021,retention,Data Retention Policy,365,days,2025-03-06,2025-03-06,True,{}
+POL-GEN-021-c47c04a2610e,GEN-021,encryption,Encryption Standards Policy,365,days,2024-04-13,2024-04-13,False,{}
+POL-GEN-021-b27e76e283e4,GEN-021,consent,Consent Management Policy,365,days,2025-01-19,2025-01-19,True,{}
+POL-GEN-021-89ea0d58c268,GEN-021,consent,Consent Management Policy,365,days,2026-03-28,2026-03-28,True,{}
+POL-GEN-021-c62ef641bf3e,GEN-021,retention,Data Retention Policy,365,days,2024-07-20,2024-07-20,True,{}
+POL-GEN-021-c864630cbfe4,GEN-021,consent,Consent Management Policy,365,days,2025-09-05,2025-09-05,False,{}
+POL-GEN-021-9c73b761ef58,GEN-021,consent,Consent Management Policy,365,days,2025-09-09,2025-09-09,True,{}

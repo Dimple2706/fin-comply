@@ -1,0 +1,13 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-049-f99d932e5017,GEN-049,Core Banking System,crm,credit_scores,True,True,True,True,yes,internal,True,2028-06-09,{}
+SYS-GEN-049-0e31f0fe2eaa,GEN-049,CRM Platform,core_banking,credit_scores,True,True,True,True,yes,internal,True,2026-09-11,{}
+SYS-GEN-049-351fd22d18b9,GEN-049,Analytics Engine,analytics,transaction_data,True,True,True,True,yes,internal,True,2028-01-02,{}
+SYS-GEN-049-d878c4efc998,GEN-049,KYC Platform,kyc_platform,payment_records,True,True,True,True,yes,internal,True,2027-08-14,{}
+SYS-GEN-049-7f079576122b,GEN-049,Payment Gateway,payment_gateway,kyc_documents,True,True,True,True,yes,internal,True,2027-01-15,{}
+SYS-GEN-049-eb890fc7d61d,GEN-049,Data Warehouse,data_warehouse,kyc_documents,True,True,True,True,yes,internal,True,2027-11-10,{}
+SYS-GEN-049-eff86e569be6,GEN-049,Fraud Detection System,crm,payment_records,True,True,True,True,yes,internal,True,2026-02-16,{}
+SYS-GEN-049-44f72ce9b2ec,GEN-049,Loan Origination System,core_banking,customer_data,True,True,True,True,no,internal,True,2028-05-14,{}
+SYS-GEN-049-89e65fcde2ec,GEN-049,Customer Portal,analytics,payment_records,True,True,True,True,no,internal,True,2027-05-22,{}
+SYS-GEN-049-34bbde72b5e9,GEN-049,Reporting Engine,kyc_platform,customer_data,True,True,True,True,no,internal,True,2026-07-06,{}
+SYS-GEN-049-3eb8d4f854dc,GEN-049,Mobile Banking,payment_gateway,credit_scores,True,True,True,True,no,internal,True,2027-04-27,{}
+SYS-GEN-049-1c37d283ee99,GEN-049,Transaction Monitor,data_warehouse,payment_records,True,True,True,True,yes,internal,True,2027-11-02,{}

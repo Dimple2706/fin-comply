@@ -1,0 +1,6 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-251-2c766b8ee130,GEN-251,Core Banking System,crm,payment_records,True,True,True,True,yes,internal,True,2026-06-19,{}
+SYS-GEN-251-ababa7d60459,GEN-251,CRM Platform,core_banking,credit_scores,True,True,True,True,no,internal,True,2027-07-25,{}
+SYS-GEN-251-956a430603db,GEN-251,Analytics Engine,analytics,payment_records,True,True,True,True,no,internal,True,2028-03-18,{}
+SYS-GEN-251-a07a90bb6bd9,GEN-251,KYC Platform,kyc_platform,credit_scores,True,True,True,True,no,internal,True,2027-10-28,{}
+SYS-GEN-251-4e89c4ea648b,GEN-251,Payment Gateway,payment_gateway,kyc_documents,True,True,True,True,no,internal,True,2026-01-28,{}

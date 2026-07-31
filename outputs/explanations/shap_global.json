@@ -1,193 +1,39 @@
 {
-  "type": "global",
-  "description": "Feature importance based on mean absolute SHAP values",
-  "n_samples": 2,
-  "feature_importance": [
-    {
-      "rank": 1,
-      "feature": "unique_rules_violated",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 2,
-      "feature": "total_violation_occurrences",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 3,
-      "feature": "critical_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 4,
-      "feature": "high_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 5,
-      "feature": "medium_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 6,
-      "feature": "low_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 7,
-      "feature": "dpdp-001_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 8,
-      "feature": "dpdp-002_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 9,
-      "feature": "dpdp-003_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 10,
-      "feature": "dpdp-004_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 11,
-      "feature": "dpdp-005_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 12,
-      "feature": "dpdp-006_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 13,
-      "feature": "dpdp-007_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 14,
-      "feature": "dpdp-008_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 15,
-      "feature": "dpdp-009_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 16,
-      "feature": "dpdp-010_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 17,
-      "feature": "dpdp-011_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 18,
-      "feature": "dpdp-012_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 19,
-      "feature": "dpdp-013_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 20,
-      "feature": "dpdp-014_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 21,
-      "feature": "avg_rule_weight",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 22,
-      "feature": "max_rule_weight",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 23,
-      "feature": "repeated_critical_flag",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 24,
-      "feature": "repeated_high_flag",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 25,
-      "feature": "high_or_critical_total",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 26,
-      "feature": "breach_delay_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 27,
-      "feature": "encryption_failure_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 28,
-      "feature": "unauthorized_access_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 29,
-      "feature": "third_party_sharing_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 30,
-      "feature": "retention_violation_count",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    },
-    {
-      "rank": 31,
-      "feature": "grievance_missing_flag",
-      "importance": 0.0,
-      "normalized_importance": 0.0
-    }
-  ]
+  "feature_names": [
+    "n_violations",
+    "n_warnings",
+    "n_critical_rules_fired",
+    "n_high_rules_fired",
+    "breach_rule_fired",
+    "minor_data_rule_fired",
+    "max_rule_score",
+    "max_prevalence_ratio",
+    "consent_violation_count",
+    "retention_violation_count",
+    "encryption_violation_count",
+    "access_violation_count",
+    "policy_violation_count"
+  ],
+  "mean_abs_shap_values": {
+    "n_violations": 1.1261653900146484,
+    "n_warnings": 0.44011881947517395,
+    "n_critical_rules_fired": 0.13212814927101135,
+    "n_high_rules_fired": 0.6705201864242554,
+    "breach_rule_fired": 0.002700959565117955,
+    "minor_data_rule_fired": 0.026872720569372177,
+    "max_rule_score": 0.2969425320625305,
+    "max_prevalence_ratio": 0.5397980213165283,
+    "consent_violation_count": 0.20453201234340668,
+    "retention_violation_count": 0.13145136833190918,
+    "encryption_violation_count": 0.07616284489631653,
+    "access_violation_count": 0.0007918430492281914,
+    "policy_violation_count": 0.009210766293108463
+  },
+  "top_3_features": [
+    "n_violations",
+    "n_high_rules_fired",
+    "max_prevalence_ratio"
+  ],
+  "model_version": "xgboost_v1",
+  "trained_on_samples": 595
 }

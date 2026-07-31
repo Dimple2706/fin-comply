@@ -1,0 +1,16 @@
+security_id,customer_id,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_at,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag,additional_attributes
+SEC-GEN-070-d5f5b630b1e6,CUST-GEN-070-3a539beb107c,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-b3c44c7c3170,CUST-GEN-070-9ecc6ed8f31f,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-6dd5e347afac,CUST-GEN-070-28709e3d6597,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-c36c2ca58e21,CUST-GEN-070-9ad49b205b7d,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-9b5b29b6333d,CUST-GEN-070-eee8ca21459a,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-134ccfb0f861,CUST-GEN-070-b21964d7a225,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-04ec8daaf672,CUST-GEN-070-42fd7ccfbaf4,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-cfb4ffd0b7c9,CUST-GEN-070-eee8ca21459a,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-2afc63cc7db5,CUST-GEN-070-09ab8f0ab250,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-566cecc9ba04,CUST-GEN-070-ef9b54083b7d,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-84972d7d8f9e,CUST-GEN-070-110171e75930,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-a34229b533df,CUST-GEN-070-7a26e906cec9,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-e3e735438ace,CUST-GEN-070-8b32c5295bf9,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-9472c65fe0df,CUST-GEN-070-28709e3d6597,GEN-070,True,AES-256,False,,,,,False,{}
+SEC-GEN-070-53e1aa423bf6,CUST-GEN-070-9277650f73cc,GEN-070,True,AES-256,False,,,,,False,{}

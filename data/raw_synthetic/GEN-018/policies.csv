@@ -1,0 +1,11 @@
+policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
+POL-GEN-018-2d004a634686,GEN-018,encryption,Encryption Standards Policy,365,days,2024-07-14,2024-07-14,True,{}
+POL-GEN-018-a3b630ee7f38,GEN-018,retention,Data Retention Policy,365,days,2026-02-25,2026-02-25,True,{}
+POL-GEN-018-8116171186f0,GEN-018,consent,Consent Management Policy,365,days,2025-09-27,2025-09-27,True,{}
+POL-GEN-018-d76979be0484,GEN-018,consent,Consent Management Policy,365,days,2025-12-04,2025-12-04,True,{}
+POL-GEN-018-440beba754e2,GEN-018,access_control,Access Control Policy,365,days,2024-05-06,2024-05-06,True,{}
+POL-GEN-018-f78047c6885f,GEN-018,consent,Consent Management Policy,365,days,2024-05-10,2024-05-10,True,{}
+POL-GEN-018-ff528afa2dcd,GEN-018,retention,Data Retention Policy,365,days,2026-02-12,2026-02-12,True,{}
+POL-GEN-018-20f0f0a37f49,GEN-018,access_control,Access Control Policy,365,days,2024-07-29,2024-07-29,True,{}
+POL-GEN-018-4e758a9312a2,GEN-018,consent,Consent Management Policy,365,days,2026-03-22,2026-03-22,True,{}
+POL-GEN-018-b30d75a3737d,GEN-018,access_control,Access Control Policy,365,days,2026-05-01,2026-05-01,True,{}

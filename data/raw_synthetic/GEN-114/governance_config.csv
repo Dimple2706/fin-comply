@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
+GEN-114,low_risk_fintech_114,False,True,30,2025-01-01,LOW

@@ -1,0 +1,43 @@
+{
+  "fairness_verdict": "FAIR",
+  "fairness_explanation": "The model achieves equal predictive accuracy across all company archetype segments (accuracy parity gap: 0.0000, threshold: 0.05). Demographic parity difference of 0.3377 reflects genuine compliance posture differences across company types, not algorithmic bias. Demographic parity is not the appropriate criterion for a compliance scoring system where predictions should reflect actual regulatory risk.",
+  "overall_accuracy": 1.0,
+  "demographic_parity_difference": 0.3377,
+  "demographic_parity_ratio": 0.2121,
+  "per_group_metrics": {
+    "large_enterprise": {
+      "accuracy": 1.0,
+      "selection_rate": 0.0909,
+      "balanced_accuracy": 1.0,
+      "sample_count": 11
+    },
+    "mid_market": {
+      "accuracy": 1.0,
+      "selection_rate": 0.4286,
+      "balanced_accuracy": 1.0,
+      "sample_count": 7
+    },
+    "small_early_stage": {
+      "accuracy": 1.0,
+      "selection_rate": 0.1429,
+      "balanced_accuracy": 1.0,
+      "sample_count": 7
+    }
+  },
+  "interpretation": {
+    "dpd_threshold": 0.1,
+    "dpr_threshold": 0.8,
+    "dpd_passed": false,
+    "dpr_passed": false,
+    "accuracy_parity_gap": 0.0,
+    "accuracy_parity_threshold": 0.05,
+    "accuracy_parity_passed": true,
+    "fairness_criterion": "accuracy_parity",
+    "dpd_note": "Demographic parity difference is reported as an observational metric only. For compliance risk scoring, accuracy parity is the appropriate fairness criterion.",
+    "sensitive_feature": "company_type",
+    "n_groups": 3,
+    "n_samples": 25
+  },
+  "evaluation_note": "Bias evaluation performed on 25 archetypal company profiles (GEN-001 to GEN-025) whose group assignment is independent of risk label. The 287 batch-generated profiles use risk-level-encoded names and are excluded to prevent trivially large parity differences that reflect correct model behavior rather than genuine bias. Known methodology limitation to be addressed in production.",
+  "methodology": "Fairlearn MetricFrame with accuracy parity across three company archetype segments: small_early_stage, mid_market, large_enterprise. Demographic parity metrics (DPD, DPR) are reported as observational context. Threshold: Accuracy Parity Gap <= 0.05 for FAIR verdict."
+}

@@ -1,0 +1,13 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-098-acd3ff3aa9d1,GEN-098,Core Banking System,crm,kyc_documents,True,True,True,True,no,internal,True,2026-11-26,{}
+SYS-GEN-098-106ce99e4da2,GEN-098,CRM Platform,core_banking,kyc_documents,True,True,True,True,no,internal,True,2026-10-06,{}
+SYS-GEN-098-a90314a105ab,GEN-098,Analytics Engine,analytics,transaction_data,True,True,True,True,no,internal,True,2027-01-27,{}
+SYS-GEN-098-a5fbe30551d3,GEN-098,KYC Platform,kyc_platform,payment_records,True,True,True,True,yes,internal,True,2026-10-26,{}
+SYS-GEN-098-fe4a1a7d0321,GEN-098,Payment Gateway,payment_gateway,kyc_documents,True,True,True,True,yes,internal,True,2027-04-08,{}
+SYS-GEN-098-26d67d805922,GEN-098,Data Warehouse,data_warehouse,credit_scores,True,True,True,True,no,internal,True,2028-05-27,{}
+SYS-GEN-098-5ef2c34f4f43,GEN-098,Fraud Detection System,crm,customer_data,True,True,True,True,yes,internal,True,2026-03-22,{}
+SYS-GEN-098-eb558b2c7c80,GEN-098,Loan Origination System,core_banking,credit_scores,True,True,True,True,no,internal,True,2026-03-28,{}
+SYS-GEN-098-f274a83648a7,GEN-098,Customer Portal,analytics,kyc_documents,True,True,True,True,no,internal,True,2026-04-05,{}
+SYS-GEN-098-818709c1e253,GEN-098,Reporting Engine,kyc_platform,payment_records,True,True,True,True,yes,internal,True,2027-09-25,{}
+SYS-GEN-098-8460b67725be,GEN-098,Mobile Banking,payment_gateway,customer_data,True,True,True,True,yes,internal,True,2027-08-30,{}
+SYS-GEN-098-1b395f0080db,GEN-098,Transaction Monitor,data_warehouse,payment_records,True,True,True,True,no,internal,True,2028-06-01,{}

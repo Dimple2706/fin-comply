@@ -16,6 +16,12 @@ def _truncate_to_date(value: Any) -> Union[str, None]:
     if pd.isna(value):
         return None
     try:
+        if isinstance(value, str):
+            try:
+                return date.fromisoformat(value.strip().split(" ")[0].split("T")[0]).isoformat()
+            except ValueError:
+                pass
+        
         # Prefer pandas' flexible parser so both ISO and DD-MM-YYYY values work.
         dt = pd.to_datetime(value, errors="coerce", dayfirst=True)
         if not pd.isna(dt):
@@ -39,6 +45,12 @@ def _parse_date(value: Any) -> Union[date, None]:
     Parse CSV-provided date values using the same tolerance as truncation.
     Accepts ISO dates, DD-MM-YYYY, and timestamp strings with time parts.
     """
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value.split("T")[0])
+        except ValueError:
+            pass
+            
     date_text = _truncate_to_date(value)
     if not date_text:
         return None
@@ -432,6 +444,12 @@ def _truncate_timestamp(ts: str) -> str:
     """
     if not ts:
         return None
+    if isinstance(ts, str):
+        try:
+            return date.fromisoformat(ts.strip().split(" ")[0].split("T")[0]).isoformat()
+        except ValueError:
+            pass
+            
     parsed = pd.to_datetime(ts, errors="coerce", dayfirst=True)
     if not pd.isna(parsed):
         return parsed.date().isoformat()
@@ -753,7 +771,14 @@ def map_dsar_requests(logs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             
         tenant_id = log["tenant_id"]
         sub_date_str = _truncate_timestamp(log.get("timestamp"))
-        sub_date = pd.to_datetime(sub_date_str, errors="coerce", dayfirst=True).date() if sub_date_str else datetime.date.today()
+        if sub_date_str:
+            try:
+                sub_date = date.fromisoformat(sub_date_str)
+            except ValueError:
+                sub_date = pd.to_datetime(sub_date_str, errors="coerce", dayfirst=True).date() if sub_date_str else datetime.date.today()
+        else:
+            sub_date = datetime.date.today()
+            
         if pd.isna(sub_date):
             sub_date = datetime.date.today()
         

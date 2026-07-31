@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
+GEN-008,insider_threat_prone,True,False,90,2024-01-01,HIGH

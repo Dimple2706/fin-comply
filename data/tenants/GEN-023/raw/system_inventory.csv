@@ -1,0 +1,13 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-023-39adf759c3c5,GEN-023,Core Banking System,crm,transaction_data,True,True,True,True,yes,internal,False,,{}
+SYS-GEN-023-5ed3a29570e1,GEN-023,CRM Platform,core_banking,payment_records,True,True,True,True,yes,third_party_processor,True,2026-11-13,{}
+SYS-GEN-023-ba9cd2875cf3,GEN-023,Analytics Engine,analytics,kyc_documents,True,True,True,True,no,third_party_processor,True,2027-04-28,{}
+SYS-GEN-023-369c2e150098,GEN-023,KYC Platform,kyc_platform,credit_scores,True,True,True,True,no,internal,True,2027-02-09,{}
+SYS-GEN-023-b5bc23552931,GEN-023,Payment Gateway,payment_gateway,kyc_documents,True,True,True,True,no,internal,True,2026-08-03,{}
+SYS-GEN-023-c5263ced47da,GEN-023,Data Warehouse,data_warehouse,kyc_documents,True,True,True,True,no,third_party_processor,True,2027-01-27,{}
+SYS-GEN-023-edffc2ddf72e,GEN-023,Fraud Detection System,crm,credit_scores,True,True,True,True,no,internal,True,2028-04-16,{}
+SYS-GEN-023-8f26c83dd05b,GEN-023,Loan Origination System,core_banking,kyc_documents,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-023-3691d8560cea,GEN-023,Customer Portal,analytics,payment_records,True,True,True,True,yes,internal,False,,{}
+SYS-GEN-023-d3b8d027a2cf,GEN-023,Reporting Engine,kyc_platform,transaction_data,True,True,True,True,no,internal,True,2027-08-18,{}
+SYS-GEN-023-4b3219399a60,GEN-023,Mobile Banking,payment_gateway,payment_records,True,True,True,True,yes,internal,False,,{}
+SYS-GEN-023-cc7f66afd84f,GEN-023,Transaction Monitor,data_warehouse,customer_data,True,True,True,True,no,third_party_processor,True,2028-04-13,{}

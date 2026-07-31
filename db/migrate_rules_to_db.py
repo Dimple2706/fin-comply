@@ -7,35 +7,52 @@ Postgres (clauses table first, then rules table).
 Run ONCE after create_tables.sql has been executed.
 
 Usage:
-    python migrate_rules_to_db.py
-    python migrate_rules_to_db.py --dry-run   # prints what would be inserted, no DB write
-    python migrate_rules_to_db.py --reset      # clears tables and re-inserts (dev only)
+    python db/migrate_rules_to_db.py
+    python db/migrate_rules_to_db.py --dry-run   # prints what would be inserted, no DB write
+    python db/migrate_rules_to_db.py --reset      # clears tables and re-inserts (dev only)
 
 Requirements:
-    pip install psycopg2-binary
+    pip install psycopg[binary]
 """
 
 import json
 import argparse
+import os
 import sys
 from pathlib import Path
-import psycopg2
-from psycopg2.extras import RealDictCursor, Json
 
-# ── Config ─────────────────────────────────────────────────────────────────────
-# Update these to match your existing DB connection
-DB_CONFIG = {
-    "host":     "localhost",
-    "port":     5432,
-    "dbname":   "tenant_db",          # your existing DB name
-    "user":     "postgres",          # your DB user
-    "password": "rasika23",     # your DB password
-}
+import psycopg
+from psycopg.rows import dict_row
+from psycopg.types.json import Jsonb
+from dotenv import load_dotenv
 
-# Paths — adjust if your files are in a different directory
-RULES_JSON   = Path(r"C:\Users\Rasika\Documents\compliance_sys\data\dpdp_kb\dpdp_rules.json")
-CLAUSES_JSON = Path(r"C:\Users\Rasika\Documents\compliance_sys\data\dpdp_kb\clauses.json")
+load_dotenv()
+
+# ── Paths ──────────────────────────────────────────────────────────────────────
+BASE = Path(__file__).resolve().parent.parent
+RULES_JSON   = BASE / "data" / "dpdp_kb" / "dpdp_rules.json"
+CLAUSES_JSON = BASE / "data" / "dpdp_kb" / "clauses.json"
+
+# ── DB Config (matches db_connection.py pattern) ──────────────────────────────
+DB_HOST     = os.getenv("DB_HOST", "localhost")
+DB_PORT     = os.getenv("DB_PORT", "5432")
+DB_NAME     = os.getenv("DB_NAME", "tenant_db")
+DB_USER     = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "rasika23")
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+def get_connection() -> psycopg.Connection:
+    """Connect using psycopg v3, matching the db_connection.py pattern."""
+    return psycopg.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        row_factory=dict_row,
+        autocommit=False,
+    )
 
 
 def load_json(path: Path) -> list[dict]:
@@ -97,21 +114,21 @@ def insert_clause(cur, clause: dict, dry_run: bool) -> None:
     params = {
         "clause_id":               clause["clause_id"],
         "legal_title":             clause["legal_title"],
-        "dpdp_section":            Json(clause["dpdp_section"]),
+        "dpdp_section":            Jsonb(clause["dpdp_section"]),
         "legal_text":              clause["legal_text"],
         "plain_english_obligation": clause["plain_english_obligation"],
         "severity_weight":         clause["severity_weight"],
-        "evidence_required":       Json(clause["evidence_required"]),
-        "signal_mapping":          Json(clause["signal_mapping"]),
+        "evidence_required":       Jsonb(clause["evidence_required"]),
+        "signal_mapping":          Jsonb(clause["signal_mapping"]),
         "penalty_tier":            clause["penalty_tier"],
         "max_penalty_crore":       clause["max_penalty_crore"],
-        "keywords":                Json(clause["keywords"]),
+        "keywords":                Jsonb(clause["keywords"]),
     }
     if dry_run:
-        print(f"  [DRY RUN] Would insert clause: {clause['clause_id']} — {clause['legal_title']}")
+        print(f"  [DRY RUN] Would insert clause: {clause['clause_id']} - {clause['legal_title']}")
     else:
         cur.execute(sql, params)
-        print(f"  ✓ Clause inserted/updated: {clause['clause_id']}")
+        print(f"  OK Clause inserted/updated: {clause['clause_id']}")
 
 
 def insert_rule(cur, rule: dict, dry_run: bool) -> None:
@@ -159,9 +176,9 @@ def insert_rule(cur, rule: dict, dry_run: bool) -> None:
         "check_type":          rule.get("check_type", "weighted_evidence"),
         "assigned_agent":      rule["assigned_agent"],
         "primary_table":       rule["primary_table"],
-        "join_tables":         Json(rule.get("join_tables", [])),
+        "join_tables":         Jsonb(rule.get("join_tables", [])),
         "join_key":            rule.get("join_key"),        # None → NULL
-        "evidence_signals":    Json(rule["evidence_signals"]),
+        "evidence_signals":    Jsonb(rule["evidence_signals"]),
         "violation_threshold": rule["violation_threshold"],
         "risk_threshold":      rule["risk_threshold"],
         "recurrence_bonus":    rule.get("recurrence_bonus", 0.0),
@@ -170,15 +187,15 @@ def insert_rule(cur, rule: dict, dry_run: bool) -> None:
         "approved_by":         "migration_script",           # marks these as seeded, not human-reviewed
     }
     if dry_run:
-        print(f"  [DRY RUN] Would insert rule: {rule['rule_id']} — {rule['rule_name']}")
+        print(f"  [DRY RUN] Would insert rule: {rule['rule_id']} - {rule['rule_name']}")
     else:
         cur.execute(sql, params)
-        print(f"  ✓ Rule inserted/updated: {rule['rule_id']}")
+        print(f"  OK Rule inserted/updated: {rule['rule_id']}")
 
 
 def reset_tables(cur) -> None:
     """Dev-only: clears tables so migration can be re-run cleanly."""
-    print("  ⚠ Resetting rules and clauses tables...")
+    print("  WARNING Resetting rules and clauses tables...")
     cur.execute("TRUNCATE rules RESTART IDENTITY CASCADE;")
     cur.execute("TRUNCATE clauses RESTART IDENTITY CASCADE;")
     print("  Tables cleared.")
@@ -206,23 +223,23 @@ def main():
         try:
             validate_signals(rule)
             validate_thresholds(rule)
-            print(f"  ✓ {rule['rule_id']} — signals and thresholds OK")
+            print(f"  OK {rule['rule_id']} - signals and thresholds OK")
         except ValueError as e:
             errors.append(str(e))
-            print(f"  ✗ {e}")
+            print(f"  FAIL {e}")
 
     if errors:
         print(f"\n{len(errors)} validation error(s) found. Fix before migrating.\n")
         sys.exit(1)
 
     if args.dry_run:
-        print("\n── DRY RUN — no changes will be written to the database ──")
+        print("\n-- DRY RUN - no changes will be written to the database --")
 
     # ── Connect and run ───────────────────────────────────────────────────────
+    conn = None
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        conn.autocommit = False
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        conn = get_connection()
+        cur = conn.cursor()
 
         if args.reset and not args.dry_run:
             reset_tables(cur)
@@ -239,16 +256,16 @@ def main():
 
         if not args.dry_run:
             conn.commit()
-            print(f"\n✅ Migration complete — {len(clauses)} clause(s), {len(rules)} rule(s) written.")
+            print(f"\nDONE Migration complete - {len(clauses)} clause(s), {len(rules)} rule(s) written.")
         else:
-            print(f"\n✅ Dry run complete — {len(clauses)} clause(s), {len(rules)} rule(s) previewed.")
+            print(f"\nDONE Dry run complete - {len(clauses)} clause(s), {len(rules)} rule(s) previewed.")
 
         cur.close()
         conn.close()
 
-    except psycopg2.Error as e:
-        print(f"\n✗ DB error: {e}")
-        if not args.dry_run:
+    except psycopg.Error as e:
+        print(f"\nERROR DB error: {e}")
+        if conn and not args.dry_run:
             conn.rollback()
         sys.exit(1)
 

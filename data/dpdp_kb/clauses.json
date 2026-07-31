@@ -1,0 +1,342 @@
+[
+  {
+    "clause_id": "DPDP-001",
+    "legal_title": "Consent for Processing Personal Data",
+    "dpdp_section": ["Section 6(1)", "Section 5"],
+    "legal_text": "Personal data shall be processed only upon obtaining consent of the Data Principal after providing notice.",
+    "plain_english_obligation": "Obtain valid, unexpired, purpose-specific consent before any processing event.",
+    "severity_weight": 0.9,
+    "evidence_required": [
+      "consent_status",
+      "expiry_timestamp",
+      "consented_purpose",
+      "is_bundled",
+      "processing_purpose"
+    ],
+    "signal_mapping": {
+      "S1": "Consent must be in active state — expired, revoked or withdrawn consent is legally invalid",
+      "S2": "Consent must not have lapsed before the processing timestamp — stale consent reuse is a Section 6 violation",
+      "S3": "Processing purpose must exactly match the purpose for which consent was obtained",
+      "S4": "Consent must be standalone — consent bundled with service terms is void under Section 6(2)"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["consent", "processing", "lawful", "purpose", "expiry", "withdrawal"]
+  },
+  {
+    "clause_id": "DPDP-002",
+    "legal_title": "Purpose Limitation",
+    "dpdp_section": ["Section 5"],
+    "legal_text": "Notice must specify the purpose of processing and data must only be used for that purpose.",
+    "plain_english_obligation": "Data must only be used for the purpose the user was notified of and agreed to.",
+    "severity_weight": 0.85,
+    "evidence_required": [
+      "processing_purpose",
+      "consented_purpose",
+      "consent_version",
+      "notice_provided"
+    ],
+    "signal_mapping": {
+      "S1": "Processing purpose must not deviate from the consented purpose — any mismatch is a Section 5 violation",
+      "S2": "Consent version must match the current policy version — outdated consent may not cover new purposes",
+      "S3": "A notice specifying the processing purpose must have been provided before consent was collected"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["purpose", "consent", "usage", "notice", "limitation"]
+  },
+  {
+    "clause_id": "DPDP-003",
+    "legal_title": "Storage Limitation",
+    "dpdp_section": ["Section 8(7)"],
+    "legal_text": "Personal data shall be erased as soon as it is reasonable to assume that the purpose is no longer being served.",
+    "plain_english_obligation": "Data must not be kept longer than necessary; delete when the purpose has been served.",
+    "severity_weight": 0.8,
+    "evidence_required": [
+      "retention_expiry_date",
+      "retention_status",
+      "legal_hold_flag"
+    ],
+    "signal_mapping": {
+      "S1": "Retention expiry date has passed — continued retention beyond this date violates Section 8(7)",
+      "S2": "Retention status of expired or pending_deletion with no action taken indicates a process failure",
+      "S3": "Absence of a legal hold means no legitimate ground exists for extending retention beyond expiry"
+    },
+    "penalty_tier": "TIER_2",
+    "max_penalty_crore": 200,
+    "keywords": ["retention", "storage", "expiry", "deletion", "erasure"]
+  },
+  {
+    "clause_id": "DPDP-004",
+    "legal_title": "Notice to Data Principal",
+    "dpdp_section": ["Section 5"],
+    "legal_text": "A notice must be given to the Data Principal describing personal data and purpose before consent.",
+    "plain_english_obligation": "Users must be clearly informed about what data is collected and why before giving consent.",
+    "severity_weight": 0.6,
+    "evidence_required": [
+      "notice_provided",
+      "consent_channel"
+    ],
+    "signal_mapping": {
+      "S1": "Notice must be provided before data collection — absence of notice makes subsequent consent uninformed",
+      "S2": "Consent channel must not be implicit or pre-ticked — these channels cannot deliver adequate notice"
+    },
+    "penalty_tier": "TIER_3",
+    "max_penalty_crore": 50,
+    "keywords": ["notice", "transparency", "informed", "data principal"]
+  },
+  {
+    "clause_id": "DPDP-005",
+    "legal_title": "Children's Data Protection",
+    "dpdp_section": ["Section 9(1)"],
+    "legal_text": "Processing of personal data of children requires verifiable consent of the parent or lawful guardian.",
+    "plain_english_obligation": "Children's data cannot be processed without verified guardian consent — highest protection tier.",
+    "severity_weight": 1.0,
+    "evidence_required": [
+      "is_minor",
+      "guardian_consent_id",
+      "consent_status"
+    ],
+    "signal_mapping": {
+      "S1": "Customer is flagged as a minor — Section 9 mandatory safeguards apply immediately",
+      "S2": "No guardian consent record is linked to this minor's account — processing is unauthorised",
+      "S3": "Even where a consent record exists, it must be in active state — expired guardian consent is invalid"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["children", "guardian", "minor", "consent", "parental"]
+  },
+  {
+    "clause_id": "DPDP-006",
+    "legal_title": "Third-Party Data Sharing",
+    "dpdp_section": ["Section 6"],
+    "legal_text": "Consent must be obtained for each specific purpose including sharing with third parties.",
+    "plain_english_obligation": "Data cannot be shared with third parties without specific consent and a valid Data Processing Agreement.",
+    "severity_weight": 0.9,
+    "evidence_required": [
+      "shared_with_third_party",
+      "consented_purpose",
+      "dpa_signed",
+      "is_cross_border"
+    ],
+    "signal_mapping": {
+      "S1": "Data was shared with a third party — this event requires explicit consent for sharing",
+      "S2": "Consented purpose does not include third-party sharing — sharing exceeds the consent scope",
+      "S3": "No signed DPA exists for the receiving processor — violates Section 8(2) processor accountability",
+      "S4": "Cross-border transfer invokes additional obligations under DPDP Chapter V"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["sharing", "third party", "DPA", "cross-border", "processor"]
+  },
+  {
+    "clause_id": "DPDP-007",
+    "legal_title": "Data Minimisation",
+    "dpdp_section": ["Section 4"],
+    "legal_text": "A person may process personal data only for lawful purposes and only such data as is necessary.",
+    "plain_english_obligation": "Collect and access only the minimum data required for the stated purpose.",
+    "severity_weight": 0.5,
+    "evidence_required": [
+      "data_volume_accessed",
+      "pii_stored",
+      "access_reason",
+      "processing_purpose"
+    ],
+    "signal_mapping": {
+      "S1": "High or bulk data volume accessed is disproportionate to any legitimate single-event purpose",
+      "S2": "System stores PII categories that exceed the scope of the declared processing purpose",
+      "S3": "Access reason does not align with processing purpose — suggests access beyond necessity"
+    },
+    "penalty_tier": "TIER_3",
+    "max_penalty_crore": 50,
+    "keywords": ["minimisation", "collection", "necessity", "proportionality"]
+  },
+  {
+    "clause_id": "DPDP-008",
+    "legal_title": "Security Safeguards",
+    "dpdp_section": ["Section 8(5)"],
+    "legal_text": "The Data Fiduciary shall implement reasonable security safeguards to prevent personal data breach.",
+    "plain_english_obligation": "Personal data must be stored with adequate encryption and access controls.",
+    "severity_weight": 0.95,
+    "evidence_required": [
+      "pii_encrypted",
+      "encryption_enabled",
+      "encryption_type"
+    ],
+    "signal_mapping": {
+      "S1": "PII is stored without any encryption — a direct violation of Section 8(5) minimum safeguards",
+      "S2": "System-level encryption is disabled — structural security gap across all data in the system",
+      "S3": "Encryption algorithm is below the acceptable minimum standard — CERT-In requires AES-256 minimum"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["security", "encryption", "safeguards", "AES", "data protection"]
+  },
+  {
+    "clause_id": "DPDP-009",
+    "legal_title": "Grievance Redressal",
+    "dpdp_section": ["Section 13"],
+    "legal_text": "The Data Principal shall have the right to readily available means of grievance redressal.",
+    "plain_english_obligation": "Organizations must provide a reachable and functional grievance mechanism for Data Principals.",
+    "severity_weight": 0.3,
+    "evidence_required": [
+      "grievance_endpoint_available",
+      "dpo_assigned",
+      "dpo_contact_email"
+    ],
+    "signal_mapping": {
+      "S1": "No grievance endpoint is published — Data Principals have no means to raise complaints",
+      "S2": "No DPO is assigned — the accountability point for escalations is absent",
+      "S3": "DPO contact email is missing — even if a DPO exists, they are unreachable"
+    },
+    "penalty_tier": "TIER_3",
+    "max_penalty_crore": 10,
+    "keywords": ["grievance", "complaint", "DPO", "redressal", "rights"]
+  },
+  {
+    "clause_id": "DPDP-010",
+    "legal_title": "Right to Erasure",
+    "dpdp_section": ["Section 12(1)(b)"],
+    "legal_text": "The Data Principal shall have the right to correction and erasure of personal data.",
+    "plain_english_obligation": "User data must be deleted within the prescribed timeline when a valid erasure request is received.",
+    "severity_weight": 0.85,
+    "evidence_required": [
+      "erasure_requested",
+      "sla_breached",
+      "retention_status",
+      "legal_hold_flag"
+    ],
+    "signal_mapping": {
+      "S1": "An erasure request has been formally submitted by the Data Principal",
+      "S2": "SLA deadline for erasure fulfilment has been exceeded — this is a computable Section 12 violation",
+      "S3": "Data lifecycle record shows data has not reached deleted status despite an active erasure request",
+      "S4": "No legal hold exists — no legitimate ground exists to delay erasure"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["erasure", "deletion", "DSAR", "SLA", "right to erasure"]
+  },
+  {
+    "clause_id": "DPDP-011",
+    "legal_title": "Purpose Completion and Retention",
+    "dpdp_section": ["Section 8(7)"],
+    "legal_text": "Personal data shall be erased once the purpose is no longer being served.",
+    "plain_english_obligation": "Do not keep data after its original purpose has been completed.",
+    "severity_weight": 0.6,
+    "evidence_required": [
+      "purpose_completed",
+      "retention_status",
+      "legal_hold_flag"
+    ],
+    "signal_mapping": {
+      "S1": "Purpose has been marked as completed — the legal basis for continued retention has expired",
+      "S2": "Data is still in active retention despite purpose completion — inaction is a Section 8(7) violation",
+      "S3": "No legal hold justifies continued retention after the purpose has been served"
+    },
+    "penalty_tier": "TIER_2",
+    "max_penalty_crore": 200,
+    "keywords": ["retention", "purpose", "completion", "storage limitation"]
+  },
+  {
+    "clause_id": "DPDP-012",
+    "legal_title": "Accountability and Record Keeping",
+    "dpdp_section": ["Section 10"],
+    "legal_text": "Significant Data Fiduciaries must undertake measures such as audits and record keeping.",
+    "plain_english_obligation": "Organizations must maintain complete audit logs and conduct audits at the required frequency.",
+    "severity_weight": 0.55,
+    "evidence_required": [
+      "last_audit_date",
+      "audit_frequency_days",
+      "access_outcome",
+      "dpo_assigned"
+    ],
+    "signal_mapping": {
+      "S1": "Time elapsed since last audit exceeds the configured audit frequency — audit cadence is non-compliant",
+      "S2": "Access log records have missing outcome fields — log completeness does not meet Section 10 standards",
+      "S3": "No DPO assigned — oversight accountability for audit processes is absent"
+    },
+    "penalty_tier": "TIER_3",
+    "max_penalty_crore": 50,
+    "keywords": ["audit", "logs", "accountability", "record keeping", "DPO"]
+  },
+  {
+    "clause_id": "DPDP-013",
+    "legal_title": "Access Control and Authorised Processing",
+    "dpdp_section": ["Section 8(5)"],
+    "legal_text": "Security safeguards must ensure only authorized access to personal data.",
+    "plain_english_obligation": "Only employees with an authorised role and a valid business reason may access personal data.",
+    "severity_weight": 0.9,
+    "evidence_required": [
+      "employee_role",
+      "accessed_pii",
+      "access_outcome",
+      "data_volume_accessed"
+    ],
+    "signal_mapping": {
+      "S1": "Employee role is not in the authorised roles list for accessing PII — role-based access control failure",
+      "S2": "PII was accessed in this event — confirms that personal data was actually exposed",
+      "S3": "Access was denied yet the event is logged — repeated denied attempts indicate probing or misconfiguration",
+      "S4": "High or bulk data volume accessed by a single employee — insider threat pattern requiring investigation"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["access control", "authorisation", "role", "PII", "insider threat"]
+  },
+  {
+    "clause_id": "DPDP-014",
+    "legal_title": "Breach Notification",
+    "dpdp_section": ["Section 8(6)"],
+    "legal_text": "In the event of a personal data breach, the Data Fiduciary shall notify the Board and affected individuals.",
+    "plain_english_obligation": "Data breaches must be reported to the Data Protection Board and affected users without undue delay.",
+    "severity_weight": 0.95,
+    "evidence_required": [
+      "breach_detected",
+      "notification_delay_hours",
+      "breach_confirmed_at",
+      "affected_user_count"
+    ],
+    "signal_mapping": {
+      "S1": "A personal data breach has been detected — notification obligations under Section 8(6) are triggered",
+      "S2": "Notification delay exceeds 72 hours from confirmation — violates CERT-In Directions 2022 and Section 8(6)",
+      "S3": "Breach confirmation timestamp is missing — the notification clock cannot be verified or defended",
+      "S4": "Large or critical number of Data Principals affected — elevated regulatory scrutiny and penalty exposure"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["breach", "notification", "CERT-In", "Data Protection Board", "incident"]
+  },
+  {
+    "clause_id": "DPDP-015",
+    "legal_title": "Cross-Border Data Transfer",
+    "dpdp_section": ["Section 16", "Section 17"],
+    "legal_text": "The Central Government may restrict transfer of personal data to countries outside India.",
+    "plain_english_obligation": "Personal data may only be transferred outside India to approved countries with adequate safeguards.",
+    "severity_weight": 0.85,
+    "evidence_required": ["is_cross_border", "transfer_country", "dpa_signed"],
+    "signal_mapping": {
+      "S1": "Cross-border flag confirms this is an international data transfer — Chapter V applies",
+      "S2": "Destination country is not on the approved list — transfer may be prohibited",
+      "S3": "No DPA governs the transfer — no contractual safeguards exist for the receiving party"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["cross-border", "transfer", "Chapter V", "adequacy", "international"]
+  },
+  {
+    "clause_id": "DPDP-016",
+    "legal_title": "Data Processor Accountability",
+    "dpdp_section": ["Section 8(2)"],
+    "legal_text": "The Data Fiduciary shall be responsible for ensuring that the Data Processor processes data only as instructed and with adequate safeguards.",
+    "plain_english_obligation": "Every third-party processor must have a signed, valid Data Processing Agreement before handling personal data.",
+    "severity_weight": 0.85,
+    "evidence_required": ["dpa_signed", "dpa_expiry_date", "pii_stored"],
+    "signal_mapping": {
+      "S1": "No DPA signed — the fiduciary has no contractual basis for delegating processing to this party",
+      "S2": "DPA has expired — the legal framework governing this processor relationship has lapsed",
+      "S3": "Processor stores PII without a governing agreement — liability transfers directly to the fiduciary"
+    },
+    "penalty_tier": "TIER_1",
+    "max_penalty_crore": 250,
+    "keywords": ["processor", "DPA", "accountability", "third party", "Section 8(2)"]
+  }
+]

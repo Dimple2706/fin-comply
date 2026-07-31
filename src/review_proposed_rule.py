@@ -146,7 +146,12 @@ def cmd_review(proposal_id: int):
     if action == "A":
         notes = input("Approval notes (optional): ").strip() or None
         try:
-            activate_rule(proposal_id, reviewer, conn, notes)
+            rule_id = activate_rule(proposal_id, reviewer, conn, notes)
+            from src.governance.audit_logger import log_event, RULE_APPROVED
+            log_event(
+              RULE_APPROVED,
+              details={'rule_id': rule_id, 'approved_by': reviewer}
+            )
         except ValueError as e:
             print(f"\n✗ Activation failed: {e}")
 
@@ -156,6 +161,11 @@ def cmd_review(proposal_id: int):
             print("Rejection reason required.")
         else:
             reject_proposal(proposal_id, reviewer, notes, conn)
+            from src.governance.audit_logger import log_event, RULE_REJECTED
+            log_event(
+              RULE_REJECTED,
+              details={'rule_id': rule.get('rule_id', 'unknown'), 'rejected_by': reviewer}
+            )
 
     else:
         print("No action taken.")

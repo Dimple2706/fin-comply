@@ -1,0 +1,11 @@
+policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
+POL-GEN-183-3adebb3c9e97,GEN-183,access_control,Access Control Policy,365,days,2026-02-01,2026-02-01,True,{}
+POL-GEN-183-e32f92b9a76f,GEN-183,access_control,Access Control Policy,365,days,2024-04-18,2024-04-18,True,{}
+POL-GEN-183-a71c78a4d59e,GEN-183,access_control,Access Control Policy,365,days,2024-02-04,2024-02-04,True,{}
+POL-GEN-183-ef7c66d6ad81,GEN-183,access_control,Access Control Policy,365,days,2024-04-28,2024-04-28,True,{}
+POL-GEN-183-f9c37b0615cc,GEN-183,access_control,Access Control Policy,365,days,2026-02-18,2026-02-18,True,{}
+POL-GEN-183-ba0004687f4b,GEN-183,access_control,Access Control Policy,365,days,2025-08-16,2025-08-16,True,{}
+POL-GEN-183-9d628be19448,GEN-183,access_control,Access Control Policy,365,days,2024-07-16,2024-07-16,True,{}
+POL-GEN-183-2e85c07df9ad,GEN-183,access_control,Access Control Policy,365,days,2026-03-14,2026-03-14,True,{}
+POL-GEN-183-577d2e158e1c,GEN-183,access_control,Access Control Policy,365,days,2024-12-10,2024-12-10,True,{}
+POL-GEN-183-1d391fd534fc,GEN-183,access_control,Access Control Policy,365,days,2024-01-03,2024-01-03,True,{}

@@ -1,0 +1,11 @@
+policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
+POL-GEN-006-ec5b15f86dbb,GEN-006,access_control,Access Control Policy,365,days,2026-05-30,2026-05-30,True,{}
+POL-GEN-006-14c1a23d865f,GEN-006,consent,Consent Management Policy,365,days,2024-04-22,2024-04-22,True,{}
+POL-GEN-006-f49b20fc9629,GEN-006,retention,Data Retention Policy,365,days,2025-01-03,2025-01-03,True,{}
+POL-GEN-006-83efbbbd5177,GEN-006,consent,Consent Management Policy,365,days,2025-12-28,2025-12-28,True,{}
+POL-GEN-006-3e493a4c34c4,GEN-006,retention,Data Retention Policy,365,days,2024-01-11,2024-01-11,True,{}
+POL-GEN-006-0984dc38f401,GEN-006,consent,Consent Management Policy,365,days,2026-01-23,2026-01-23,True,{}
+POL-GEN-006-77043704a18f,GEN-006,consent,Consent Management Policy,365,days,2024-01-14,2024-01-14,True,{}
+POL-GEN-006-d0c6d1416eee,GEN-006,retention,Data Retention Policy,365,days,2025-10-11,2025-10-11,True,{}
+POL-GEN-006-9120f2145357,GEN-006,retention,Data Retention Policy,365,days,2024-02-21,2024-02-21,True,{}
+POL-GEN-006-7a4e43461be0,GEN-006,retention,Data Retention Policy,365,days,2026-01-01,2026-01-01,True,{}

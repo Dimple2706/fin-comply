@@ -94,6 +94,21 @@ class RiskScore(BaseModel):
     tier:  str
 
 
+# ── ML Layer Output ────────────────────────────────────────
+
+class MLLayerOutput(BaseModel):
+    ml_available: bool
+    predicted_tier: Optional[str] = None
+    predicted_tier_int: Optional[int] = None
+    probabilities: Optional[Dict[str, float]] = None
+    feature_vector: Optional[Dict[str, float]] = None
+    shap_explanation: Optional[Dict] = None
+    lime_explanation: Optional[Dict] = None
+    model_version: Optional[str] = None
+    agrees_with_deterministic: Optional[bool] = None
+    reason: Optional[str] = None
+
+
 # ── Full API Response ────────────────────────────────────
 
 class AnalyzeResponse(BaseModel):
@@ -116,3 +131,4 @@ class AnalyzeResponse(BaseModel):
     risk_contributions:           Dict[str, float] = {}
     remediation_priority:         List[RemediationItem] = []
     total_penalty_exposure_crore: int = 0
+    ml_layer:                     Optional[MLLayerOutput] = None

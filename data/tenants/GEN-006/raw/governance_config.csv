@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
+GEN-006,dsar_failing_fintech,False,False,180,2024-06-01,HIGH

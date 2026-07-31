@@ -1,0 +1,13 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-145-f26acdb177a6,GEN-145,Core Banking System,crm,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-e868e5ad4c6f,GEN-145,CRM Platform,core_banking,credit_scores,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-145-2f0bf4d11c47,GEN-145,Analytics Engine,analytics,customer_data,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-47c2c584e499,GEN-145,KYC Platform,kyc_platform,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-71ab3d53a42e,GEN-145,Payment Gateway,payment_gateway,credit_scores,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-145-722e583593ab,GEN-145,Data Warehouse,data_warehouse,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-4861099b703c,GEN-145,Fraud Detection System,crm,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-30216211920b,GEN-145,Loan Origination System,core_banking,credit_scores,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-7e68bee09954,GEN-145,Customer Portal,analytics,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-d7bbe15c2e09,GEN-145,Reporting Engine,kyc_platform,transaction_data,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-145-eadb5e5b56c7,GEN-145,Mobile Banking,payment_gateway,kyc_documents,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-145-8bb140af45e3,GEN-145,Transaction Monitor,data_warehouse,kyc_documents,True,True,True,True,yes,third_party_processor,False,,{}

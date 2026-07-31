@@ -1,0 +1,6 @@
+dsar_id,customer_id,tenant_id,request_type,submitted_at,acknowledged_at,sla_due_date,sla_breached,fulfillment_status,rejection_reason,additional_attributes
+DSAR-GEN-308-aa325c842b9e,CUST-GEN-308-bf1b0e7f1e2e,GEN-308,access,2025-02-11T12:49:00,2024-12-22T23:23:00,2025-03-13,False,pending,,{}
+DSAR-GEN-308-43c8b651650e,CUST-GEN-308-95086a3fe689,GEN-308,access,2026-01-04T09:03:00,2026-05-28T13:08:00,2026-02-03,False,pending,,{}
+DSAR-GEN-308-ae29b355a7eb,CUST-GEN-308-947986e0641f,GEN-308,access,2024-03-02T18:55:00,2024-02-04T03:30:00,2024-04-01,False,pending,,{}
+DSAR-GEN-308-2b79b28b3312,CUST-GEN-308-5be2fbfcfad5,GEN-308,access,2024-11-06T03:05:00,2024-12-29T01:42:00,2024-12-06,False,pending,,{}
+DSAR-GEN-308-22095c574a8f,CUST-GEN-308-4e6747149819,GEN-308,access,2025-10-06T03:49:00,2025-06-28T16:15:00,2025-11-05,False,pending,,{}

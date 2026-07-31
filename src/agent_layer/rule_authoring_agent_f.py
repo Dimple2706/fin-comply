@@ -148,6 +148,15 @@ def save_proposal(
     conn.commit()
     proposal_id = row["id"]
 
+    from src.governance.audit_logger import log_event, RULE_PROPOSED
+    log_event(
+      RULE_PROPOSED,
+      details={
+        'proposed_rule_id': proposal_id,
+        'source': 'gemini_rule_authoring_agent'
+      }
+    )
+
     print(f"\n── Proposal saved (id={proposal_id}) ──")
     print(f"  Rule ID   : {proposed_rule.get('rule_id')}")
     print(f"  Rule Name : {proposed_rule.get('rule_name')}")

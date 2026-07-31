@@ -1,0 +1,16 @@
+security_id,customer_id,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_at,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag,additional_attributes
+SEC-GEN-129-e36603b4f0e2,CUST-GEN-129-9bb54a24e09d,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-c43e65e6531d,CUST-GEN-129-fe2b3324690a,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-841c603e0121,CUST-GEN-129-040b3a753f55,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-3b83e327c0f5,CUST-GEN-129-39076f69e6ef,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-becd112b9b41,CUST-GEN-129-d50ac587c8b5,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-0513bcc75dd9,CUST-GEN-129-e0e84e7a20b6,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-9a18537bd9e2,CUST-GEN-129-a34cef2b5c54,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-c23aa7eba896,CUST-GEN-129-39076f69e6ef,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-d85487b91c30,CUST-GEN-129-a08f15b5ddc5,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-b4476a115f34,CUST-GEN-129-526709a4dc3f,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-56a5cecb5523,CUST-GEN-129-d50ac587c8b5,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-f4574c3bd34c,CUST-GEN-129-983e47b522d7,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-743397b0e2f4,CUST-GEN-129-d50ac587c8b5,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-dedde3acc074,CUST-GEN-129-5fd075544e1a,GEN-129,True,AES-256,False,,,,,False,{}
+SEC-GEN-129-532c3eeda62c,CUST-GEN-129-5193e774ce13,GEN-129,True,AES-256,False,,,,,False,{}

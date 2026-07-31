@@ -1,0 +1,13 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-038-251135fdbf57,GEN-038,Core Banking System,crm,payment_records,True,True,True,True,yes,internal,True,2026-08-26,{}
+SYS-GEN-038-3a05d8103152,GEN-038,CRM Platform,core_banking,kyc_documents,True,True,True,True,yes,internal,True,2027-06-03,{}
+SYS-GEN-038-d8a5ff0126c7,GEN-038,Analytics Engine,analytics,kyc_documents,True,True,True,True,yes,internal,True,2028-01-30,{}
+SYS-GEN-038-6292f4126c0c,GEN-038,KYC Platform,kyc_platform,kyc_documents,True,True,True,True,no,internal,True,2027-08-31,{}
+SYS-GEN-038-c3b832b28ed2,GEN-038,Payment Gateway,payment_gateway,credit_scores,True,True,True,True,yes,internal,True,2028-02-11,{}
+SYS-GEN-038-ba2d15e02529,GEN-038,Data Warehouse,data_warehouse,payment_records,True,True,True,True,no,internal,True,2027-02-23,{}
+SYS-GEN-038-82adb92cb38d,GEN-038,Fraud Detection System,crm,customer_data,True,True,True,True,yes,internal,True,2028-05-30,{}
+SYS-GEN-038-9b03560ab2ae,GEN-038,Loan Origination System,core_banking,customer_data,True,True,True,True,no,internal,True,2028-02-23,{}
+SYS-GEN-038-192a1d63b8c7,GEN-038,Customer Portal,analytics,credit_scores,True,True,True,True,yes,internal,True,2026-01-02,{}
+SYS-GEN-038-ce5df52e45a4,GEN-038,Reporting Engine,kyc_platform,payment_records,True,True,True,True,no,internal,True,2026-08-07,{}
+SYS-GEN-038-be63bb66d09c,GEN-038,Mobile Banking,payment_gateway,transaction_data,True,True,True,True,yes,internal,True,2028-05-11,{}
+SYS-GEN-038-f4e206d2bd3a,GEN-038,Transaction Monitor,data_warehouse,credit_scores,True,True,True,True,no,internal,True,2026-10-22,{}

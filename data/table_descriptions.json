@@ -1,0 +1,21 @@
+{
+  "customer_master": "Stores identity and classification data for each customer including whether they are a minor, their account status, KYC verification status, and country of residence. Central reference table for all personal data subjects.",
+  
+  "consent_records": "Stores consent events given by customers including consent status, expiry date, the specific purpose consented to, whether notice was provided, the consent channel used, whether consent was bundled with terms, and guardian consent for minors.",
+  
+  "transaction_events": "Stores data processing events including the processing purpose, whether data was shared with third parties, cross-border transfer flags, destination country, and the consent record linked to each processing event.",
+  
+  "access_logs": "Stores employee access events to personal data including the employee role, whether PII was accessed, the reason for access, access outcome, and volume of data accessed. Used for insider threat and access control auditing.",
+  
+  "data_lifecycle": "Stores retention and deletion records for personal data categories including retention expiry dates, current retention status, whether the processing purpose has been completed, legal hold flags, and erasure request tracking.",
+  
+  "security_events": "Stores security incident records including breach detection flags, PII encryption status, encryption type used, breach confirmation timestamps, notification delay hours, and count of affected data principals.",
+  
+  "dsar_requests": "Stores Data Subject Access Requests from customers including request type, submission date, SLA breach status, acknowledgement date, fulfilment status, and rejection reasons.",
+  
+  "governance_config": "Stores organisational governance configuration including whether a Data Protection Officer is assigned, grievance endpoint availability, last audit date, audit frequency, DPO contact details, and overall risk level classification.",
+  
+  "system_inventory": "Stores inventory of technical systems that process personal data including system type, whether PII is stored, encryption enablement and type, Data Processing Agreement status and expiry, and data processor classification.",
+  
+  "policies": "Stores the organisation's declared internal compliance policies including policy type, declared values for retention periods and encryption standards, consent channel declarations, active status, and effective dates."
+}

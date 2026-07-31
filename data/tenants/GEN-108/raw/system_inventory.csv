@@ -1,0 +1,13 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-108-304e43b60ab6,GEN-108,Core Banking System,crm,transaction_data,True,True,True,True,yes,internal,True,2026-05-04,{}
+SYS-GEN-108-8c7e9a0e39fc,GEN-108,CRM Platform,core_banking,transaction_data,True,True,True,True,yes,internal,True,2026-09-05,{}
+SYS-GEN-108-af1c9fe8b620,GEN-108,Analytics Engine,analytics,payment_records,True,True,True,True,yes,internal,True,2027-09-25,{}
+SYS-GEN-108-20c2085c8292,GEN-108,KYC Platform,kyc_platform,payment_records,True,True,True,True,no,internal,True,2027-03-11,{}
+SYS-GEN-108-bddc2b02d29d,GEN-108,Payment Gateway,payment_gateway,transaction_data,True,True,True,True,no,internal,True,2026-09-11,{}
+SYS-GEN-108-4e1ab9785bf6,GEN-108,Data Warehouse,data_warehouse,credit_scores,True,True,True,True,yes,internal,True,2026-09-09,{}
+SYS-GEN-108-0e15c7201492,GEN-108,Fraud Detection System,crm,credit_scores,True,True,True,True,yes,internal,True,2026-03-21,{}
+SYS-GEN-108-cd6794b88675,GEN-108,Loan Origination System,core_banking,payment_records,True,True,True,True,no,internal,True,2028-02-11,{}
+SYS-GEN-108-acdf69d09d6f,GEN-108,Customer Portal,analytics,kyc_documents,True,True,True,True,yes,internal,True,2027-11-20,{}
+SYS-GEN-108-801ebbf30e07,GEN-108,Reporting Engine,kyc_platform,transaction_data,True,True,True,True,no,internal,True,2026-09-24,{}
+SYS-GEN-108-7d36242cdf94,GEN-108,Mobile Banking,payment_gateway,credit_scores,True,True,True,True,no,internal,True,2027-04-12,{}
+SYS-GEN-108-17f6ee225bbe,GEN-108,Transaction Monitor,data_warehouse,payment_records,True,True,True,True,no,internal,True,2026-03-22,{}

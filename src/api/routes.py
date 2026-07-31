@@ -2,12 +2,17 @@ import json
 import os
 import logging
 import psycopg
+from psycopg.rows import dict_row
 import tempfile
 import shutil
+from datetime import date
 from pathlib import Path
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import Response
+
+from src.governance.auth import require_any_role, require_reviewer_or_admin, require_admin
+from src.governance.audit_logger import log_event, RULE_APPROVED, RULE_REJECTED
 
 from src.api.schemas import (
     AnalyzeRequest, AnalyzeResponse, ViolationItem,
@@ -24,9 +29,9 @@ load_dotenv()
 
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = os.getenv('DB_PORT', '5432')
-DB_NAME = os.getenv('DB_NAME', 'tenant_db')
+DB_NAME = os.getenv('DB_NAME', 'compliance_db')
 DB_USER = os.getenv('DB_USER', 'postgres')
-DB_PASSWORD = os.getenv('DB_PASSWORD', 'rasika23')
+DB_PASSWORD = os.getenv('DB_PASSWORD')   # Must be set in .env — no hardcoded fallback
 
 router = APIRouter()
 
@@ -37,7 +42,8 @@ def get_db_connection():
         dbname=DB_NAME,
         user=DB_USER,
         password=DB_PASSWORD,
-        autocommit=False
+        autocommit=False,
+        row_factory=dict_row,
     )
 
 
@@ -307,7 +313,10 @@ def health_check():
     }
 
 @router.post("/analyze", response_model=AnalyzeResponse)
-def analyze_tenant(request: AnalyzeRequest):
+def analyze_tenant(
+    request: AnalyzeRequest,
+    current_user: dict = Depends(require_any_role),
+):
     try:
         analysis_result = run_compliance_analysis(request.tenant_id)
         response = _build_full_response(analysis_result)
@@ -339,7 +348,8 @@ async def analyze_upload(
     system_inventory: UploadFile = File(...),
     policies: UploadFile = File(...),
     tenant_id: str = Form(...),
-    tenant_name: str = Form(...)
+    tenant_name: str = Form(...),
+    current_user: dict = Depends(require_any_role),
 ):
     try:
         temp_dir = None
@@ -441,7 +451,10 @@ async def analyze_upload(
 
 
 @router.get("/report/pdf/{tenant_id}")
-def download_pdf(tenant_id: str):
+def download_pdf(
+    tenant_id: str,
+    current_user: dict = Depends(require_any_role),
+):
     """
     Placeholder PDF endpoint. (PDF Generation module to be built in Phase 4).
     """
@@ -464,3 +477,227 @@ def download_pdf(tenant_id: str):
     except Exception as e:
         logging.error(f"PDF generation failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate PDF report")
+
+
+# ─────────────────────────────────────────────────────────
+# RULES MANAGEMENT ENDPOINTS
+# ─────────────────────────────────────────────────────────
+
+@router.get("/rules")
+def list_rules(
+    current_user: dict = Depends(require_any_role),
+):
+    """Returns all active rules ordered by rule_id. Requires any authenticated user."""
+    try:
+        with get_db_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT rule_id, rule_name, assigned_agent,
+                       severity, enabled, dpdp_section
+                FROM rules
+                ORDER BY rule_id
+                """
+            ).fetchall()
+        return [{"rule_id": r["rule_id"], "rule_name": r["rule_name"],
+                 "assigned_agent": r["assigned_agent"], "severity": r["severity"],
+                 "enabled": r["enabled"], "dpdp_section": r["dpdp_section"]} for r in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch rules: {str(e)}")
+
+
+@router.get("/rules/proposed")
+def list_proposed_rules(
+    current_user: dict = Depends(require_reviewer_or_admin),
+):
+    """Returns all pending proposed rules. Requires reviewer or admin role."""
+    try:
+        with get_db_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT id,
+                       proposed_rule->>'rule_id'   AS rule_id,
+                       proposed_rule->>'rule_name' AS rule_name,
+                       proposed_rule->>'severity'  AS severity,
+                       (field_check->>'all_resolved')::boolean AS fields_ok,
+                       status,
+                       proposed_by,
+                       created_at
+                FROM proposed_rules
+                WHERE status = 'pending'
+                ORDER BY created_at DESC
+                """
+            ).fetchall()
+        return [{"id": r["id"], "rule_id": r["rule_id"], "rule_name": r["rule_name"],
+                 "severity": r["severity"], "fields_ok": r["fields_ok"],
+                 "status": r["status"], "proposed_by": r["proposed_by"],
+                 "created_at": str(r["created_at"])} for r in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch proposed rules: {str(e)}")
+
+
+@router.post("/rules/approve/{proposal_id}")
+def approve_rule(
+    proposal_id: int,
+    current_user: dict = Depends(require_admin),
+):
+    """Activates a pending proposed rule. Requires admin role."""
+    try:
+        with get_db_connection() as conn:
+            row = conn.execute(
+                "SELECT id, proposed_rule, field_check, status FROM proposed_rules WHERE id = %s",
+                [proposal_id],
+            ).fetchone()
+
+            if not row:
+                raise HTTPException(status_code=404, detail=f"Proposal {proposal_id} not found")
+            if row["status"] != "pending":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Proposal {proposal_id} is already '{row['status']}'"
+                )
+
+            field_check = row["field_check"]
+            if not field_check.get("all_resolved", False):
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Cannot activate: missing fields {field_check.get('missing', [])}"
+                )
+
+            rule = row["proposed_rule"]
+            reviewer = current_user["username"]
+
+            conn.execute(
+                """
+                INSERT INTO rules (
+                    rule_id, clause_id, rule_name, dpdp_section, description,
+                    severity, risk_weight, check_type, assigned_agent,
+                    primary_table, join_tables, join_key, evidence_signals,
+                    violation_threshold, risk_threshold, recurrence_bonus,
+                    enabled, version, effective_date, approved_by
+                ) VALUES (
+                    %(rule_id)s, %(clause_id)s, %(rule_name)s, %(dpdp_section)s, %(description)s,
+                    %(severity)s, %(risk_weight)s, %(check_type)s, %(assigned_agent)s,
+                    %(primary_table)s, %(join_tables)s, %(join_key)s, %(evidence_signals)s,
+                    %(violation_threshold)s, %(risk_threshold)s, %(recurrence_bonus)s,
+                    TRUE, 1, %(effective_date)s, %(approved_by)s
+                )
+                ON CONFLICT (rule_id) DO UPDATE SET
+                    rule_name           = EXCLUDED.rule_name,
+                    description         = EXCLUDED.description,
+                    evidence_signals    = EXCLUDED.evidence_signals,
+                    violation_threshold = EXCLUDED.violation_threshold,
+                    risk_threshold      = EXCLUDED.risk_threshold,
+                    version             = rules.version + 1,
+                    approved_by         = EXCLUDED.approved_by,
+                    updated_at          = NOW()
+                """,
+                {
+                    "rule_id":             rule["rule_id"],
+                    "clause_id":           rule["clause_id"],
+                    "rule_name":           rule["rule_name"],
+                    "dpdp_section":        rule.get("dpdp_section", ""),
+                    "description":         rule.get("description", ""),
+                    "severity":            rule.get("severity", "MEDIUM"),
+                    "risk_weight":         rule.get("risk_weight", 0.5),
+                    "check_type":          rule.get("check_type", "weighted_evidence"),
+                    "assigned_agent":      rule["assigned_agent"],
+                    "primary_table":       rule["primary_table"],
+                    "join_tables":         json.dumps(rule.get("join_tables") or []),
+                    "join_key":            rule.get("join_key"),
+                    "evidence_signals":    json.dumps(rule["evidence_signals"]),
+                    "violation_threshold": rule["violation_threshold"],
+                    "risk_threshold":      rule["risk_threshold"],
+                    "recurrence_bonus":    rule.get("recurrence_bonus", 0.0),
+                    "effective_date":      date.today().isoformat(),
+                    "approved_by":         reviewer,
+                },
+            )
+
+            conn.execute(
+                """
+                UPDATE proposed_rules
+                SET status = 'approved', reviewer = %s, reviewed_at = NOW()
+                WHERE id = %s
+                """,
+                [reviewer, proposal_id],
+            )
+            conn.commit()
+
+        log_event(
+            RULE_APPROVED,
+            details={"rule_id": rule["rule_id"], "proposal_id": proposal_id,
+                     "approved_by": reviewer},
+            user=reviewer,
+        )
+        return {"status": "approved", "rule_id": rule["rule_id"], "approved_by": reviewer}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Approval failed: {str(e)}")
+
+
+@router.post("/rules/reject/{proposal_id}")
+def reject_rule(
+    proposal_id: int,
+    reason: str = "No reason provided",
+    current_user: dict = Depends(require_admin),
+):
+    """Rejects a pending proposed rule. Requires admin role."""
+    try:
+        with get_db_connection() as conn:
+            row = conn.execute(
+                "SELECT id, proposed_rule, status FROM proposed_rules WHERE id = %s",
+                [proposal_id],
+            ).fetchone()
+
+            if not row:
+                raise HTTPException(status_code=404, detail=f"Proposal {proposal_id} not found")
+            if row["status"] != "pending":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Proposal {proposal_id} is already '{row['status']}'"
+                )
+
+            reviewer = current_user["username"]
+            rule_id  = row["proposed_rule"].get("rule_id", "unknown")
+
+            conn.execute(
+                """
+                UPDATE proposed_rules
+                SET status = 'rejected', reviewer = %s, review_notes = %s, reviewed_at = NOW()
+                WHERE id = %s
+                """,
+                [reviewer, reason, proposal_id],
+            )
+            conn.commit()
+
+        log_event(
+            RULE_REJECTED,
+            details={"rule_id": rule_id, "proposal_id": proposal_id,
+                     "rejected_by": reviewer, "reason": reason},
+            user=reviewer,
+        )
+        return {"status": "rejected", "rule_id": rule_id, "rejected_by": reviewer}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Rejection failed: {str(e)}")
+
+
+_bias_report_cache = None
+
+@router.get("/governance/bias-report")
+async def get_bias_report(
+  current_user: dict = Depends(require_admin)
+):
+  global _bias_report_cache
+  if _bias_report_cache is None:
+    from src.governance.bias_monitor import (
+      run_bias_check, save_bias_report
+    )
+    _bias_report_cache = run_bias_check()
+    save_bias_report(_bias_report_cache)
+  return _bias_report_cache
+

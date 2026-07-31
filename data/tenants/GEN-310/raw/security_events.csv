@@ -1,0 +1,6 @@
+security_id,customer_id,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_at,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag,additional_attributes
+SEC-GEN-310-154522f05b20,CUST-GEN-310-21f4085eae75,GEN-310,True,AES-256,False,,,,,False,{}
+SEC-GEN-310-feeedfb35ca6,CUST-GEN-310-9f4acdb425ff,GEN-310,True,AES-256,False,,,,,False,{}
+SEC-GEN-310-7aba46d2638c,CUST-GEN-310-c0054963e794,GEN-310,True,AES-256,False,,,,,False,{}
+SEC-GEN-310-183d14d39764,CUST-GEN-310-93ea0f103943,GEN-310,True,AES-256,False,,,,,False,{}
+SEC-GEN-310-372171939f5e,CUST-GEN-310-ec7c4096b554,GEN-310,True,AES-256,False,,,,,False,{}

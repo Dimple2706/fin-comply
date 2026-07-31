@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
+GEN-010,multi_failure_critical,False,False,180,2023-01-01,CRITICAL

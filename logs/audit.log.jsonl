@@ -1,0 +1,26 @@
+{"timestamp": "2026-07-25T13:33:36.631465Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-07-25T13:34:03.093441Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-07-25T13:34:03.095245Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-07-25T13:34:24.919995Z", "event_type": "analysis_run", "user": "system", "tenant_id": "tenant_a", "details": {"risk_score": null, "risk_tier": null, "n_violations": null, "n_rules_evaluated": 19, "ml_predicted_tier": "MEDIUM"}}
+{"timestamp": "2026-07-25T17:01:41.246146Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-07-25T17:02:04.333426Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-07-25T17:02:04.334611Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-07-25T17:02:18.108605Z", "event_type": "analysis_run", "user": "system", "tenant_id": "tenant_a", "details": {"risk_score": 12.1, "risk_tier": "LOW", "n_violations": 6, "n_rules_evaluated": 19, "ml_predicted_tier": "MEDIUM"}}
+{"timestamp": "2026-07-25T17:09:50.612659Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-07-25T17:10:11.694344Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-07-25T17:10:11.695828Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-07-25T17:11:03.709820Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-07-25T17:11:21.161712Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-07-25T17:11:21.163127Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-07-25T17:12:00.883958Z", "event_type": "login_success", "user": "viewer", "tenant_id": null, "details": {"username": "viewer", "role": "viewer"}}
+{"timestamp": "2026-07-25T17:12:01.394898Z", "event_type": "login_success", "user": "reviewer", "tenant_id": null, "details": {"username": "reviewer", "role": "reviewer"}}
+{"timestamp": "2026-07-25T17:12:01.815046Z", "event_type": "login_success", "user": "admin", "tenant_id": null, "details": {"username": "admin", "role": "admin"}}
+{"timestamp": "2026-07-25T17:12:36.089887Z", "event_type": "login_success", "user": "viewer", "tenant_id": null, "details": {"username": "viewer", "role": "viewer"}}
+{"timestamp": "2026-07-25T17:12:36.447900Z", "event_type": "login_success", "user": "reviewer", "tenant_id": null, "details": {"username": "reviewer", "role": "reviewer"}}
+{"timestamp": "2026-07-25T17:12:36.815362Z", "event_type": "login_success", "user": "admin", "tenant_id": null, "details": {"username": "admin", "role": "admin"}}
+{"timestamp": "2026-07-25T17:35:47.437576Z", "event_type": "login_success", "user": "viewer", "tenant_id": null, "details": {"username": "viewer", "role": "viewer"}}
+{"timestamp": "2026-07-25T17:35:47.855560Z", "event_type": "login_success", "user": "reviewer", "tenant_id": null, "details": {"username": "reviewer", "role": "reviewer"}}
+{"timestamp": "2026-07-25T17:35:48.385350Z", "event_type": "login_success", "user": "admin", "tenant_id": null, "details": {"username": "admin", "role": "admin"}}
+{"timestamp": "2026-07-25T17:41:20.483002Z", "event_type": "login_success", "user": "viewer", "tenant_id": null, "details": {"username": "viewer", "role": "viewer"}}
+{"timestamp": "2026-07-25T17:41:21.126823Z", "event_type": "login_success", "user": "reviewer", "tenant_id": null, "details": {"username": "reviewer", "role": "reviewer"}}
+{"timestamp": "2026-07-25T17:41:21.798189Z", "event_type": "login_success", "user": "admin", "tenant_id": null, "details": {"username": "admin", "role": "admin"}}

@@ -5,37 +5,49 @@ Run after migrate_rules_to_db.py to confirm everything landed correctly.
 Checks counts, FK integrity, signal weight sums, and prints a summary.
 
 Usage:
-    python verify_migration.py
+    python db/verify_migration.py
 """
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import os
+import psycopg
+from psycopg.rows import dict_row
+from dotenv import load_dotenv
 
-DB_CONFIG = {
-    "host":     "localhost",
-    "port":     5432,
-    "dbname":   "tenant_db",          # your existing DB name
-    "user":     "postgres",          # your DB user
-    "password": "rasika23",
-}
+load_dotenv()
+
+DB_HOST     = os.getenv("DB_HOST", "localhost")
+DB_PORT     = os.getenv("DB_PORT", "5432")
+DB_NAME     = os.getenv("DB_NAME", "tenant_db")
+DB_USER     = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+
+def get_connection():
+    return psycopg.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        row_factory=dict_row,
+    )
 
 def run(cur, sql, label):
     cur.execute(sql)
     rows = cur.fetchall()
-    print(f"\n── {label} ──")
+    print(f"\n-- {label} --")
     for row in rows:
         print(dict(row))
     return rows
 
-conn = psycopg2.connect(**DB_CONFIG)
-cur  = conn.cursor(cursor_factory=RealDictCursor)
+conn = get_connection()
+cur  = conn.cursor()
 
 # 1. Counts
 run(cur, "SELECT COUNT(*) AS total_clauses FROM clauses;", "Clause count")
 run(cur, "SELECT COUNT(*) AS total_rules  FROM rules;",   "Rule count")
 run(cur, "SELECT COUNT(*) AS active_rules FROM rules WHERE enabled = TRUE;", "Active rules")
 
-# 2. Rules per agent — confirms your 3 existing agents are loaded
+# 2. Rules per agent — confirms your agents are loaded
 run(cur, """
     SELECT assigned_agent, COUNT(*) AS rule_count
     FROM rules GROUP BY assigned_agent ORDER BY assigned_agent;
@@ -80,4 +92,4 @@ run(cur, """
 
 cur.close()
 conn.close()
-print("\n✅ Verification complete.")
+print("\nDONE Verification complete.")

@@ -104,10 +104,22 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
         except Exception:
             event_dt = date.today()
 
-        consent_dt = event_dt.replace(year=event_dt.year - 1) if event_dt.year > 1 else event_dt
-        expiry_dt = event_dt.replace(day=max(1, min(event_dt.day, 27))) if event_dt else event_dt
+        try:
+            consent_dt = event_dt.replace(year=event_dt.year - 1) if event_dt.year > 1 else event_dt
+        except ValueError:
+            # Handles Feb 29 when previous year is not a leap year
+            consent_dt = event_dt - timedelta(days=365) if event_dt.year > 1 else event_dt
+            
+        try:
+            expiry_dt = event_dt.replace(day=max(1, min(event_dt.day, 27))) if event_dt else event_dt
+        except ValueError:
+            expiry_dt = event_dt - timedelta(days=1) if event_dt else event_dt
+            
         if expiry_dt >= event_dt:
-            expiry_dt = event_dt.replace(day=max(1, event_dt.day - 1)) if event_dt.day > 1 else event_dt
+            try:
+                expiry_dt = event_dt.replace(day=max(1, event_dt.day - 1)) if event_dt.day > 1 else event_dt
+            except ValueError:
+                expiry_dt = event_dt - timedelta(days=1) if event_dt else event_dt
 
         cur.execute(
             """

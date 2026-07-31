@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
+GEN-033,compliant_fintech_33,True,True,30,2026-07-01,LOW

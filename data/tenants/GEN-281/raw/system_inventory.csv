@@ -1,0 +1,6 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-281-70766af9f35d,GEN-281,Core Banking System,crm,kyc_documents,True,False,False,False,no,external,False,,{}
+SYS-GEN-281-eab47347191a,GEN-281,CRM Platform,core_banking,kyc_documents,True,False,False,False,no,external,False,,{}
+SYS-GEN-281-04ba007edc8e,GEN-281,Analytics Engine,analytics,transaction_data,True,False,False,False,yes,external,False,,{}
+SYS-GEN-281-28451efbcd82,GEN-281,KYC Platform,kyc_platform,payment_records,True,False,False,False,no,external,False,,{}
+SYS-GEN-281-37962a93b24f,GEN-281,Payment Gateway,payment_gateway,transaction_data,True,False,False,False,yes,external,False,,{}

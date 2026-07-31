@@ -1,0 +1,13 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-197-e6c067c3e1cc,GEN-197,Core Banking System,crm,customer_data,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-197-a3a2e00dd41f,GEN-197,CRM Platform,core_banking,payment_records,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-197-6a69b139e2ac,GEN-197,Analytics Engine,analytics,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-197-1cdf30b9453e,GEN-197,KYC Platform,kyc_platform,transaction_data,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-197-da8fba380d49,GEN-197,Payment Gateway,payment_gateway,payment_records,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-197-0c6ad667a89a,GEN-197,Data Warehouse,data_warehouse,customer_data,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-197-123faba40a2e,GEN-197,Fraud Detection System,crm,credit_scores,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-197-21652c2e42d3,GEN-197,Loan Origination System,core_banking,credit_scores,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-197-2c7f91b6846a,GEN-197,Customer Portal,analytics,credit_scores,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-197-3f5443d27a47,GEN-197,Reporting Engine,kyc_platform,customer_data,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-197-5eadb5fe2f08,GEN-197,Mobile Banking,payment_gateway,transaction_data,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-197-948cd3215f67,GEN-197,Transaction Monitor,data_warehouse,customer_data,True,True,True,True,no,third_party_processor,False,,{}

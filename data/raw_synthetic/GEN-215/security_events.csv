@@ -1,0 +1,16 @@
+security_id,customer_id,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_at,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag,additional_attributes
+SEC-GEN-215-72952962b616,CUST-GEN-215-b5b40fe3d346,GEN-215,False,none,True,2025-03-28T13:59:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-7653aec6732c,CUST-GEN-215-2c7ee4d3c7e9,GEN-215,False,none,True,2025-01-15T00:20:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-d82739db11eb,CUST-GEN-215-c731b577b776,GEN-215,False,none,True,2024-03-01T05:26:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-2371fe86a432,CUST-GEN-215-d4f3bb67edee,GEN-215,False,none,True,2026-03-05T17:15:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-3b4a2598cf32,CUST-GEN-215-579c865decc9,GEN-215,False,none,True,2026-02-25T06:22:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-2bc3cbe123ef,CUST-GEN-215-d7edb382584e,GEN-215,False,none,True,2025-06-07T22:20:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-6eda947d5125,CUST-GEN-215-e0144eede667,GEN-215,False,none,True,2025-12-16T05:43:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-735b2f9a6a13,CUST-GEN-215-89d3ae3e91b7,GEN-215,False,none,True,2026-05-10T18:53:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-e524e84e41cb,CUST-GEN-215-d52de980f701,GEN-215,False,none,True,2026-03-01T09:51:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-bb6aed34e3b4,CUST-GEN-215-e0144eede667,GEN-215,False,none,True,2024-02-04T14:26:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-e401e3114938,CUST-GEN-215-6000918527ed,GEN-215,False,none,True,2025-03-27T12:52:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-5d144fe09450,CUST-GEN-215-390154d3488d,GEN-215,False,none,True,2026-02-26T06:40:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-f0186843b630,CUST-GEN-215-0efecc991b1e,GEN-215,False,none,True,2025-08-18T19:46:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-98ea7bc19ce5,CUST-GEN-215-1111df95e25b,GEN-215,False,none,True,2025-02-03T07:24:00,96,large,"kyc_documents,contact_info",False,{}
+SEC-GEN-215-0b1f39be55b0,CUST-GEN-215-ef5a1cc5ebce,GEN-215,False,none,True,2024-07-21T07:08:00,96,large,"kyc_documents,contact_info",False,{}

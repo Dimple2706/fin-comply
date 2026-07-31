@@ -1,0 +1,6 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-290-48d7523a7aaa,GEN-290,Core Banking System,crm,credit_scores,True,False,False,False,yes,external,False,,{}
+SYS-GEN-290-ac805922819c,GEN-290,CRM Platform,core_banking,kyc_documents,True,False,False,False,no,external,False,,{}
+SYS-GEN-290-88da595000ab,GEN-290,Analytics Engine,analytics,transaction_data,True,False,False,False,yes,external,False,,{}
+SYS-GEN-290-4b7e736bac49,GEN-290,KYC Platform,kyc_platform,transaction_data,True,False,False,False,no,external,False,,{}
+SYS-GEN-290-124e21cc2540,GEN-290,Payment Gateway,payment_gateway,transaction_data,True,False,False,False,no,external,False,,{}

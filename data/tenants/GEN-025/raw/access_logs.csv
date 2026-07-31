@@ -1,0 +1,110 @@
+access_id,customer_id,tenant_id,employee_id,employee_role,accessed_pii,pii_fields_accessed,access_reason,access_outcome,data_volume_accessed,timestamp,additional_attributes
+ACC-GEN-025-04dadd0ccf33,CUST-GEN-025-b93d29195617,GEN-025,EMP-900a76078331,collections_agent,True,"name,email,phone",support_query,granted,bulk,2025-04-19T15:53:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-316a73ff562d,CUST-GEN-025-5f2af3c53dc7,GEN-025,EMP-ccb59d5abd0e,engineer,False,,support_query,denied,medium,2025-12-16T15:04:00,{}
+ACC-GEN-025-2af386ff2b75,CUST-GEN-025-5a65c39cdd65,GEN-025,EMP-f3bb1254e388,data_analyst,True,"name,email,phone",loan_review,granted,high,2024-07-06T02:46:00,{}
+ACC-GEN-025-35cd6a7a16b8,CUST-GEN-025-0169dd92ed9c,GEN-025,EMP-2f8509886b46,collections_agent,False,,support_query,denied,high,2024-07-22T17:31:00,{}
+ACC-GEN-025-72d65d92f2c6,CUST-GEN-025-6d46524f3d20,GEN-025,EMP-58c152bfe412,customer_support,True,"name,email,phone",support_query,granted,high,2024-11-19T09:24:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-85252ad07341,CUST-GEN-025-01e98409bbd6,GEN-025,EMP-04c5c563ab73,data_analyst,True,"name,email,phone",support_query,granted,high,2025-03-27T15:38:00,{}
+ACC-GEN-025-9d9b4a525b0e,CUST-GEN-025-adbdc44e88af,GEN-025,EMP-04f9e3389494,compliance_officer,True,"name,email,phone",data_export,granted,bulk,2024-07-14T14:24:00,{}
+ACC-GEN-025-4f693c64e170,CUST-GEN-025-5f2af3c53dc7,GEN-025,EMP-92ba7b1064c3,compliance_officer,True,"name,email,phone",data_export,granted,bulk,2024-05-24T18:48:00,{}
+ACC-GEN-025-af48332caa38,CUST-GEN-025-949506b4a53e,GEN-025,EMP-702a86f80a5f,data_analyst,False,,loan_review,denied,bulk,2026-04-05T12:04:00,{}
+ACC-GEN-025-b2064258adfc,CUST-GEN-025-8eb03b6003b9,GEN-025,EMP-f642b9b3e679,customer_support,True,"name,email,phone",data_export,granted,bulk,2025-11-13T16:57:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-c2be043ec252,CUST-GEN-025-51e46a230578,GEN-025,EMP-47445c833814,compliance_officer,True,"name,email,phone",support_query,granted,bulk,2025-02-07T15:47:00,{}
+ACC-GEN-025-3f9416fde644,CUST-GEN-025-4a94294fd055,GEN-025,EMP-edc44d1f4b0f,collections_agent,True,"name,email,phone",support_query,granted,high,2025-01-05T12:29:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-d974e3b6c74b,CUST-GEN-025-4bdeeb569899,GEN-025,EMP-91947ca119a5,data_analyst,True,"name,email,phone",support_query,granted,high,2025-01-31T05:13:00,{}
+ACC-GEN-025-9d1bfce55c42,CUST-GEN-025-3bf6917a43a6,GEN-025,EMP-485e46d59f8f,customer_support,True,"name,email,phone",data_export,granted,medium,2026-06-25T08:55:00,{}
+ACC-GEN-025-54670cfa36fb,CUST-GEN-025-51e46a230578,GEN-025,EMP-6fb941eb422e,customer_support,True,"name,email,phone",support_query,granted,bulk,2024-07-04T02:18:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-85e62e4eb06d,CUST-GEN-025-60c6ddf05947,GEN-025,EMP-4c3fe3232635,engineer,True,"name,email,phone",support_query,granted,bulk,2024-09-22T22:51:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-87ea3624e0b1,CUST-GEN-025-50b659759310,GEN-025,EMP-f010085423ca,manager,True,"name,email,phone",support_query,granted,high,2024-04-10T11:53:00,{}
+ACC-GEN-025-b8bcb9818e34,CUST-GEN-025-709c77d9b508,GEN-025,EMP-68291471e489,compliance_officer,True,"name,email,phone",loan_review,granted,high,2024-07-19T04:27:00,{}
+ACC-GEN-025-d7890a5ac137,CUST-GEN-025-010b0f3fd032,GEN-025,EMP-4ec77b8b56da,customer_support,False,,data_export,denied,high,2025-04-26T22:05:00,{}
+ACC-GEN-025-ba44b1979276,CUST-GEN-025-d031e17717d9,GEN-025,EMP-2168de087298,compliance_officer,True,"name,email,phone",support_query,granted,medium,2025-09-04T17:30:00,{}
+ACC-GEN-025-9b362e9ddd1d,CUST-GEN-025-cb9c7db9d6bd,GEN-025,EMP-de28de88f976,manager,True,"name,email,phone",data_export,granted,high,2024-04-14T06:33:00,{}
+ACC-GEN-025-287a2d77e3d8,CUST-GEN-025-51e46a230578,GEN-025,EMP-699902373ddb,customer_support,False,,loan_review,denied,medium,2024-01-06T23:08:00,{}
+ACC-GEN-025-920e02b97cd2,CUST-GEN-025-60c6ddf05947,GEN-025,EMP-74470a962e6d,data_analyst,True,"name,email,phone",support_query,granted,bulk,2025-12-15T23:42:00,{}
+ACC-GEN-025-0e3971ed2e7e,CUST-GEN-025-2cc9c9131e28,GEN-025,EMP-f9b317de9a13,engineer,True,"name,email,phone",loan_review,granted,bulk,2024-01-31T11:31:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-1663cdceeb64,CUST-GEN-025-69af5f2a82b7,GEN-025,EMP-fed3fed1ca75,customer_support,True,"name,email,phone",support_query,granted,bulk,2024-05-19T02:03:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-76ecc8172ce0,CUST-GEN-025-d031e17717d9,GEN-025,EMP-1e7b2c15fbbf,compliance_officer,True,"name,email,phone",support_query,granted,high,2025-02-09T01:58:00,{}
+ACC-GEN-025-e9e09afec0da,CUST-GEN-025-ff814ae4d538,GEN-025,EMP-e41678fe88c4,collections_agent,True,"name,email,phone",data_export,granted,high,2025-12-09T04:09:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-e00eed64fa31,CUST-GEN-025-0169dd92ed9c,GEN-025,EMP-e3f119bedd65,compliance_officer,True,"name,email,phone",data_export,granted,medium,2024-05-08T20:14:00,{}
+ACC-GEN-025-0367339ed5d3,CUST-GEN-025-b5d666c7bb6f,GEN-025,EMP-1415f2fefb22,customer_support,True,"name,email,phone",loan_review,granted,bulk,2025-10-26T09:30:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-f19c2e497da4,CUST-GEN-025-5574914bb924,GEN-025,EMP-ce0318f93c5d,customer_support,False,,support_query,denied,bulk,2024-08-22T00:44:00,{}
+ACC-GEN-025-47d901db8425,CUST-GEN-025-0169dd92ed9c,GEN-025,EMP-391ab6b685c2,engineer,True,"name,email,phone",support_query,granted,high,2024-03-28T08:38:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-1b4044071005,CUST-GEN-025-d16f476306f2,GEN-025,EMP-99a6cb11d52e,data_analyst,False,,support_query,denied,high,2025-09-08T05:12:00,{}
+ACC-GEN-025-a5023caf38f7,CUST-GEN-025-69af5f2a82b7,GEN-025,EMP-ad7f202d159b,customer_support,True,"name,email,phone",support_query,granted,medium,2024-09-23T14:59:00,{}
+ACC-GEN-025-69119762f529,CUST-GEN-025-4a94294fd055,GEN-025,EMP-6949ba88f2df,customer_support,False,,support_query,denied,high,2024-04-15T15:50:00,{}
+ACC-GEN-025-b52fc4e3a971,CUST-GEN-025-267006e3c650,GEN-025,EMP-a4e663b82fab,engineer,True,"name,email,phone",data_export,granted,bulk,2026-01-19T11:36:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-522708dcf652,CUST-GEN-025-2cc9c9131e28,GEN-025,EMP-d1185727da2e,collections_agent,False,,support_query,denied,high,2024-03-07T15:41:00,{}
+ACC-GEN-025-fc215104955b,CUST-GEN-025-68177763e11b,GEN-025,EMP-997b26f063b7,customer_support,True,"name,email,phone",support_query,granted,medium,2025-08-26T03:09:00,{}
+ACC-GEN-025-f3a54799f139,CUST-GEN-025-e0e3c704651e,GEN-025,EMP-2b2706a394fc,data_analyst,True,"name,email,phone",support_query,granted,high,2025-08-21T23:11:00,{}
+ACC-GEN-025-ddf4c0935faf,CUST-GEN-025-69af5f2a82b7,GEN-025,EMP-7965285c5602,compliance_officer,True,"name,email,phone",support_query,granted,medium,2024-07-04T23:09:00,{}
+ACC-GEN-025-08e4b833006c,CUST-GEN-025-69af5f2a82b7,GEN-025,EMP-1cdeb1bd00ff,engineer,False,,loan_review,denied,bulk,2024-03-24T23:20:00,{}
+ACC-GEN-025-58407f1f146b,CUST-GEN-025-69af5f2a82b7,GEN-025,EMP-d5be0df70611,data_analyst,True,"name,email,phone",support_query,granted,high,2024-04-06T00:26:00,{}
+ACC-GEN-025-3a8eb595ee9a,CUST-GEN-025-68177763e11b,GEN-025,EMP-1722d7db39f5,customer_support,True,"name,email,phone",data_export,granted,medium,2025-01-24T04:20:00,{}
+ACC-GEN-025-c3bff255af80,CUST-GEN-025-949506b4a53e,GEN-025,EMP-77b4d15a67a1,customer_support,True,"name,email,phone",loan_review,granted,high,2026-02-22T12:32:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-0f619be9ae78,CUST-GEN-025-8605e92beb26,GEN-025,EMP-c9068acc43ca,customer_support,True,"name,email,phone",support_query,granted,high,2024-10-01T05:23:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-a8187265ec9d,CUST-GEN-025-709c77d9b508,GEN-025,EMP-7d36e1d9dd29,customer_support,True,"name,email,phone",support_query,granted,bulk,2024-10-06T15:05:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-a99a67c02626,CUST-GEN-025-50b659759310,GEN-025,EMP-0f204705c2e8,compliance_officer,True,"name,email,phone",loan_review,granted,high,2024-09-19T18:19:00,{}
+ACC-GEN-025-df0e40efdf80,CUST-GEN-025-0169dd92ed9c,GEN-025,EMP-f917b6fd5c66,customer_support,True,"name,email,phone",loan_review,granted,bulk,2025-02-06T13:25:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-045c4e4dea1d,CUST-GEN-025-e0e3c704651e,GEN-025,EMP-331bf16a71d6,collections_agent,True,"name,email,phone",loan_review,granted,bulk,2026-01-15T18:08:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-e35b38025683,CUST-GEN-025-0e461ad060ac,GEN-025,EMP-bf6112758d53,compliance_officer,True,"name,email,phone",loan_review,granted,bulk,2024-07-06T11:53:00,{}
+ACC-GEN-025-91df6c8d3892,CUST-GEN-025-4bdeeb569899,GEN-025,EMP-1c5198c6a8af,customer_support,True,"name,email,phone",data_export,granted,high,2026-02-18T17:12:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-7df9ea440f59,CUST-GEN-025-8605e92beb26,GEN-025,EMP-6e87ae0d67ad,engineer,True,"name,email,phone",loan_review,granted,bulk,2024-11-13T00:37:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-35edcb840248,CUST-GEN-025-e8a5bc6b2e35,GEN-025,EMP-2b95be2a5e34,compliance_officer,False,,data_export,denied,high,2024-10-10T22:33:00,{}
+ACC-GEN-025-e748c9523d25,CUST-GEN-025-4a94294fd055,GEN-025,EMP-6a22c810f914,compliance_officer,True,"name,email,phone",support_query,granted,bulk,2026-03-01T06:23:00,{}
+ACC-GEN-025-a2dbbbe3f005,CUST-GEN-025-82204c06c93f,GEN-025,EMP-a5764a9bcccc,data_analyst,True,"name,email,phone",support_query,granted,high,2025-10-24T04:10:00,{}
+ACC-GEN-025-84539562ef58,CUST-GEN-025-d196b949b210,GEN-025,EMP-2c8f3aab4403,customer_support,True,"name,email,phone",data_export,granted,medium,2024-08-18T10:28:00,{}
+ACC-GEN-025-60077c241c85,CUST-GEN-025-32d57ebb600c,GEN-025,EMP-633d44861bfe,collections_agent,False,,data_export,denied,medium,2025-01-14T21:02:00,{}
+ACC-GEN-025-fbcb067696f7,CUST-GEN-025-ed1bfa91da2c,GEN-025,EMP-9098bcd300bc,data_analyst,True,"name,email,phone",data_export,granted,bulk,2025-08-11T13:57:00,{}
+ACC-GEN-025-e8ee4f1d8f6f,CUST-GEN-025-0169dd92ed9c,GEN-025,EMP-61302d09b25b,engineer,True,"name,email,phone",support_query,granted,high,2024-11-30T06:46:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-be6fd30c0e55,CUST-GEN-025-68177763e11b,GEN-025,EMP-9a96dbb57e4d,collections_agent,True,"name,email,phone",data_export,granted,medium,2024-11-17T07:42:00,{}
+ACC-GEN-025-570db21cae24,CUST-GEN-025-e83ce358c7a4,GEN-025,EMP-780901247445,manager,True,"name,email,phone",support_query,granted,medium,2025-06-24T08:53:00,{}
+ACC-GEN-025-37ef326aadb7,CUST-GEN-025-01e98409bbd6,GEN-025,EMP-225f62b275f4,compliance_officer,True,"name,email,phone",support_query,granted,bulk,2024-03-23T12:27:00,{}
+ACC-GEN-025-a33453194ad7,CUST-GEN-025-51e46a230578,GEN-025,EMP-8e9689b65aa0,data_analyst,True,"name,email,phone",data_export,granted,medium,2025-11-20T08:11:00,{}
+ACC-GEN-025-df3f256ed57e,CUST-GEN-025-d16f476306f2,GEN-025,EMP-73155dc10ff1,collections_agent,True,"name,email,phone",support_query,granted,high,2025-04-27T11:10:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-205fb8f61fa0,CUST-GEN-025-4a94294fd055,GEN-025,EMP-b1c8be4d10a2,customer_support,False,,support_query,denied,high,2025-09-11T21:51:00,{}
+ACC-GEN-025-428225c1a70d,CUST-GEN-025-adbdc44e88af,GEN-025,EMP-944b6ecf7820,collections_agent,True,"name,email,phone",support_query,granted,bulk,2025-07-25T02:00:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-c9c9e9d19ee1,CUST-GEN-025-267006e3c650,GEN-025,EMP-8e222a4620af,customer_support,False,,support_query,denied,bulk,2024-06-17T03:35:00,{}
+ACC-GEN-025-498b0948fc38,CUST-GEN-025-267006e3c650,GEN-025,EMP-11508fceef9b,customer_support,True,"name,email,phone",data_export,granted,bulk,2026-02-21T07:34:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-89688bd9e76e,CUST-GEN-025-82204c06c93f,GEN-025,EMP-d10038342c5e,collections_agent,True,"name,email,phone",loan_review,granted,bulk,2026-02-16T09:08:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-3a65b4a31695,CUST-GEN-025-5a65c39cdd65,GEN-025,EMP-23ffdc98d9af,data_analyst,True,"name,email,phone",support_query,granted,bulk,2024-10-25T18:14:00,{}
+ACC-GEN-025-b629837afed9,CUST-GEN-025-50b659759310,GEN-025,EMP-114a6493b401,collections_agent,True,"name,email,phone",data_export,granted,bulk,2025-06-12T15:46:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-c777831e47c3,CUST-GEN-025-69af5f2a82b7,GEN-025,EMP-4f6d0d1eae21,data_analyst,True,"name,email,phone",data_export,granted,medium,2025-06-22T15:36:00,{}
+ACC-GEN-025-4d94bdfe25c5,CUST-GEN-025-0386ca109bb6,GEN-025,EMP-9c4987f8a5c3,data_analyst,True,"name,email,phone",data_export,granted,medium,2024-07-28T11:17:00,{}
+ACC-GEN-025-2620290fdf28,CUST-GEN-025-949506b4a53e,GEN-025,EMP-a9df8b95de70,engineer,True,"name,email,phone",data_export,granted,medium,2026-06-24T20:30:00,{}
+ACC-GEN-025-6871351fe288,CUST-GEN-025-e0e3c704651e,GEN-025,EMP-653479c2cfd7,engineer,True,"name,email,phone",support_query,granted,high,2025-09-28T23:54:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-4da56a543243,CUST-GEN-025-4a94294fd055,GEN-025,EMP-2529356e3f56,collections_agent,True,"name,email,phone",loan_review,granted,bulk,2024-04-24T11:54:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-46fb21fb14bd,CUST-GEN-025-3bf6917a43a6,GEN-025,EMP-2c3b86d06cdb,engineer,False,,support_query,denied,bulk,2024-02-01T11:38:00,{}
+ACC-GEN-025-8a0eace6ef7a,CUST-GEN-025-0386ca109bb6,GEN-025,EMP-bb458dde5650,customer_support,True,"name,email,phone",support_query,granted,bulk,2024-12-06T02:48:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-a31d48de2a76,CUST-GEN-025-e8a5bc6b2e35,GEN-025,EMP-b3a75e9ef6cd,compliance_officer,True,"name,email,phone",support_query,granted,high,2026-02-19T00:01:00,{}
+ACC-GEN-025-e93951a4e330,CUST-GEN-025-b5d666c7bb6f,GEN-025,EMP-3f55d8c8a57e,collections_agent,True,"name,email,phone",data_export,granted,bulk,2024-09-05T04:52:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-15dcf5a77d4c,CUST-GEN-025-81ba7861221c,GEN-025,EMP-cf9f9c092372,collections_agent,True,"name,email,phone",support_query,granted,bulk,2024-11-03T05:17:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-f93f27150bf7,CUST-GEN-025-6d46524f3d20,GEN-025,EMP-1cbe555d79ac,manager,False,,support_query,denied,bulk,2025-07-31T12:06:00,{}
+ACC-GEN-025-6c91a23b3833,CUST-GEN-025-c44b685d46cd,GEN-025,EMP-6090684ccb65,customer_support,True,"name,email,phone",data_export,granted,high,2024-04-13T12:28:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-879995585082,CUST-GEN-025-32d57ebb600c,GEN-025,EMP-489389633856,collections_agent,True,"name,email,phone",support_query,granted,bulk,2025-08-22T08:16:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-d61c676df811,CUST-GEN-025-6d46524f3d20,GEN-025,EMP-d6e2eba3c0a8,engineer,True,"name,email,phone",support_query,granted,high,2024-10-26T23:49:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-b9ab429c4ee9,CUST-GEN-025-267006e3c650,GEN-025,EMP-c375ad2c941d,customer_support,True,"name,email,phone",support_query,granted,high,2026-05-23T14:38:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-95120ec63b61,CUST-GEN-025-601223fae6cd,GEN-025,EMP-485c3cde60e8,collections_agent,False,,support_query,denied,high,2025-09-10T04:35:00,{}
+ACC-GEN-025-eb4178fc3b7b,CUST-GEN-025-5574914bb924,GEN-025,EMP-a75deb2663f0,customer_support,True,"name,email,phone",data_export,granted,high,2024-11-22T09:30:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-27b78ae6ab25,CUST-GEN-025-4a94294fd055,GEN-025,EMP-4af7c2377af6,compliance_officer,True,"name,email,phone",support_query,granted,high,2025-02-15T12:21:00,{}
+ACC-GEN-025-9972a2669a0f,CUST-GEN-025-1b6375ba8ca9,GEN-025,EMP-ed9545099553,compliance_officer,True,"name,email,phone",support_query,granted,medium,2024-01-11T11:40:00,{}
+ACC-GEN-025-d3ef74dccaa7,CUST-GEN-025-6f66db872d5b,GEN-025,EMP-2b9542a0c2d4,data_analyst,False,,loan_review,denied,bulk,2024-05-17T05:23:00,{}
+ACC-GEN-025-c249dabf0536,CUST-GEN-025-5574914bb924,GEN-025,EMP-1c6b0b2d2f31,collections_agent,True,"name,email,phone",support_query,granted,high,2024-03-01T03:18:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-470db092e25c,CUST-GEN-025-73d00fe816c2,GEN-025,EMP-a14ca7498111,customer_support,True,"name,email,phone",support_query,granted,medium,2024-08-15T14:16:00,{}
+ACC-GEN-025-87ca35fc11d9,CUST-GEN-025-b085b861bc1e,GEN-025,EMP-042b93d6e0b2,compliance_officer,True,"name,email,phone",support_query,granted,high,2025-08-05T21:35:00,{}
+ACC-GEN-025-b9082f2098c1,CUST-GEN-025-f63b421638ba,GEN-025,EMP-b4fe2e7910d2,manager,False,,data_export,denied,high,2025-05-31T23:56:00,{}
+ACC-GEN-025-c9a2a0e9294d,CUST-GEN-025-0386ca109bb6,GEN-025,EMP-a6dc0344128a,collections_agent,False,,support_query,denied,high,2025-03-24T00:17:00,{}
+ACC-GEN-025-948f1070ceaa,CUST-GEN-025-50b659759310,GEN-025,EMP-3d5c5748ddda,collections_agent,True,"name,email,phone",loan_review,granted,bulk,2024-03-15T09:03:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-71686b10d16e,CUST-GEN-025-5a65c39cdd65,GEN-025,EMP-6fa6476c8857,collections_agent,True,"name,email,phone",data_export,granted,high,2024-09-27T02:54:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-a0c4546c6aad,CUST-GEN-025-01e98409bbd6,GEN-025,EMP-97b80e0299e5,collections_agent,True,"name,email,phone",data_export,granted,high,2024-10-18T01:10:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-6baedd5ec969,CUST-GEN-025-010b0f3fd032,GEN-025,EMP-69be4df6c7ee,customer_support,True,"name,email,phone",support_query,granted,high,2024-01-12T09:54:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-0df214171e27,CUST-GEN-025-949506b4a53e,GEN-025,EMP-7bcd6483a117,data_analyst,True,"name,email,phone",support_query,granted,high,2025-11-24T01:45:00,{}
+ACC-GEN-025-31d35598e43e,CUST-GEN-025-5d96d8ae98f7,GEN-025,EMP-85d88b60f4a7,customer_support,True,"name,email,phone",support_query,granted,high,2024-10-02T18:21:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-bdeee7e85bdb,CUST-GEN-025-e83ce358c7a4,GEN-025,EMP-247c0b141a15,customer_support,False,,support_query,denied,bulk,2025-03-10T02:05:00,{}
+ACC-GEN-025-2a0c6141c771,CUST-GEN-025-5f2af3c53dc7,GEN-025,EMP-c16cb6b4d84d,data_analyst,True,"name,email,phone",loan_review,granted,medium,2025-02-16T09:28:00,{}
+ACC-GEN-025-70739428d0f2,CUST-GEN-025-5f2af3c53dc7,GEN-025,EMP-01b30268e483,collections_agent,False,,support_query,denied,bulk,2024-03-14T02:03:00,{}
+ACC-GEN-025-49eaa69e031d,CUST-GEN-025-2cc9c9131e28,GEN-025,EMP-810e5d1dde46,data_analyst,False,,loan_review,denied,high,2024-09-26T14:14:00,{}
+ACC-GEN-025-ff6b8dcd94e4,CUST-GEN-025-8eb03b6003b9,GEN-025,EMP-6828e66d5b94,customer_support,True,"name,email,phone",loan_review,granted,bulk,2024-02-06T12:06:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-9611aaba91f4,CUST-GEN-025-285f048a7a33,GEN-025,EMP-79e25a375588,manager,True,"name,email,phone",data_export,granted,high,2024-10-05T13:49:00,{}
+ACC-GEN-025-600310e486a4,CUST-GEN-025-267006e3c650,GEN-025,EMP-4d43ef4ef2c4,customer_support,True,"name,email,phone",loan_review,granted,bulk,2024-10-23T12:53:00,"{""pii_fields_justified"": false}"
+ACC-GEN-025-fc556a5a94eb,CUST-GEN-025-6d46524f3d20,GEN-025,EMP-caaecab31630,engineer,True,"name,email,phone",loan_review,granted,medium,2025-04-07T15:47:00,{}

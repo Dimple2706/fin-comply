@@ -1,0 +1,6 @@
+system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
+SYS-GEN-305-c95db0947e74,GEN-305,Core Banking System,crm,customer_data,True,False,False,False,no,external,False,,{}
+SYS-GEN-305-451625a59fda,GEN-305,CRM Platform,core_banking,credit_scores,True,False,False,False,no,external,False,,{}
+SYS-GEN-305-431ea9857009,GEN-305,Analytics Engine,analytics,transaction_data,True,False,False,False,yes,external,False,,{}
+SYS-GEN-305-3e806f25bb84,GEN-305,KYC Platform,kyc_platform,credit_scores,True,False,False,False,no,external,False,,{}
+SYS-GEN-305-c1f5df21e17c,GEN-305,Payment Gateway,payment_gateway,kyc_documents,True,False,False,False,yes,external,False,,{}
