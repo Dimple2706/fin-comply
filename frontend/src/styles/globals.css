@@ -149,4 +149,32 @@
   .btn-gradient {
     background-image: linear-gradient(135deg, #3B82F6, #6366F1);
   }
+
+  /* Brand color utilities for onboarding components */
+  .bg-brand-primary\/10 { background-color: rgba(59, 130, 246, 0.10); }
+  .bg-brand-primary\/20 { background-color: rgba(59, 130, 246, 0.20); }
+  .border-brand-primary { border-color: var(--brand-primary); }
+  .border-brand-primary\/20 { border-color: rgba(59, 130, 246, 0.20); }
+  .border-brand-primary\/40 { border-color: rgba(59, 130, 246, 0.40); }
+  .text-brand-primary { color: var(--brand-primary); }
+  .bg-brand-glow { background-color: var(--brand-glow); }
+
+  /* Subtle scrollbar for terms content areas */
+  .terms-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-border) transparent;
+  }
+  .terms-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .terms-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .terms-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--bg-border);
+    border-radius: 3px;
+  }
+  .terms-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
+  }
 }

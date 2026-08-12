@@ -24,3 +24,15 @@
 {"timestamp": "2026-07-25T17:41:20.483002Z", "event_type": "login_success", "user": "viewer", "tenant_id": null, "details": {"username": "viewer", "role": "viewer"}}
 {"timestamp": "2026-07-25T17:41:21.126823Z", "event_type": "login_success", "user": "reviewer", "tenant_id": null, "details": {"username": "reviewer", "role": "reviewer"}}
 {"timestamp": "2026-07-25T17:41:21.798189Z", "event_type": "login_success", "user": "admin", "tenant_id": null, "details": {"username": "admin", "role": "admin"}}
+{"timestamp": "2026-08-11T16:13:19.965850Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-11T18:16:26.072377Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-11T18:16:26.074256Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-11T18:53:11.816420Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-11T18:54:22.835820Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-11T18:54:22.837727Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-12T14:16:38.358834Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-12T14:17:20.571814Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-12T14:17:20.573114Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-12T14:31:10.683723Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-12T14:31:30.504179Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-12T14:31:30.505370Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 import { 
   HiOutlineShieldCheck, 
@@ -18,6 +18,11 @@ import {
 } from 'react-icons/hi2';
 import Card from '../components/ui/Card';
 import { runAnalysis } from '../services/api';
+import { getTermsAcceptance, clearTermsAcceptance } from '../utils/termsAcceptance';
+import { TERMS_VERSION } from '../utils/termsAcceptance';
+import TermsGate from '../components/onboarding/TermsGate';
+import OnboardingProgress from '../components/onboarding/OnboardingProgress';
+import TermsModal from '../components/onboarding/TermsModal';
 
 const FILE_TYPES = [
   { id: 'governance_config', label: 'Governance Config', icon: HiOutlineShieldCheck },
@@ -85,11 +90,25 @@ function FileZone({ type, file, onDrop, onRemove }) {
 }
 
 export default function Onboarding({ onComplete }) {
+  // Terms acceptance — initialized from localStorage
+  const [termsAccepted, setTermsAccepted] = useState(() => getTermsAcceptance());
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
+  // Upload form state
   const [orgName, setOrgName] = useState('');
   const [tenantId, setTenantId] = useState('');
   const [files, setFiles] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleTermsAccepted = useCallback(() => {
+    setTermsAccepted(true);
+  }, []);
+
+  const handleTermsReset = useCallback(() => {
+    clearTermsAcceptance();
+    setTermsAccepted(false);
+  }, []);
 
   const handleDrop = useCallback((typeId, file) => {
     setFiles(prev => ({ ...prev, [typeId]: file }));
@@ -128,6 +147,17 @@ export default function Onboarding({ onComplete }) {
     }
   };
 
+  // ─── STEP 1: Terms Gate ───────────────────────────────────────────────
+  // The upload interface is NOT rendered (not merely hidden) until accepted.
+  if (!termsAccepted) {
+    return (
+      <AnimatePresence mode="wait">
+        <TermsGate onAccept={handleTermsAccepted} />
+      </AnimatePresence>
+    );
+  }
+
+  // ─── STEP 2: Organisation Setup + Data Upload ─────────────────────────
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -139,8 +169,8 @@ export default function Onboarding({ onComplete }) {
       {loading && (
         <div className="fixed inset-0 z-50 bg-base/80 backdrop-blur-sm flex flex-col items-center justify-center">
           <div className="h-12 w-12 rounded-full border-4 border-brand-primary/20 border-t-brand-primary animate-spin mb-4" />
-          <h3 className="text-h2 text-primary">Analysing 14 DPDP obligations...</h3>
-          <p className="text-secondary mt-2">Running SHAP weighted attribution engine</p>
+          <h3 className="text-h2 text-primary">Evaluating DPDP and policy compliance rules...</h3>
+          <p className="text-secondary mt-2">Evaluating compliance signals and generating explainable risk insights.</p>
         </div>
       )}
 
@@ -149,24 +179,34 @@ export default function Onboarding({ onComplete }) {
         <div className="flex items-center gap-2">
           <span className="font-bold text-lg tracking-tight">Fin-Comply</span>
           <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-elevated text-secondary border border-subtle">
-            v1.0
+            v{TERMS_VERSION}
           </span>
         </div>
-        <a href="#" className="text-sm text-secondary hover:text-primary transition-colors">
-          Documentation
-        </a>
+        <button
+          onClick={() => setShowTermsModal(true)}
+          className="text-sm text-secondary hover:text-primary transition-colors"
+        >
+          Review Terms
+        </button>
       </nav>
+
+      {/* Terms Review Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        onReset={handleTermsReset}
+      />
 
       <main className="container-center pb-24">
         {/* Hero Section */}
-        <div className="pt-20 max-w-[720px] mx-auto text-center">
+        <div className="pt-16 sm:pt-20 max-w-[720px] mx-auto text-center">
           <motion.div 
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ staggerChildren: 0.1 }}
             className="flex flex-wrap justify-center gap-2 mb-6"
           >
-            {['DPDP Act 2023', 'ISO 31000', 'SHAP XAI', 'NIST'].map(pill => (
+            {['DPDP Act 2023', 'Risk Prediction', 'SHAP XAI', 'Explainable AI'].map(pill => (
               <span key={pill} className="px-3 py-1 rounded-full text-xs font-medium border border-subtle bg-elevated/50 text-secondary">
                 {pill}
               </span>
@@ -187,10 +227,20 @@ export default function Onboarding({ onComplete }) {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-body text-secondary max-w-[560px] mx-auto mb-8"
+            className="text-body text-secondary max-w-[560px] mx-auto mb-6"
           >
-            Run a complete compliance assessment across all 16 DPDP Act obligations in under 60 seconds. Powered by weighted signal scoring and SHAP explainability.
+            Run a complete compliance assessment using deterministic rule evaluation and explainable risk prediction. Powered by weighted signal scoring and SHAP feature attribution.
           </motion.p>
+
+          {/* Progress indicator */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.55 }}
+            className="mb-4"
+          >
+            <OnboardingProgress currentStep={2} />
+          </motion.div>
 
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
@@ -200,7 +250,7 @@ export default function Onboarding({ onComplete }) {
           >
             <span className="flex items-center gap-1.5"><HiOutlineCheckCircle className="text-low" /> 16 DPDP Rules</span>
             <span className="w-1 h-1 rounded-full bg-subtle" />
-            <span className="flex items-center gap-1.5"><HiOutlineCheckCircle className="text-low" /> SHAP Attribution</span>
+            <span className="flex items-center gap-1.5"><HiOutlineCheckCircle className="text-low" /> 3 Policy Rules</span>
             <span className="w-1 h-1 rounded-full bg-subtle" />
             <span className="flex items-center gap-1.5"><HiOutlineCheckCircle className="text-low" /> PDF Reports</span>
           </motion.div>
@@ -295,7 +345,7 @@ export default function Onboarding({ onComplete }) {
         </motion.div>
 
         <footer className="mt-16 text-center text-caption text-muted">
-          Fin-Comply v1.0 • ISO 31000:2018 • DPDP Act 2023
+          Fin-Comply v{TERMS_VERSION} • Decision-Support System • DPDP Act 2023
         </footer>
       </main>
     </motion.div>
