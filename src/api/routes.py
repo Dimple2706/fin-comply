@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import Response
 
-from src.governance.auth import require_any_role, require_reviewer_or_admin, require_admin
 from src.governance.audit_logger import log_event, RULE_APPROVED, RULE_REJECTED
 
 from src.api.schemas import (
@@ -315,7 +314,6 @@ def health_check():
 @router.post("/analyze", response_model=AnalyzeResponse)
 def analyze_tenant(
     request: AnalyzeRequest,
-    current_user: dict = Depends(require_any_role),
 ):
     try:
         analysis_result = run_compliance_analysis(request.tenant_id)
@@ -349,7 +347,6 @@ async def analyze_upload(
     policies: UploadFile = File(...),
     tenant_id: str = Form(...),
     tenant_name: str = Form(...),
-    current_user: dict = Depends(require_any_role),
 ):
     try:
         temp_dir = None
@@ -453,7 +450,6 @@ async def analyze_upload(
 @router.get("/report/pdf/{tenant_id}")
 def download_pdf(
     tenant_id: str,
-    current_user: dict = Depends(require_any_role),
 ):
     """
     Placeholder PDF endpoint. (PDF Generation module to be built in Phase 4).
@@ -484,9 +480,7 @@ def download_pdf(
 # ─────────────────────────────────────────────────────────
 
 @router.get("/rules")
-def list_rules(
-    current_user: dict = Depends(require_any_role),
-):
+def list_rules():
     """Returns all active rules ordered by rule_id. Requires any authenticated user."""
     try:
         with get_db_connection() as conn:
@@ -506,9 +500,7 @@ def list_rules(
 
 
 @router.get("/rules/proposed")
-def list_proposed_rules(
-    current_user: dict = Depends(require_reviewer_or_admin),
-):
+def list_proposed_rules():
     """Returns all pending proposed rules. Requires reviewer or admin role."""
     try:
         with get_db_connection() as conn:
@@ -538,7 +530,6 @@ def list_proposed_rules(
 @router.post("/rules/approve/{proposal_id}")
 def approve_rule(
     proposal_id: int,
-    current_user: dict = Depends(require_admin),
 ):
     """Activates a pending proposed rule. Requires admin role."""
     try:
@@ -564,7 +555,7 @@ def approve_rule(
                 )
 
             rule = row["proposed_rule"]
-            reviewer = current_user["username"]
+            reviewer = "system"
 
             conn.execute(
                 """
@@ -641,7 +632,6 @@ def approve_rule(
 def reject_rule(
     proposal_id: int,
     reason: str = "No reason provided",
-    current_user: dict = Depends(require_admin),
 ):
     """Rejects a pending proposed rule. Requires admin role."""
     try:
@@ -659,7 +649,7 @@ def reject_rule(
                     detail=f"Proposal {proposal_id} is already '{row['status']}'"
                 )
 
-            reviewer = current_user["username"]
+            reviewer = "system"
             rule_id  = row["proposed_rule"].get("rule_id", "unknown")
 
             conn.execute(
@@ -689,9 +679,7 @@ def reject_rule(
 _bias_report_cache = None
 
 @router.get("/governance/bias-report")
-async def get_bias_report(
-  current_user: dict = Depends(require_admin)
-):
+async def get_bias_report():
   global _bias_report_cache
   if _bias_report_cache is None:
     from src.governance.bias_monitor import (

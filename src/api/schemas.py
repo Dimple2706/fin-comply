@@ -4,6 +4,13 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict
 
 
+class UserRegisterRequest(BaseModel):
+    username: str
+    password: str
+    full_name: Optional[str] = None
+    role: Optional[str] = "admin"
+
+
 class AnalyzeRequest(BaseModel):
     """
     What the client sends to our API.
@@ -58,12 +65,12 @@ class ViolationItem(BaseModel):
     dpdp_section:          str
     severity:              str
     risk_weight:           float
-    occurrence_count:      int              # How many records triggered this rule
-    contribution_to_score: float            # L×I×W contribution to overall risk
-    reason:                str              # Concatenated signal reasons
-    explanation:           Optional[FullExplanation] = None
-    penalty_exposure_crore: int = 0
-    root_cause:            str = ""
+    occurrence_count:      int
+    contribution_to_score: float
+    reason:                str
+    explanation:           FullExplanation
+    penalty_exposure_crore: int
+    root_cause:            str
     matched_record_ids:    List[str] = []
     fields_triggered:      List[str] = []
     matched_logs_count:    int = 0
@@ -73,62 +80,32 @@ class ViolationItem(BaseModel):
 
 class AgentBreakdown(BaseModel):
     violations: int
-    warnings: int
+    warnings:   int
 
 
-# ── Remediation Priority ─────────────────────────────────
+# ── Remediation Item ─────────────────────────────────────
 
 class RemediationItem(BaseModel):
-    priority: int
-    rule_id: str
-    rule_name: str
-    action: str
-    urgency: str                     # IMMEDIATE / HIGH / MEDIUM / LOW
+    priority:               int
+    rule_id:                str
+    rule_name:              str
+    action:                 str
+    urgency:                str
     penalty_exposure_crore: int
 
 
-# ── Risk Score ───────────────────────────────────────────
-
-class RiskScore(BaseModel):
-    score: float
-    tier:  str
-
-
-# ── ML Layer Output ────────────────────────────────────────
-
-class MLLayerOutput(BaseModel):
-    ml_available: bool
-    predicted_tier: Optional[str] = None
-    predicted_tier_int: Optional[int] = None
-    probabilities: Optional[Dict[str, float]] = None
-    feature_vector: Optional[Dict[str, float]] = None
-    shap_explanation: Optional[Dict] = None
-    lime_explanation: Optional[Dict] = None
-    model_version: Optional[str] = None
-    agrees_with_deterministic: Optional[bool] = None
-    reason: Optional[str] = None
-
-
-# ── Full API Response ────────────────────────────────────
+# ── Full Analysis Response ───────────────────────────────
 
 class AnalyzeResponse(BaseModel):
-    """
-    Complete compliance analysis response.
-    Includes risk scoring, full XAI data, agent breakdown,
-    executive summary, and remediation priority.
-    All computed from a single agent run — no recomputation.
-    """
-    tenant_id:                    str
-    unique_rules_violated:        int
-    total_violation_occurrences:  int
-    risk_score:                   float
-    risk_tier:                    str
-    violations:                   List[ViolationItem]
-    status:                       str
-    # ── Full XAI pipeline fields ──
-    executive_summary:            str = ""
-    agent_breakdown:              Dict[str, AgentBreakdown] = {}
-    risk_contributions:           Dict[str, float] = {}
-    remediation_priority:         List[RemediationItem] = []
-    total_penalty_exposure_crore: int = 0
-    ml_layer:                     Optional[MLLayerOutput] = None
+    tenant_id:                   str
+    unique_rules_violated:       int
+    total_violation_occurrences: int
+    risk_score:                  float
+    risk_tier:                   str
+    violations:                  List[ViolationItem]
+    status:                      str
+    executive_summary:           Optional[str] = None
+    agent_breakdown:             Optional[Dict[str, AgentBreakdown]] = None
+    risk_contributions:          Optional[Dict[str, float]] = None
+    remediation_priority:        Optional[List[RemediationItem]] = None
+    total_penalty_exposure_crore: Optional[int] = None

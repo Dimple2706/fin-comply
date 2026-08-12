@@ -50,8 +50,3 @@ TOP_K_RETRIEVAL  = 5
 # ── API ──────────────────────────────────────────────────
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ENVIRONMENT    = os.getenv("ENVIRONMENT", "development")
-
-# ── Auth / JWT ───────────────────────────────────────────
-SECRET_KEY                  = os.getenv("SECRET_KEY", "fin-comply-dev-secret-change-in-production")
-ALGORITHM                   = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 480  # 8 hours
