@@ -13,16 +13,29 @@ NATIVE_QUERIES = {
         WHERE p.tenant_id = %s
     """,
     "DPDP-007": """
-        SELECT p.*, si.*
+        SELECT p.*
         FROM access_logs p
-        LEFT JOIN system_inventory si ON p.tenant_id = si.tenant_id
         WHERE p.tenant_id = %s
     """,
     "DPDP-008": """
-        SELECT p.*, si.*
+        SELECT p.*
         FROM security_events p
-        LEFT JOIN system_inventory si ON p.tenant_id = si.tenant_id
         WHERE p.tenant_id = %s
+    """,
+    "DPDP-012": """
+        SELECT g.*,
+               CASE
+                   WHEN EXISTS (
+                       SELECT 1
+                       FROM access_logs a
+                       WHERE a.tenant_id = g.tenant_id
+                         AND a.access_outcome IS NULL
+                   )
+                   THEN NULL
+                   ELSE 'complete'
+               END AS access_outcome
+        FROM governance_config g
+        WHERE g.tenant_id = %s
     """,
     "DPDP-015": """
         SELECT p.*, si.*

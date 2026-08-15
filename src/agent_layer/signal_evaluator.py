@@ -1,9 +1,10 @@
 import logging
 import datetime
 
+import json
 logger = logging.getLogger(__name__)
 
-# PART A — NATIVE_EVALUATORS dict
+# PART A â€” NATIVE_EVALUATORS dict
 NATIVE_EVALUATORS = {}
 
 def register_native(rule_id, signal_id):
@@ -12,7 +13,7 @@ def register_native(rule_id, signal_id):
         return fn
     return decorator
 
-# PART B — evaluate_signal function
+# PART B â€” evaluate_signal function
 def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
     if (rule_id, signal_id) in NATIVE_EVALUATORS:
         return NATIVE_EVALUATORS[(rule_id, signal_id)](row)
@@ -25,6 +26,20 @@ def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
     if field == 'expiry_timestamp' and 'expiry_date' in row:
         field = 'expiry_date'
         
+    # If the field is not a normal column, try additional_attributes JSONB.
+    if field not in row:
+        attrs = row.get("additional_attributes")
+
+        if isinstance(attrs, str):
+            try:
+                attrs = json.loads(attrs)
+            except (json.JSONDecodeError, TypeError):
+                attrs = {}
+
+        if isinstance(attrs, dict) and field in attrs:
+            row = dict(row)
+            row[field] = attrs[field]
+
     if field not in row and operator not in ('is_null', 'is_not_null'):
         logger.warning(f"Field '{field}' not found in row for rule {rule_id}, signal {signal_id}")
         return False
@@ -67,20 +82,27 @@ def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
         elif operator == 'less_than':
             if row_val is None or target_val is None:
                 return False
-                
+
             try:
-                if isinstance(row_val, (str, datetime.date)) and isinstance(target_val, (str, datetime.date)):
-                    v1 = row_val
-                    v2 = target_val
-                    if isinstance(v1, str):
-                        v1 = datetime.date.fromisoformat(v1.split('T')[0])
-                    if isinstance(v2, str):
-                        v2 = datetime.date.fromisoformat(v2.split('T')[0])
-                    return v1 < v2
-            except (ValueError, AttributeError):
-                pass
-            return row_val < target_val
-            
+                date_types = (str, datetime.date, datetime.datetime)
+
+                if isinstance(row_val, date_types) and isinstance(target_val, date_types):
+                    def to_date(v):
+                        if isinstance(v, datetime.datetime):
+                            return v.date()
+                        if isinstance(v, datetime.date):
+                            return v
+                        if isinstance(v, str):
+                            return datetime.date.fromisoformat(v.split('T')[0])
+                        return v
+
+                    return to_date(row_val) < to_date(target_val)
+
+                return row_val < target_val
+
+            except (ValueError, TypeError, AttributeError):
+                return False
+
         elif operator == 'less_than_today':
             if row_val is None:
                 return False
@@ -104,6 +126,44 @@ def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
             except (ValueError, TypeError):
                 return row_val > value
                 
+        elif operator == 'not_subset_of':
+            if row_val is None or target_val is None:
+                return False
+
+            def _as_field_set(v):
+                # PostgreSQL JSONB may already arrive as a Python list.
+                if isinstance(v, (list, tuple, set)):
+                    return {str(x).strip() for x in v if str(x).strip()}
+
+                # JSON string such as ["name", "email"]
+                if isinstance(v, str):
+                    try:
+                        parsed = json.loads(v)
+                        if isinstance(parsed, list):
+                            return {
+                                str(x).strip()
+                                for x in parsed
+                                if str(x).strip()
+                            }
+                    except (json.JSONDecodeError, TypeError):
+                        pass
+
+                    # CSV-style string such as name,email,phone
+                    return {
+                        x.strip()
+                        for x in v.split(',')
+                        if x.strip()
+                    }
+
+                return {str(v).strip()}
+
+            accessed_fields = _as_field_set(row_val)
+            allowed_fields = _as_field_set(target_val)
+
+            # Fires only when at least one accessed field
+            # is outside the organisation's allowed set.
+            return bool(accessed_fields - allowed_fields)
+
         elif operator == 'not_contains':
             if row_val is None:
                 return False
@@ -142,7 +202,7 @@ def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
         logger.warning(f"Evaluation failed for rule {rule_id}, signal {signal_id}: {e}")
         return False
 
-# PART C — evaluate_all_signals function
+# PART C â€” evaluate_all_signals function
 def evaluate_all_signals(rule_id, signals: list[dict], row: dict) -> dict[str, bool]:
     results = {}
     for s in signals:
@@ -151,3 +211,4 @@ def evaluate_all_signals(rule_id, signals: list[dict], row: dict) -> dict[str, b
             continue
         results[signal_id] = evaluate_signal(rule_id, signal_id, s, row)
     return results
+

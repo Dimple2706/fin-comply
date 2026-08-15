@@ -143,8 +143,12 @@ def load_tenant_csvs(csv_dir: Path, tenant_id: str) -> Dict[str, pd.DataFrame]:
         if missing_cols:
             raise ValueError(f"File {filename} is missing required columns: {missing_cols}")
             
-        # Keep only required columns to enforce strict schema adherence
-        df = df[REQUIRED_COLUMNS[table_name]]
+        # Preserve flexible JSONB extension field.
+        # Older uploads may not contain it, so default to empty JSON.
+        if "additional_attributes" not in df.columns:
+            df["additional_attributes"] = "{}"
+
+        df = df[REQUIRED_COLUMNS[table_name] + ["additional_attributes"]]
             
         # 5. Validate single-row constraints
         if table_name in SINGLE_ROW_TABLES:

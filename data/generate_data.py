@@ -1,5 +1,5 @@
 """
-generate_data.py — Part 1 of the XGBoost ML training pipeline.
+generate_data.py â€” Part 1 of the XGBoost ML training pipeline.
 
 Reads generator_config.json, generates synthetic CSVs for each tenant profile,
 runs the full anonymization + compliance pipeline, and stores results in
@@ -26,7 +26,7 @@ import dotenv
 
 dotenv.load_dotenv()
 
-# ── Resolve project root ─────────────────────────────────────
+# â”€â”€ Resolve project root â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 SCRIPT_DIR = Path(__file__).resolve().parent          # data/
 PROJECT_ROOT = SCRIPT_DIR.parent                      # capstone_f/
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -35,12 +35,12 @@ from src.config import tenant_raw_dir
 from src.anonymization.pipeline import run_anonymization_pipeline
 from src.agent_layer.orchestrator import run_compliance_analysis
 
-# ── Paths ─────────────────────────────────────────────────────
+# â”€â”€ Paths â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 CONFIG_PATH = SCRIPT_DIR / "generator_config.json"
 RAW_SYNTHETIC_DIR = SCRIPT_DIR / "raw_synthetic"
 REPORT_PATH = PROJECT_ROOT / "generation_report.txt"
 
-# ── Constants ─────────────────────────────────────────────────
+# â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 AUTHORISED_ROLES = {"compliance_officer", "underwriter", "data_analyst", "manager"}
 
 SYSTEM_TYPES = ["crm", "core_banking", "analytics", "kyc_platform", "payment_gateway", "data_warehouse"]
@@ -59,12 +59,13 @@ POLICY_NAMES = {
     "encryption": "Encryption Standards Policy",
     "access_control": "Access Control Policy",
     "breach_notification": "Breach Notification Policy",
+    "data_minimisation": "Data Minimisation Policy",
 }
 
 
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 # HELPERS
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 def _uid() -> str:
     """Short unique ID for CSV identifiers."""
@@ -141,9 +142,9 @@ def _get_db_connection():
     )
 
 
-# ═══════════════════════════════════════════════════════════════
-# CSV GENERATORS — one per table, in FK dependency order
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# CSV GENERATORS â€” one per table, in FK dependency order
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 def generate_governance_config(profile: dict) -> List[dict]:
     """Generate exactly 1 governance_config row."""
@@ -222,7 +223,7 @@ def generate_consent_records(profile: dict, customer_rows: List[dict]) -> List[d
         cust_id = random.choice(customer_ids)
         is_minor_customer = cust_id in minor_customer_ids
 
-        # Consent status — may differ for minors
+        # Consent status â€” may differ for minors
         if is_minor_customer and "minor_rows_consent_status" in fd:
             consent_status = _pick(fd["minor_rows_consent_status"])
         elif not is_minor_customer and "non_minor_rows_consent_status" in fd:
@@ -236,7 +237,7 @@ def generate_consent_records(profile: dict, customer_rows: List[dict]) -> List[d
 
         consented_purpose = _pick(fd.get("consented_purpose", "loan_processing"))
 
-        # Consent version — some profiles have outdated versions
+        # Consent version â€” some profiles have outdated versions
         outdated_pct = fd.get("consent_version_outdated_pct", 0)
         if isinstance(outdated_pct, (int, float)) and random.random() < outdated_pct:
             consent_version = "v0.1-legacy"
@@ -247,12 +248,12 @@ def generate_consent_records(profile: dict, customer_rows: List[dict]) -> List[d
         consent_ts = _random_timestamp()
         expiry_ts = _random_timestamp(_random_future_date())
 
-        # Withdrawal timestamp — only if status is withdrawn (chk_withdrawal_status)
+        # Withdrawal timestamp â€” only if status is withdrawn (chk_withdrawal_status)
         withdrawal_ts = ""
         if consent_status == "withdrawn":
             withdrawal_ts = _random_timestamp(consent_ts.split("T")[0])
 
-        # Guardian consent hash — handle minor-specific logic
+        # Guardian consent hash â€” handle minor-specific logic
         guardian_consent_id = ""
         if is_minor_customer:
             null_pct = fd.get("minor_rows_guardian_consent_hash_null_pct", 1.0)
@@ -701,9 +702,9 @@ def generate_policies(profile: dict) -> List[dict]:
     return rows
 
 
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 # CSV WRITER
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 def write_csv(rows: List[dict], file_path: Path):
     """Write a list of dicts as a CSV file."""
@@ -722,9 +723,9 @@ def write_csv(rows: List[dict], file_path: Path):
         writer.writerows(rows)
 
 
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 # PROFILE PROCESSOR
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 def process_profile(profile: dict) -> dict:
     """
@@ -749,10 +750,10 @@ def process_profile(profile: dict) -> dict:
     }
 
     print(f"\n{'='*60}")
-    print(f"  Processing: {tenant_id} — {profile_name}")
+    print(f"  Processing: {tenant_id} â€” {profile_name}")
     print(f"{'='*60}")
 
-    # ── Step 1: Generate CSVs in FK order ─────────────────────
+    # â”€â”€ Step 1: Generate CSVs in FK order â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     # 1a. No FK dependencies
     print(f"  [1/10] Generating governance_config...")
@@ -770,7 +771,7 @@ def process_profile(profile: dict) -> dict:
     print(f"  [5/10] Generating consent_records...")
     consent_rows = generate_consent_records(profile, cust_rows)
 
-    # 1d. Transaction depends on consent (→ customer)
+    # 1d. Transaction depends on consent (â†’ customer)
     print(f"  [6/10] Generating transaction_events...")
     txn_rows = generate_transaction_events(profile, consent_rows)
 
@@ -797,7 +798,7 @@ def process_profile(profile: dict) -> dict:
         "policies": len(pol_rows),
     }
 
-    # ── Step 2: Write CSVs ────────────────────────────────────
+    # â”€â”€ Step 2: Write CSVs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Save to data/raw_synthetic/{tenant_id}/
     synthetic_dir = RAW_SYNTHETIC_DIR / tenant_id
     synthetic_dir.mkdir(parents=True, exist_ok=True)
@@ -820,7 +821,7 @@ def process_profile(profile: dict) -> dict:
 
     print(f"  [OK] CSVs written to {synthetic_dir}")
 
-    # ── Step 3: Copy to pipeline-expected location ────────────
+    # â”€â”€ Step 3: Copy to pipeline-expected location â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Pipeline reads from: data/tenants/{tenant_id}/raw/
     pipeline_dir = tenant_raw_dir(tenant_id)
     pipeline_dir.mkdir(parents=True, exist_ok=True)
@@ -832,7 +833,7 @@ def process_profile(profile: dict) -> dict:
 
     print(f"  [OK] CSVs copied to {pipeline_dir}")
 
-    # ── Step 4: Run anonymization pipeline ────────────────────
+    # â”€â”€ Step 4: Run anonymization pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     print(f"  Running anonymization pipeline...")
     anon_result = run_anonymization_pipeline(tenant_id)
     if anon_result.get("status") != "success":
@@ -843,7 +844,7 @@ def process_profile(profile: dict) -> dict:
         return report
     print(f"  [OK] Anonymization complete: {anon_result.get('rows_written', {})}")
 
-    # ── Step 5: Run compliance analysis ───────────────────────
+    # â”€â”€ Step 5: Run compliance analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     print(f"  Running compliance analysis...")
     result = run_compliance_analysis(tenant_id)
     risk_score = result.get("risk_score", 0)
@@ -860,7 +861,7 @@ def process_profile(profile: dict) -> dict:
     print(f"  [OK] Risk Score: {risk_score} | Tier: {risk_tier}")
     print(f"  [OK] Rules triggered: {list(contributions.keys())}")
 
-    # ── Step 6: Write to evaluation_results ───────────────────
+    # â”€â”€ Step 6: Write to evaluation_results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     print(f"  Writing to evaluation_results...")
     try:
         conn = _get_db_connection()
@@ -883,15 +884,15 @@ def process_profile(profile: dict) -> dict:
     except Exception as e:
         print(f"  [FAIL] DB write failed: {e}")
         report["error"] = f"DB write failed: {e}"
-        # Don't mark as failed — the pipeline ran successfully
+        # Don't mark as failed â€” the pipeline ran successfully
         report["status"] = "success_no_db"
 
     return report
 
 
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 # REPORT WRITER
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 def write_report(reports: List[dict]):
     """Write generation_report.txt to repo root."""
@@ -921,7 +922,7 @@ def write_report(reports: List[dict]):
 
         lines.append(f"  Row Counts:")
         for table, count in r.get("row_counts", {}).items():
-            lines.append(f"    {table:30s} → {count}")
+            lines.append(f"    {table:30s} â†’ {count}")
 
         if r.get("risk_score") is not None:
             lines.append(f"  Risk Score:   {r['risk_score']}")
@@ -943,13 +944,13 @@ def write_report(reports: List[dict]):
     print(f"\n[OK] Report written to {REPORT_PATH}")
 
 
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 # MAIN
-# ═══════════════════════════════════════════════════════════════
+# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 def main():
     print("=" * 70)
-    print("  Fin-Comply — Synthetic Data Generator")
+    print("  Fin-Comply â€” Synthetic Data Generator")
     print("  Part 1 of XGBoost ML Training Pipeline")
     print("=" * 70)
 
@@ -1005,3 +1006,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

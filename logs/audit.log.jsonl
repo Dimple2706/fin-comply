@@ -36,3 +36,104 @@
 {"timestamp": "2026-08-12T14:31:10.683723Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
 {"timestamp": "2026-08-12T14:31:30.504179Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
 {"timestamp": "2026-08-12T14:31:30.505370Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T06:16:40.709950Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T06:17:23.366662Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T06:17:23.368294Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T06:19:35.802286Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T06:20:02.029234Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T06:20:02.030719Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T06:21:50.625263Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T06:22:05.426316Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T06:22:05.427535Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T07:42:19.268384Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T07:42:47.352957Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T07:42:47.355845Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T08:41:40.822247Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T08:42:02.207121Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T08:42:02.208096Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T08:45:26.950471Z", "event_type": "analysis_run", "user": "system", "tenant_id": "NEXUSNEOBANK-005", "details": {"risk_score": 10.0, "risk_tier": "LOW", "n_violations": 1035, "n_rules_evaluated": 19, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T09:01:04.508223Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T09:01:17.382069Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T09:01:17.383366Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T09:02:36.281283Z", "event_type": "analysis_run", "user": "system", "tenant_id": "NEXUSNEOBANK-005", "details": {"risk_score": 10.0, "risk_tier": "LOW", "n_violations": 1035, "n_rules_evaluated": 19, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T09:45:35.854733Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T09:46:43.723275Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T09:46:43.725723Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T09:46:54.958038Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T09:47:22.339292Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T09:47:22.341431Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T09:48:33.779742Z", "event_type": "analysis_run", "user": "system", "tenant_id": "NEXUSNEOBANK-005", "details": {"risk_score": 10.0, "risk_tier": "LOW", "n_violations": 1035, "n_rules_evaluated": 19, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T09:57:12.634403Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T14:36:28.061920Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T14:36:28.064624Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T14:37:58.530154Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T14:39:12.414516Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T14:39:12.416116Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T14:40:19.748311Z", "event_type": "analysis_run", "user": "system", "tenant_id": "PAYFLEX-002", "details": {"risk_score": 26.2, "risk_tier": "LOW", "n_violations": 1100, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T14:49:45.395595Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T14:50:37.810610Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T14:50:37.815723Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T14:55:57.216539Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T14:56:52.667559Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T14:56:52.669930Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T14:57:43.299209Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T14:58:41.795683Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T14:58:41.799653Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T14:59:00.892773Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T15:00:13.504930Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T15:00:13.507016Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T15:00:25.701335Z", "event_type": "analysis_run", "user": "system", "tenant_id": "PAYFLEX-002", "details": {"risk_score": 26.2, "risk_tier": "LOW", "n_violations": 1100, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T15:02:08.652366Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T15:03:20.629151Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T15:03:20.631110Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T15:03:30.227891Z", "event_type": "analysis_run", "user": "system", "tenant_id": "PAYFLEX-002", "details": {"risk_score": 26.2, "risk_tier": "LOW", "n_violations": 1100, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T15:04:38.588664Z", "event_type": "analysis_run", "user": "system", "tenant_id": "PAYFLEX-002", "details": {"risk_score": 26.2, "risk_tier": "LOW", "n_violations": 1100, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T16:01:11.687612Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T16:01:32.920648Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T16:01:32.921667Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T16:01:38.701811Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T16:01:55.423932Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T16:01:55.424998Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T16:03:31.322107Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T16:03:49.616599Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T16:03:49.618057Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T16:35:47.875135Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T16:36:35.031904Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T16:36:35.033134Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T17:33:44.933855Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T17:35:03.680652Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T17:35:03.682495Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T17:35:20.561446Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T17:35:54.125705Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T17:35:54.127709Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T17:36:10.315935Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T17:36:53.808003Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T17:36:53.810029Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T17:37:58.969027Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T17:38:29.724136Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T17:38:29.725904Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T17:44:45.150867Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T17:45:26.513035Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T17:45:26.519120Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T18:09:34.337792Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T18:10:16.019977Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T18:10:16.021517Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T18:10:28.034301Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T18:11:07.454836Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T18:11:07.456784Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T18:11:19.334565Z", "event_type": "analysis_run", "user": "system", "tenant_id": "GEN-001", "details": {"risk_score": 32.9, "risk_tier": "MEDIUM", "n_violations": 357, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T18:16:10.616010Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T18:16:38.645608Z", "event_type": "analysis_run", "user": "system", "tenant_id": "GEN-001", "details": {"risk_score": 32.9, "risk_tier": "MEDIUM", "n_violations": 357, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T18:16:55.912440Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T18:16:55.918044Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T18:18:29.787504Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T18:19:12.636261Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T18:19:12.637757Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T18:20:11.392236Z", "event_type": "analysis_run", "user": "system", "tenant_id": "GEN-001", "details": {"risk_score": 28.5, "risk_tier": "LOW", "n_violations": 269, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T18:21:16.587714Z", "event_type": "analysis_run", "user": "system", "tenant_id": "GEN-001", "details": {"risk_score": 28.5, "risk_tier": "LOW", "n_violations": 269, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T18:24:23.319262Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "xgboost", "features": 13}}
+{"timestamp": "2026-08-15T18:24:48.819286Z", "event_type": "analysis_run", "user": "system", "tenant_id": "GEN-001", "details": {"risk_score": 27.5, "risk_tier": "LOW", "n_violations": 161, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T18:25:08.176765Z", "event_type": "model_loaded", "user": "system", "tenant_id": null, "details": {"model": "sentence-transformer", "name": "all-MiniLM-L6-v2"}}
+{"timestamp": "2026-08-15T18:25:08.178659Z", "event_type": "app_startup", "user": "system", "tenant_id": null, "details": {"status": {"xgboost": "loaded", "sentence_transformer": "loaded"}, "routes": 4}}
+{"timestamp": "2026-08-15T18:25:48.936484Z", "event_type": "analysis_run", "user": "system", "tenant_id": "GEN-001", "details": {"risk_score": 27.5, "risk_tier": "LOW", "n_violations": 161, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}
+{"timestamp": "2026-08-15T18:30:07.445940Z", "event_type": "analysis_run", "user": "system", "tenant_id": "PAYFLEX-002", "details": {"risk_score": 14.3, "risk_tier": "LOW", "n_violations": 187, "n_rules_evaluated": 16, "ml_predicted_tier": "CRITICAL"}}

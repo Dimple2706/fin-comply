@@ -97,15 +97,16 @@ class RemediationItem(BaseModel):
 # ── Full Analysis Response ───────────────────────────────
 
 class AnalyzeResponse(BaseModel):
-    tenant_id:                   str
-    unique_rules_violated:       int
-    total_violation_occurrences: int
-    risk_score:                  float
-    risk_tier:                   str
-    violations:                  List[ViolationItem]
-    status:                      str
-    executive_summary:           Optional[str] = None
-    agent_breakdown:             Optional[Dict[str, AgentBreakdown]] = None
-    risk_contributions:          Optional[Dict[str, float]] = None
-    remediation_priority:        Optional[List[RemediationItem]] = None
+    tenant_id:                    str
+    total_obligations:            int
+    unique_rules_violated:        int
+    total_violation_occurrences:  int
+    risk_score:                   float
+    risk_tier:                    str
+    violations:                   List[ViolationItem]
+    status:                       str
+    executive_summary:            Optional[str] = None
+    agent_breakdown:              Optional[Dict[str, AgentBreakdown]] = None
+    risk_contributions:           Optional[Dict[str, float]] = None
+    remediation_priority:         Optional[List[RemediationItem]] = None
     total_penalty_exposure_crore: Optional[int] = None

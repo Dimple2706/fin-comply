@@ -2,103 +2,103 @@
   "type": "local_lime",
   "instance_index": 0,
   "prediction": {
-    "class": "MEDIUM",
-    "confidence": 0.49187329411506653,
+    "class": "CRITICAL",
+    "confidence": 0.969833493232727,
     "class_probabilities": {
-      "COMPLIANT": 0.055,
-      "LOW": 0.040999999999999995,
-      "MEDIUM": 0.49200000000000005,
-      "HIGH": 0.33299999999999996,
-      "CRITICAL": 0.079
+      "COMPLIANT": 0.002,
+      "LOW": 0.001,
+      "MEDIUM": 0.002,
+      "HIGH": 0.026000000000000002,
+      "CRITICAL": 0.97
     }
   },
   "model": "xgboost_v1",
   "num_samples": 500,
   "feature_contributions": [
     {
-      "feature": "1.00 < n_violations <= 4.00",
-      "coefficient": 0.166,
-      "abs_contribution": 0.166,
+      "feature": "n_high_rules_fired > 2.00",
+      "coefficient": 0.2587,
+      "abs_contribution": 0.2587,
       "direction": "positive"
     },
     {
-      "feature": "n_warnings <= 292.00",
-      "coefficient": -0.1054,
-      "abs_contribution": 0.1054,
-      "direction": "negative"
-    },
-    {
-      "feature": "0.00 < n_high_rules_fired <= 1.00",
-      "coefficient": 0.1021,
-      "abs_contribution": 0.1021,
-      "direction": "positive"
-    },
-    {
-      "feature": "0.06 < max_prevalence_ratio <= 0.07",
-      "coefficient": 0.0722,
-      "abs_contribution": 0.0722,
-      "direction": "positive"
-    },
-    {
-      "feature": "0.70 < max_rule_score <= 1.00",
-      "coefficient": 0.0578,
-      "abs_contribution": 0.0578,
-      "direction": "positive"
-    },
-    {
-      "feature": "encryption_violation_count <= 0.00",
-      "coefficient": -0.048,
-      "abs_contribution": 0.048,
-      "direction": "negative"
-    },
-    {
-      "feature": "breach_rule_fired > 0.00",
-      "coefficient": 0.0374,
-      "abs_contribution": 0.0374,
-      "direction": "positive"
-    },
-    {
-      "feature": "access_violation_count <= 0.00",
-      "coefficient": 0.0339,
-      "abs_contribution": 0.0339,
+      "feature": "access_violation_count > 0.00",
+      "coefficient": 0.0878,
+      "abs_contribution": 0.0878,
       "direction": "positive"
     },
     {
       "feature": "policy_violation_count <= 0.00",
-      "coefficient": 0.0181,
-      "abs_contribution": 0.0181,
+      "coefficient": 0.05,
+      "abs_contribution": 0.05,
       "direction": "positive"
     },
     {
-      "feature": "consent_violation_count <= 0.00",
-      "coefficient": 0.0145,
-      "abs_contribution": 0.0145,
+      "feature": "max_prevalence_ratio > 0.07",
+      "coefficient": 0.0366,
+      "abs_contribution": 0.0366,
       "direction": "positive"
-    }
-  ],
-  "explanation": "Key factors driving MEDIUM prediction. To improve tier, focus on reducing: 1.00 < n_violations <= 4.00",
-  "predicted_class": "MEDIUM",
-  "top_features": [
-    {
-      "feature": "1.00 < n_violations <= 4.00",
-      "weight": 0.166
     },
     {
-      "feature": "n_warnings <= 292.00",
-      "weight": -0.1054
+      "feature": "n_critical_rules_fired > 1.00",
+      "coefficient": 0.0354,
+      "abs_contribution": 0.0354,
+      "direction": "positive"
     },
     {
-      "feature": "0.00 < n_high_rules_fired <= 1.00",
-      "weight": 0.1021
+      "feature": "consent_violation_count > 2.00",
+      "coefficient": 0.0291,
+      "abs_contribution": 0.0291,
+      "direction": "positive"
     },
     {
-      "feature": "0.06 < max_prevalence_ratio <= 0.07",
-      "weight": 0.0722
+      "feature": "0.00 < minor_data_rule_fired <= 1.00",
+      "coefficient": -0.0245,
+      "abs_contribution": 0.0245,
+      "direction": "negative"
+    },
+    {
+      "feature": "4.00 < n_violations <= 459.00",
+      "coefficient": 0.0214,
+      "abs_contribution": 0.0214,
+      "direction": "positive"
     },
     {
       "feature": "0.70 < max_rule_score <= 1.00",
-      "weight": 0.0578
+      "coefficient": 0.0133,
+      "abs_contribution": 0.0133,
+      "direction": "positive"
+    },
+    {
+      "feature": "1.00 < retention_violation_count <= 2.00",
+      "coefficient": 0.0038,
+      "abs_contribution": 0.0038,
+      "direction": "positive"
     }
   ],
-  "counterfactual_summary": "Key factors driving MEDIUM prediction. To improve tier, focus on reducing: 1.00 < n_violations <= 4.00"
+  "explanation": "Key factors driving CRITICAL prediction. To improve tier, focus on reducing: n_high_rules_fired > 2.00",
+  "predicted_class": "CRITICAL",
+  "top_features": [
+    {
+      "feature": "n_high_rules_fired > 2.00",
+      "weight": 0.2587
+    },
+    {
+      "feature": "access_violation_count > 0.00",
+      "weight": 0.0878
+    },
+    {
+      "feature": "policy_violation_count <= 0.00",
+      "weight": 0.05
+    },
+    {
+      "feature": "max_prevalence_ratio > 0.07",
+      "weight": 0.0366
+    },
+    {
+      "feature": "n_critical_rules_fired > 1.00",
+      "weight": 0.0354
+    }
+  ],
+  "counterfactual_summary": "Key factors driving CRITICAL prediction. To improve tier, focus on reducing: n_high_rules_fired > 2.00"
 }

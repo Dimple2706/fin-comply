@@ -1,10 +1,13 @@
-import os
+﻿import os
+import logging
 import psycopg
 from datetime import date, timedelta
 from typing import Dict, Any, List
 import dotenv
 
 dotenv.load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 def get_db_connection() -> psycopg.Connection:
     """
@@ -172,19 +175,22 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
 
                 # 2. system_inventory
                 try:
-                    si = data.get("system_inventory")
-                    if si:
+                    si_list = data.get("system_inventory", [])
+                    if isinstance(si_list, dict):
+                        si_list = [si_list]
+                    for si in si_list:
                         cur.execute("""
                             INSERT INTO system_inventory 
-                            (system_hash, tenant_id, system_name, system_type, encryption_enabled, 
+                            (system_hash, tenant_id, system_name, system_type, pii_stored, encryption_enabled, 
                              access_control_enabled, data_processor_type, retention_policy_applied, 
                              dpa_signed, dpa_expiry_date) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT DO NOTHING
                         """, (
-                            si["system_hash"], si["tenant_id"], si["system_name"], si["system_type"], 
-                            si["encryption_enabled"], si["access_control_enabled"], si["data_processor_type"], 
-                            si["retention_policy_applied"], si["dpa_signed"], si["dpa_expiry_date"]
+                            si["system_hash"], si["tenant_id"], si["system_name"], si["system_type"],
+                            si.get("pii_stored", False), si["encryption_enabled"], si["access_control_enabled"],
+                            si["data_processor_type"], si["retention_policy_applied"],
+                            si["dpa_signed"], si["dpa_expiry_date"]
                         ))
                         rows_written["system_inventory"] += cur.rowcount
                 except Exception as e:
@@ -192,18 +198,20 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
 
                 # 3. policies
                 try:
-                    pol = data.get("policies")
-                    if pol:
+                    pol_list = data.get("policies", [])
+                    if isinstance(pol_list, dict):
+                        pol_list = [pol_list]
+                    for pol in pol_list:
                         cur.execute("""
                             INSERT INTO policies 
                             (policy_hash, tenant_id, policy_type, policy_name, policy_value_numeric, 
-                             policy_value_unit, effective_date, last_updated, is_active) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             policy_value_unit, effective_date, last_updated, is_active, additional_attributes) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb)
                             ON CONFLICT DO NOTHING
                         """, (
                             pol["policy_hash"], pol["tenant_id"], pol["policy_type"], pol["policy_name"], 
                             pol["policy_value_numeric"], pol["policy_value_unit"], pol["effective_date"], 
-                            pol["last_updated"], pol["is_active"]
+                            pol["last_updated"], pol["is_active"], pol.get("additional_attributes", "{}")
                         ))
                         rows_written["policies"] += cur.rowcount
                 except Exception as e:
@@ -211,8 +219,10 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
 
                 # 4. customer_master
                 try:
-                    cm = data.get("customer_master")
-                    if cm:
+                    cm_list = data.get("customer_master", [])
+                    if isinstance(cm_list, dict):
+                        cm_list = [cm_list]
+                    for cm in cm_list:
                         cur.execute("""
                             INSERT INTO customer_master 
                             (customer_hash, tenant_id, is_minor, data_principal_type, account_status, 
@@ -229,8 +239,10 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
 
                 # 5. consent_records
                 try:
-                    cr = data.get("consent_records")
-                    if cr:
+                    cr_list = data.get("consent_records", [])
+                    if isinstance(cr_list, dict):
+                        cr_list = [cr_list]
+                    for cr in cr_list:
                         ensure_customer_exists(cr["customer_hash"], cr["tenant_id"])
                         cur.execute("""
                             INSERT INTO consent_records 
@@ -310,14 +322,14 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                             INSERT INTO access_logs 
                             (access_hash, customer_hash, tenant_id, employee_hash, employee_role, 
                              accessed_pii, pii_fields_accessed, access_reason, access_outcome, 
-                             data_volume_accessed, access_date) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             data_volume_accessed, access_date, additional_attributes) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb)
                             ON CONFLICT DO NOTHING
                         """, (
                             al["access_hash"], al["customer_hash"], al["tenant_id"], al["employee_hash"], 
                             al["employee_role"], al["accessed_pii"], al["pii_fields_accessed"], 
                             al["access_reason"], al["access_outcome"], al["data_volume_accessed"], 
-                            al["access_date"]
+                            al["access_date"], al.get("additional_attributes", "{}")
                         ))
                         rows_written["access_logs"] += cur.rowcount
                 except Exception as e:
@@ -325,8 +337,10 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
 
                 # 8. data_lifecycle
                 try:
-                    dl = data.get("data_lifecycle")
-                    if dl:
+                    dl_list = data.get("data_lifecycle", [])
+                    if isinstance(dl_list, dict):
+                        dl_list = [dl_list]
+                    for dl in dl_list:
                         ensure_customer_exists(dl["customer_hash"], dl["tenant_id"])
                         cur.execute("""
                             INSERT INTO data_lifecycle 
@@ -398,9 +412,14 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
 
             # Commit the transaction completely
             conn.commit()
+
+            # Log ingestion row counts (no PII)
+            for table_name, count in rows_written.items():
+                logger.info(f"[INGESTION] {table_name}: inserted={count}")
             
     except Exception as e:
         # Implicit rollback occurs upon escaping the context manager with an error in psycopg3
         raise Exception(f"Transaction failed and aborted completely. Reason: {e}")
 
     return rows_written
+

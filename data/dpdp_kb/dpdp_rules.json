@@ -31,7 +31,7 @@
         "signal_id": "S2",
         "field": "expiry_timestamp",
         "operator": "less_than",
-        "value": "processing_timestamp",
+        "value": "timestamp",
         "weight": 0.3,
         "description": "Consent expiry date is before the processing event timestamp"
       },
