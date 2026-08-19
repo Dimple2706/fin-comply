@@ -1,0 +1,7 @@
+policy_hash,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,policy_value_text,effective_date,last_updated,is_active
+03e186572219,WEALTHNEST-003,retention,KYC Retention Policy,1825,days,,2026-01-13,2026-01-13,True
+c6cae290cdd5,WEALTHNEST-003,retention,Transaction History Retention,2190,days,,2025-10-22,2025-10-22,True
+ca2d4765380a,WEALTHNEST-003,consent,Consent Expiry Policy,365,days,,2025-08-01,2025-08-01,True
+ec1b4d5471cd,WEALTHNEST-003,encryption,Data Encryption Standard,,,,2024-09-26,2024-09-26,True
+469fdbd77ecf,WEALTHNEST-003,access_control,PII Access Control Policy,,,,2025-12-22,2025-12-22,True
+7310f62f3d67,WEALTHNEST-003,breach_notification,Breach Notification SLA,72,hours,,2025-12-09,2025-12-09,True

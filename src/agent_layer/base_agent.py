@@ -50,7 +50,8 @@ class BaseAgent(abc.ABC):
         tenant_id: str, record_id: str, outcome: str,
         rule_score: float, signals_fired: List[str], signal_reasons: List[str],
         severity: str, risk_weight: float,
-        penalty_crore: int, v_thresh: float, r_thresh: float
+        penalty_crore: int, v_thresh: float, r_thresh: float,
+        fields_triggered: List[str] = None
     ) -> ViolationRecord:
         return ViolationRecord(
             rule_id=rule_id,
@@ -67,7 +68,8 @@ class BaseAgent(abc.ABC):
             risk_weight=float(risk_weight) if risk_weight is not None else None,
             penalty_exposure_crore=float(penalty_crore) if penalty_crore is not None else None,
             violation_threshold=float(v_thresh) if v_thresh is not None else None,
-            risk_threshold=float(r_thresh) if r_thresh is not None else None
+            risk_threshold=float(r_thresh) if r_thresh is not None else None,
+            fields_triggered=fields_triggered or []
         )
 
     def _run_rule_dynamic(self, rule: dict, tenant_id: str, conn) -> list:
@@ -91,7 +93,7 @@ class BaseAgent(abc.ABC):
             signals = rule.get('evidence_signals', [])
             
             for row in rows:
-                signal_results = evaluate_all_signals(
+                signal_results, fired_fields = evaluate_all_signals(
                     rule['rule_id'], signals, row
                 )
                 
@@ -135,7 +137,8 @@ class BaseAgent(abc.ABC):
                         risk_weight=rule['risk_weight'],
                         penalty_crore=rule.get('max_penalty_crore', 100),
                         v_thresh=rule['violation_threshold'],
-                        r_thresh=rule['risk_threshold']
+                        r_thresh=rule['risk_threshold'],
+                        fields_triggered=fired_fields
                     )
                     results.append(record)
                     

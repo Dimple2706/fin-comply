@@ -1,0 +1,26 @@
+============================================================
+DPDP SYNTHETIC TEST TENANT — GENERATION REPORT
+Tenant : RURALCRED-004 — RuralCred Microfinance Access Pvt Ltd
+Generated : 2026-08-18 23:25
+============================================================
+
+SEEDED VIOLATIONS GROUND TRUTH:
+----------------------------------------
+  stale_consent_reuse              n=42
+  no_notice                        n=31
+  bundled_consent                  n=55
+  minor_no_guardian                n=3
+  purpose_mismatch                 n=71
+  third_party_no_consent           n=17
+  cross_border_no_auth             n=7
+  unauthorised_access              n=41
+  pii_over_collection              n=8
+  retention_overdue                n=81
+  purpose_complete_not_deleted     n=71
+  no_encryption                    n=15
+  breach_delay                     n=9
+  no_dpa                           n=3
+  dsar_sla_breach                  n=7
+  data_accuracy_unverified         n=28
+
+TOTAL SEEDED VIOLATIONS: 489

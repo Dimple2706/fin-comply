@@ -1,0 +1,13 @@
+system_hash,tenant_id,system_name,system_type,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date
+7793afeb89c0,WEALTHNEST-003,Core Banking System 1,core_banking,False,True,True,True,None,internal,True,
+c7c068b5b8d5,WEALTHNEST-003,Kyc Platform System 2,kyc_platform,True,True,True,True,None,third_party_processor,True,2027-07-12
+73eaaa0bd581,WEALTHNEST-003,Crm System 3,crm,True,True,False,True,Salesforce,internal,True,
+8397816d5411,WEALTHNEST-003,Analytics System 4,analytics,True,True,True,True,AWS,internal,True,
+e9d0a50bf13e,WEALTHNEST-003,Crm System 5,crm,True,True,True,True,CIBIL,internal,True,
+895ca9d3542c,WEALTHNEST-003,Data Warehouse System 6,data_warehouse,True,True,True,True,CIBIL,internal,True,
+04010878989d,WEALTHNEST-003,Data Warehouse System 7,data_warehouse,False,True,True,True,CIBIL,third_party_processor,True,2027-05-27
+fabfd97dbfde,WEALTHNEST-003,Kyc Platform System 8,kyc_platform,False,True,True,True,CIBIL,third_party_processor,True,2027-03-28
+e8d1605617de,WEALTHNEST-003,Data Warehouse System 9,data_warehouse,True,True,True,True,CIBIL,internal,True,
+30c795a5841f,WEALTHNEST-003,Data Warehouse System 10,data_warehouse,True,True,False,True,Experian,internal,True,
+fa8ec0b65c8e,WEALTHNEST-003,Crm System 11,crm,True,True,True,True,Salesforce,internal,True,
+8221171dd7e2,WEALTHNEST-003,Payment Gateway System 12,payment_gateway,True,True,True,True,AWS,third_party_processor,True,2027-07-09

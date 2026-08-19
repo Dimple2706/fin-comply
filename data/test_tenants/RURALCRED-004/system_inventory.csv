@@ -1,0 +1,13 @@
+system_hash,tenant_id,system_name,system_type,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date
+374e244d72c4,RURALCRED-004,Kyc Platform System 1,kyc_platform,True,False,True,True,Experian,internal,True,
+6985afa4c3fb,RURALCRED-004,Crm System 2,crm,True,True,True,True,None,internal,True,
+9e7d4a94340a,RURALCRED-004,Data Warehouse System 3,data_warehouse,False,False,True,True,AWS,internal,True,
+23caa04011cf,RURALCRED-004,Payment Gateway System 4,payment_gateway,True,True,True,False,Experian,third_party_processor,False,
+8973bb3e411e,RURALCRED-004,Kyc Platform System 5,kyc_platform,True,True,True,True,Experian,internal,True,
+5ad3f465c2de,RURALCRED-004,Payment Gateway System 6,payment_gateway,True,True,True,True,AWS,internal,True,
+1bb2cca30832,RURALCRED-004,Data Warehouse System 7,data_warehouse,True,False,True,True,None,third_party_processor,True,2027-01-03
+d13dd7ce663b,RURALCRED-004,Crm System 8,crm,True,True,True,True,AWS,third_party_processor,False,
+6eda1bd93d46,RURALCRED-004,Payment Gateway System 9,payment_gateway,False,True,True,True,None,internal,True,
+0bd4ff097511,RURALCRED-004,Kyc Platform System 10,kyc_platform,True,False,True,True,Experian,third_party_processor,True,2027-05-14
+88e17326ddb8,RURALCRED-004,Analytics System 11,analytics,False,False,True,True,CIBIL,third_party_processor,False,
+2185a26115d3,RURALCRED-004,Analytics System 12,analytics,True,True,True,False,Salesforce,internal,True,

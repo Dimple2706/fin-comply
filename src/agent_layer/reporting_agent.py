@@ -124,8 +124,10 @@ class ReportingAgent:
         for rule_id, vs in groups.items():
             rep = vs[0]  # representative record for metadata
             all_signals = set()
+            all_fields = set()
             for v in vs:
                 all_signals.update(v.signals_fired)
+                all_fields.update(getattr(v, "fields_triggered", []))
 
             entries.append({
                 "rule_id":                rule_id,
@@ -135,6 +137,7 @@ class ReportingAgent:
                 "outcome":                rep.outcome,
                 "score":                  round(max(v.rule_score for v in vs), 4),
                 "signals_fired":          sorted(all_signals),
+                "fields_triggered":       sorted(all_fields),
                 "affected_records_count": len(vs),
                 "penalty_exposure_crore": penalty_map.get(rule_id, rep.penalty_exposure_crore),
             })

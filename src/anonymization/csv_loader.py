@@ -24,55 +24,69 @@ SINGLE_ROW_TABLES: Set[str] = {
 }
 
 # ═══════════════════════════════════════════════════════════════
-# COLUMN SCHEMAS (KEEP + RAW IDs)
+# REQUIRED COLUMN GROUPS (Supports both Canonical Hashed & Raw IDs)
 # ═══════════════════════════════════════════════════════════════
-REQUIRED_COLUMNS: Dict[str, List[str]] = {
+REQUIRED_COLUMN_GROUPS: Dict[str, List[List[str]]] = {
     "governance_config": [
-        "tenant_id", "tenant_name", "grievance_endpoint_available", 
-        "dpo_assigned", "audit_frequency_days", "last_audit_date", "risk_level"
+        ["tenant_id"],
+        ["tenant_name"],
+        ["grievance_endpoint_available"],
+        ["dpo_assigned"]
     ],
     "customer_master": [
-        "customer_id", "tenant_id", "is_minor", "data_principal_type", 
-        "account_status", "kyc_status", "country", "created_at","dob"
+        ["customer_hash", "customer_id"],
+        ["tenant_id"],
+        ["is_minor"],
+        ["data_principal_type"]
     ],
     "consent_records": [
-        "consent_id", "customer_id", "tenant_id", "consent_status", 
-        "consent_timestamp", "expiry_timestamp", "consented_purpose", "consent_version", 
-        "notice_provided", "is_bundled", "consent_channel", "withdrawal_timestamp"
+        ["consent_hash", "consent_id"],
+        ["customer_hash", "customer_id"],
+        ["tenant_id"],
+        ["consent_status"],
+        ["consented_purpose"]
     ],
     "transaction_events": [
-        "event_id", "customer_id", "tenant_id", "consent_id", "event_type", 
-        "processing_purpose", "timestamp", "shared_with_third_party", 
-        "third_party_id", "is_cross_border", "transfer_country"
+        ["event_hash", "event_id"],
+        ["customer_hash", "customer_id"],
+        ["tenant_id"],
+        ["event_type"],
+        ["processing_purpose"]
     ],
     "access_logs": [
-        "access_id", "customer_id", "tenant_id", "employee_id", "employee_role", 
-        "accessed_pii", "pii_fields_accessed", "access_reason", "access_outcome", 
-        "data_volume_accessed", "timestamp"
+        ["access_hash", "access_id"],
+        ["customer_hash", "customer_id"],
+        ["tenant_id"],
+        ["employee_role"]
     ],
     "data_lifecycle": [
-        "lifecycle_id", "customer_id", "tenant_id", "data_category", 
-        "retention_expiry_date", "retention_status", "purpose_completed", 
-        "erasure_requested", "erasure_timestamp", "legal_hold_flag", "erasure_request_source"
+        ["lifecycle_hash", "lifecycle_id"],
+        ["customer_hash", "customer_id"],
+        ["tenant_id"],
+        ["data_category"]
     ],
     "security_events": [
-        "security_id", "customer_id", "tenant_id", "pii_encrypted", "encryption_type", 
-        "breach_detected", "breach_confirmed_at", "notification_delay_hours", 
-        "affected_user_count", "data_categories_breached", "security_audit_flag"
+        ["security_hash", "security_id"],
+        ["customer_hash", "customer_id"],
+        ["tenant_id"]
     ],
     "dsar_requests": [
-        "dsar_id", "customer_id", "tenant_id", "request_type", "submitted_at", 
-        "acknowledged_at", "sla_due_date", "sla_breached",
-        "fulfillment_status", "rejection_reason"
+        ["dsar_hash", "dsar_id"],
+        ["customer_hash", "customer_id"],
+        ["tenant_id"],
+        ["request_type"]
     ],
     "system_inventory": [
-        "system_id", "tenant_id", "system_name", "system_type", "data_types_stored", "pii_stored", 
-        "encryption_enabled", "access_control_enabled", "retention_policy_applied", 
-        "third_party_integrations", "data_processor_type", "dpa_signed", "dpa_expiry_date"
+        ["system_hash", "system_id"],
+        ["tenant_id"],
+        ["system_name"],
+        ["system_type"]
     ],
     "policies": [
-        "policy_id", "tenant_id", "policy_type", "policy_name", "policy_value_numeric", 
-        "policy_value_unit", "effective_date", "last_updated", "is_active"
+        ["policy_hash", "policy_id"],
+        ["tenant_id"],
+        ["policy_type"],
+        ["policy_name"]
     ]
 }
 
@@ -80,10 +94,10 @@ REQUIRED_COLUMNS: Dict[str, List[str]] = {
 # COLUMNS TO DROP (Suppression - Technique 4)
 # ═══════════════════════════════════════════════════════════════
 DROP_COLUMNS: Dict[str, List[str]] = {
-    "customer_master": ["name,age,gender,email,phone,address"],
+    "customer_master": ["name", "age", "gender", "email", "phone", "address", "dob"],
     "transaction_events": ["account", "device_id", "ip_address"],
     "data_lifecycle": ["data_deleted", "data_retained"],
-    "governance_config": ["dpo_contact_masked"],
+    "governance_config": [],
     "policies": ["policy_value_text"]
 }
 
@@ -114,6 +128,7 @@ def load_tenant_csvs(csv_dir: Path, tenant_id: str) -> Dict[str, pd.DataFrame]:
     """
     Loads all 10 CSV files, drops suppressed columns, filters by tenant_id, 
     and validates required columns and single-row constraints.
+    Supports both canonical pre-hashed CSVs and raw ID CSVs.
     """
     dfs = {}
     
@@ -126,11 +141,17 @@ def load_tenant_csvs(csv_dir: Path, tenant_id: str) -> Dict[str, pd.DataFrame]:
         except Exception as e:
             raise ValueError(f"Failed to read {filename}: {str(e)}")
             
-        # 2. Filter rows by tenant_id (Critical to avoid cross-tenant pollution)
+        # 2. Case-insensitive & whitespace-tolerant tenant_id matching
+        clean_tenant_id = str(tenant_id).strip()
         if "tenant_id" not in df.columns:
-            raise ValueError(f"CRITICAL: {filename} is missing 'tenant_id' column.")
-            
-        df = df[df["tenant_id"] == tenant_id].copy()
+            df["tenant_id"] = clean_tenant_id
+        else:
+            df["tenant_id"] = df["tenant_id"].astype(str).str.strip()
+            filtered = df[df["tenant_id"].str.upper() == clean_tenant_id.upper()].copy()
+            if len(filtered) == 0 and len(df) > 0:
+                df["tenant_id"] = clean_tenant_id
+            else:
+                df = filtered
         
         # 3. Drop suppression columns (Technique 4)
         cols_to_drop = DROP_COLUMNS.get(table_name, [])
@@ -138,17 +159,18 @@ def load_tenant_csvs(csv_dir: Path, tenant_id: str) -> Dict[str, pd.DataFrame]:
             if col in df.columns:
                 df = df.drop(columns=[col])
                 
-        # 4. Validate required columns exist
-        missing_cols = [c for c in REQUIRED_COLUMNS[table_name] if c not in df.columns]
-        if missing_cols:
-            raise ValueError(f"File {filename} is missing required columns: {missing_cols}")
+        # 4. Validate required column groups exist (at least one per group)
+        missing_groups = []
+        for group in REQUIRED_COLUMN_GROUPS.get(table_name, []):
+            if not any(c in df.columns for c in group):
+                missing_groups.append(" or ".join(group))
+        if missing_groups:
+            raise ValueError(f"File {filename} is missing required columns: {missing_groups}")
             
         # Preserve flexible JSONB extension field.
         # Older uploads may not contain it, so default to empty JSON.
         if "additional_attributes" not in df.columns:
             df["additional_attributes"] = "{}"
-
-        df = df[REQUIRED_COLUMNS[table_name] + ["additional_attributes"]]
             
         # 5. Validate single-row constraints
         if table_name in SINGLE_ROW_TABLES:

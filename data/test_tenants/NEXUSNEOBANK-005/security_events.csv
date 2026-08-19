@@ -1,0 +1,16 @@
+security_hash,customer_hash,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_date,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag
+4f681030faef,4079cf6a7c3b,NEXUSNEOBANK-005,True,AES-256,False,,,,,False
+a9309974030a,344116851194,NEXUSNEOBANK-005,True,AES-256,False,,,,,False
+e7ca43eafae7,2242d81b56d3,NEXUSNEOBANK-005,True,AES-128,False,,,,,False
+436999a6503e,238456fce658,NEXUSNEOBANK-005,True,AES-128,False,,,,,False
+742249b560f1,a124ac7a3ffa,NEXUSNEOBANK-005,True,AES-256,False,,,,,True
+0d1cc7493ab3,513982b1081c,NEXUSNEOBANK-005,True,AES-256,False,,,,,True
+d12934d35799,c55c3e650b9c,NEXUSNEOBANK-005,True,AES-256,False,,,,,True
+ba3c4b8d1cf0,eb46b9efd269,NEXUSNEOBANK-005,True,AES-128,False,,,,,False
+7dfc3c76a420,a2085d4e078c,NEXUSNEOBANK-005,True,AES-128,False,,,,,True
+5c6a6222c761,5c92f63ef0ed,NEXUSNEOBANK-005,True,AES-256,False,,,,,True
+afaeb22f6020,f9cc5b124ea4,NEXUSNEOBANK-005,True,AES-128,False,,,,,False
+47b685466e2a,8cd299bc1794,NEXUSNEOBANK-005,True,AES-256,False,,,,,True
+062f1b928952,ead8edc85619,NEXUSNEOBANK-005,True,AES-128,False,,,,,False
+649c63aa7a46,0b63f987d80e,NEXUSNEOBANK-005,True,AES-128,False,,,,,False
+0dee1512e5da,3c094aa3e26c,NEXUSNEOBANK-005,True,AES-256,False,,,,,False

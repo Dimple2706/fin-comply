@@ -1,0 +1,16 @@
+security_hash,customer_hash,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_date,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag
+7c532eee9bc1,298e91d5e386,RURALCRED-004,False,none,True,2026-03-07,152,moderate,"name,phone",False
+44acceff5b07,77e3c2e41255,RURALCRED-004,False,none,True,2025-11-21,86,moderate,"name,phone",False
+14fb044dce73,a944da2851d0,RURALCRED-004,True,AES-256,True,2026-01-05,139,moderate,"name,phone",False
+0547f5907939,472f66efae58,RURALCRED-004,True,AES-256,False,,,,,False
+ffe7c8a49fe1,2607dbda5cb0,RURALCRED-004,True,AES-256,True,2026-06-22,105,moderate,"name,phone",False
+625ecb0e9ed9,20c1832a59c0,RURALCRED-004,False,md5,False,,,,,True
+3b5f9636fbda,2ff75f3f4d5f,RURALCRED-004,True,AES-256,True,2026-01-04,105,moderate,"name,phone",False
+dcdfe0a984ad,e75385b959fb,RURALCRED-004,False,none,True,2026-04-21,184,moderate,"name,phone",True
+32db972e5c3b,2ff75f3f4d5f,RURALCRED-004,False,none,True,2025-12-25,228,moderate,"name,phone",True
+a8e9477f986b,1a320ba8ddc4,RURALCRED-004,False,none,True,2026-03-22,98,moderate,"name,phone",True
+3d55bc74fd4b,c45fa92b4a96,RURALCRED-004,False,none,False,,,,,False
+75766bdf25ed,64664ea4a0d7,RURALCRED-004,True,AES-256,False,,,,,False
+1a690140cc8d,2ff75f3f4d5f,RURALCRED-004,False,none,True,2026-03-04,10,moderate,"name,phone",False
+f7b582a1c7ad,64664ea4a0d7,RURALCRED-004,False,md5,False,,,,,False
+e5ab78dfae25,caf7805b9560,RURALCRED-004,False,none,True,2025-12-27,234,moderate,"name,phone",False

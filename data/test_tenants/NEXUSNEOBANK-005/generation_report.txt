@@ -1,0 +1,26 @@
+============================================================
+DPDP SYNTHETIC TEST TENANT — GENERATION REPORT
+Tenant : NEXUSNEOBANK-005 — Nexus Digital Bank & Financial Technologies Pvt Ltd
+Generated : 2026-08-18 23:25
+============================================================
+
+SEEDED VIOLATIONS GROUND TRUTH:
+----------------------------------------
+  stale_consent_reuse              n=0
+  no_notice                        n=0
+  bundled_consent                  n=0
+  minor_no_guardian                n=0
+  purpose_mismatch                 n=0
+  third_party_no_consent           n=0
+  cross_border_no_auth             n=0
+  unauthorised_access              n=0
+  pii_over_collection              n=0
+  retention_overdue                n=0
+  purpose_complete_not_deleted     n=0
+  no_encryption                    n=0
+  breach_delay                     n=0
+  no_dpa                           n=0
+  dsar_sla_breach                  n=0
+  data_accuracy_unverified         n=0
+
+TOTAL SEEDED VIOLATIONS: 0

@@ -1,4 +1,4 @@
-﻿import json
+import json
 import io
 from datetime import datetime
 from reportlab.lib import colors
@@ -141,8 +141,13 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
     if not row:
         raise ValueError(f"No compliance data found for tenant {tenant_id}")
 
-    result_json = row[0]
-    eval_date = row[1]
+    if isinstance(row, dict):
+        result_json = row.get("result_json")
+        eval_date = row.get("created_at")
+    else:
+        result_json = row[0]
+        eval_date = row[1]
+
     data = result_json if isinstance(result_json, dict) else json.loads(result_json)
 
     styles = _build_styles()
@@ -156,9 +161,9 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
     elements = []
     page_width = A4[0] - 72  # usable width
 
-    # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    # PAGE 1: TITLE + EXECUTIVE SUMMARY + SCORE CARD
-    # â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    # ══════════════════════════════════════════════════════════
+    # PAGE 1: TITLE + EXECUTIVE SUMMARY + SCORE CARD + ML LAYER
+    # ══════════════════════════════════════════════════════════
     elements.append(Spacer(1, 1.2 * inch))
 
     # Decorative top line
@@ -178,22 +183,32 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
         styles['ReportSubtitle']
     ))
     elements.append(Paragraph(
-        "Digital Personal Data Protection Act, 2023 â€” Automated Compliance Assessment",
+        "Digital Personal Data Protection Act, 2023 — Automated Compliance Assessment",
         styles['ReportSubtitle']
     ))
+
+    # Audit Run Metadata if present
+    run_meta = data.get("run_metadata")
+    if run_meta:
+        meta_sha = run_meta.get("model_sha256", "N/A")
+        meta_sha_short = meta_sha[:16] + "..." if len(meta_sha) > 16 else meta_sha
+        elements.append(Paragraph(
+            f"<b>Engine Build:</b> v{run_meta.get('engine_version', '1.0.0')} | <b>Schema:</b> {run_meta.get('schema_version', '2026.1')} | <b>Model SHA:</b> {meta_sha_short}",
+            styles['ReportSubtitle']
+        ))
 
     elements.append(HRFlowable(
         width="100%", thickness=1, color=BORDER_COLOR,
         spaceAfter=20, spaceBefore=20,
     ))
 
-    # â”€â”€ Executive Summary â”€â”€
+    # ── Executive Summary ──
     elements.append(Paragraph("1. Executive Summary", styles['SectionTitle']))
     exec_sum = data.get("executive_summary", "No executive summary available.")
     elements.append(Paragraph(exec_sum, styles['CustomBodyText']))
     elements.append(Spacer(1, 0.15 * inch))
 
-    # â”€â”€ Score Card â”€â”€
+    # ── Score Card ──
     elements.append(Paragraph("2. Compliance Score Card", styles['SectionTitle']))
 
     score = data.get("risk_score", 0)
@@ -203,11 +218,19 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
     score_data = [
         ["Metric", "Value"],
         ["ISO 31000 Risk Score", f"{score} / 100"],
-        ["Risk Tier", tier],
+        ["Deterministic Risk Tier", tier],
         ["Unique Rules Violated", str(data.get("unique_rules_violated", 0))],
         ["Total Violation Occurrences", str(data.get("total_violation_occurrences", 0))],
-        ["Maximum Financial Exposure", f"â‚¹ {data.get('total_penalty_exposure_crore', 0)} Crore"],
+        ["Maximum Financial Exposure", f"₹ {data.get('total_penalty_exposure_crore', 0)} Crore"],
     ]
+
+    # Include ML validation tier if available
+    ml = data.get("ml_layer")
+    if ml and ml.get("ml_available"):
+        ml_tier = ml.get("predicted_tier", "UNKNOWN")
+        ml_conf = ml.get("confidence", 0)
+        conf_str = f"{ml_conf:.1f}%" if ml_conf > 1 else f"{ml_conf * 100:.1f}%"
+        score_data.append(["ML Predicted Risk Tier (XGBoost)", f"{ml_tier} (Confidence: {conf_str})"])
 
     t = Table(score_data, colWidths=[page_width * 0.55, page_width * 0.45])
     style_cmds = _header_row_style() + _alternating_rows(len(score_data))
@@ -396,26 +419,26 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
                 elements.append(Paragraph(f"<i>{risk_reason}</i>", styles['CustomBodyText']))
                 elements.append(Spacer(1, 0.05 * inch))
 
-            # â”€â”€ Signal Attribution Table (SHAP) â”€â”€
+            # ── Signal Attribution Table (Deterministic Rule Weights) ──
             signals = exp.get("signals_analysis", [])
             if signals:
-                elements.append(Paragraph("<b>Signal Attribution (SHAP-equivalent):</b>", styles['CellBold']))
-                sig_data = [["Signal", "Description", "Weight", "Fired", "Ï† (SHAP)", "Reason"]]
+                elements.append(Paragraph("<b>Signal Attribution (Deterministic Weight):</b>", styles['CellBold']))
+                sig_data = [["Signal", "Description", "Weight", "Fired", "Contribution", "Reason"]]
                 for s in signals:
-                    fired_str = "âœ“" if s.get("fired") else "â€”"
-                    phi_val = s.get("phi", 0)
+                    fired_str = "✓" if s.get("fired") else "—"
+                    contrib_val = s.get("signal_contribution", s.get("phi", 0))
                     sig_data.append([
                         s.get("signal", ""),
-                        Paragraph(s.get("description", "â€”"), styles['CellText']),
+                        Paragraph(s.get("description", "—"), styles['CellText']),
                         f"{s.get('weight', 0):.2f}",
                         fired_str,
-                        f"{phi_val:.2f}",
-                        Paragraph(s.get("reason", "â€”") if s.get("fired") else "â€”", styles['CellText']),
+                        f"{contrib_val:.2f}",
+                        Paragraph(s.get("reason", "—") if s.get("fired") else "—", styles['CellText']),
                     ])
 
                 # Total row
-                total_shap = exp.get("total_shap", sum(s.get("phi", 0) for s in signals))
-                sig_data.append(["", "", "", "", f"{total_shap:.2f}", Paragraph("<b>Total SHAP</b>", styles['CellBold'])])
+                total_sig = exp.get("total_signal_weight", exp.get("total_shap", sum(s.get("signal_contribution", s.get("phi", 0)) for s in signals)))
+                sig_data.append(["", "", "", "", f"{total_sig:.2f}", Paragraph("<b>Total Signal Weight</b>", styles['CellBold'])])
 
                 st = Table(sig_data, colWidths=[
                     page_width * 0.08, page_width * 0.25, page_width * 0.08,

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { HiOutlineArrowLeft, HiOutlineDocumentArrowDown, HiOutlineCodeBracketSquare } from 'react-icons/hi2';
 import ExecutiveSummary from '../components/dashboard/ExecutiveSummary';
 import MetricsSection from '../components/dashboard/MetricsSection';
+import MLPredictionSection from '../components/dashboard/MLPredictionSection';
 import ChartsSection from '../components/dashboard/ChartsSection';
 import RemediationSection from '../components/dashboard/RemediationSection';
 import ViolationsSection from '../components/dashboard/ViolationsSection';
@@ -101,6 +102,13 @@ export default function Dashboard({ data, onReset }) {
         <ExecutiveSummary summary={data.executive_summary} tenantId={data.tenant_id} />
         
         <MetricsSection data={data} />
+
+        {/* Explainable AI / ML Prediction Layer */}
+        <MLPredictionSection 
+          mlData={data.ml_layer} 
+          deterministicTier={data.risk_tier} 
+          deterministicScore={data.risk_score} 
+        />
         
         <ChartsSection 
           breakdown={data.agent_breakdown} 

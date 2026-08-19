@@ -1,0 +1,16 @@
+security_hash,customer_hash,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_date,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag
+0ceea58875ee,13346e85ec65,PAYFLEX-002,True,AES-256,False,,,,,True
+b1dd727f4ff1,68f87148ca9a,PAYFLEX-002,True,AES-256,False,,,,,False
+b24cb279b599,db0a6d44d924,PAYFLEX-002,True,AES-256,False,,,,,True
+d93506a6d13b,2cbf5ec4d10a,PAYFLEX-002,True,AES-128,False,,,,,False
+e27c1dbbfca7,c4387561a7b8,PAYFLEX-002,True,RSA-2048,True,2026-07-24,29,moderate,"name,phone",False
+de8a55933a3e,292a26c148b6,PAYFLEX-002,True,AES-256,False,,,,,True
+337b5dd0f902,d3bc2363ab6f,PAYFLEX-002,True,AES-256,False,,,,,True
+b4e4a6c0b0e3,ee81cf7a41ee,PAYFLEX-002,False,md5,False,,,,,False
+cd62a7db58ac,b0755fbbdb93,PAYFLEX-002,True,AES-256,False,,,,,False
+2448bcab8ddb,06508903b6b0,PAYFLEX-002,True,AES-256,False,,,,,True
+8f18de83ee77,14aadfb3c7a4,PAYFLEX-002,True,AES-256,False,,,,,False
+ca1f3b19226c,926040ae1281,PAYFLEX-002,True,AES-256,True,2025-12-01,109,moderate,"name,phone",False
+e743b7f31609,926040ae1281,PAYFLEX-002,True,AES-128,True,2026-02-22,132,moderate,"name,phone",False
+1f9cf6a57b33,b9dc52660dae,PAYFLEX-002,True,AES-256,False,,,,,False
+7191d6624824,83ef989b55c3,PAYFLEX-002,False,none,False,,,,,True

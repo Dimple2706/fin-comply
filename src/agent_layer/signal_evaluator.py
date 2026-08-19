@@ -202,13 +202,62 @@ def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
         logger.warning(f"Evaluation failed for rule {rule_id}, signal {signal_id}: {e}")
         return False
 
-# PART C â€” evaluate_all_signals function
-def evaluate_all_signals(rule_id, signals: list[dict], row: dict) -> dict[str, bool]:
+# PART C — evaluate_all_signals function
+def evaluate_all_signals(rule_id, signals: list[dict], row: dict) -> tuple[dict[str, bool], list[str]]:
+    """
+    Evaluates all evidence signals for a given rule against a row dict.
+    Returns:
+        (results_dict, fields_triggered_list)
+        where results_dict maps signal_id -> bool (fired),
+        and fields_triggered_list contains all schema column names
+        participating in any signal that evaluated to True.
+    """
     results = {}
+    fields_triggered = []
+
     for s in signals:
         signal_id = s.get('signal_id')
         if not signal_id:
             continue
-        results[signal_id] = evaluate_signal(rule_id, signal_id, s, row)
-    return results
+
+        fired = evaluate_signal(rule_id, signal_id, s, row)
+        results[signal_id] = fired
+
+        if fired:
+            # 1. Primary field involved in the signal condition
+            field = s.get('field')
+            if field:
+                # Normalize legacy alias names to active schema names if needed
+                if field == 'expiry_timestamp' and 'expiry_date' in row:
+                    field = 'expiry_date'
+                elif field == 'consent_timestamp' and 'consent_date' in row:
+                    field = 'consent_date'
+                elif field == 'timestamp' and 'event_date' in row:
+                    field = 'event_date'
+                elif field == 'timestamp' and 'access_date' in row:
+                    field = 'access_date'
+                elif field == 'submitted_at' and 'submitted_date' in row:
+                    field = 'submitted_date'
+                elif field == 'acknowledged_at' and 'acknowledged_date' in row:
+                    field = 'acknowledged_date'
+                elif field == 'fulfilled_at' and 'fulfilled_date' in row:
+                    field = 'fulfilled_date'
+                elif field == 'erasure_timestamp' and 'erasure_date' in row:
+                    field = 'erasure_date'
+                elif field == 'breach_confirmed_at' and 'breach_confirmed_date' in row:
+                    field = 'breach_confirmed_date'
+
+                fields_triggered.append(field)
+
+            # 2. Target comparison value if it refers to a column in row
+            val = s.get('value')
+            if isinstance(val, str):
+                if val == 'timestamp' and 'event_date' in row:
+                    val = 'event_date'
+                if val in row:
+                    fields_triggered.append(val)
+
+    # Return deduplicated, sorted list of fields triggered
+    return results, sorted(list(set(fields_triggered)))
+
 

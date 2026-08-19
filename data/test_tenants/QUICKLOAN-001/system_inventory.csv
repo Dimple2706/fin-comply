@@ -1,0 +1,13 @@
+system_hash,tenant_id,system_name,system_type,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date
+50e212f746df,QUICKLOAN-001,Core Banking System 1,core_banking,True,True,False,True,None,internal,True,
+1cfc01e3ccd6,QUICKLOAN-001,Core Banking System 2,core_banking,False,True,True,True,AWS,internal,True,
+8416bacd8b84,QUICKLOAN-001,Core Banking System 3,core_banking,True,False,True,True,Salesforce,third_party_processor,True,2027-06-19
+c92036410a1c,QUICKLOAN-001,Kyc Platform System 4,kyc_platform,True,False,True,True,AWS,third_party_processor,True,2027-02-19
+2c56e6784cc3,QUICKLOAN-001,Kyc Platform System 5,kyc_platform,True,False,True,True,Salesforce,internal,True,
+6b5c1d25e7b9,QUICKLOAN-001,Core Banking System 6,core_banking,True,False,True,False,None,internal,True,
+aca64c899144,QUICKLOAN-001,Core Banking System 7,core_banking,True,False,True,True,AWS,internal,True,
+80967559ac56,QUICKLOAN-001,Data Warehouse System 8,data_warehouse,False,False,True,True,CIBIL,internal,True,
+94e84d8bb8da,QUICKLOAN-001,Data Warehouse System 9,data_warehouse,False,True,True,True,None,internal,True,
+07c8465d8674,QUICKLOAN-001,Data Warehouse System 10,data_warehouse,True,True,True,True,Salesforce,internal,True,
+38600f9b50e6,QUICKLOAN-001,Data Warehouse System 11,data_warehouse,True,True,True,True,CIBIL,third_party_processor,False,
+37bc9dab4c59,QUICKLOAN-001,Crm System 12,crm,True,True,True,True,AWS,internal,True,

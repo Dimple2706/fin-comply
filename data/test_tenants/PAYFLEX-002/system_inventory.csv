@@ -1,0 +1,13 @@
+system_hash,tenant_id,system_name,system_type,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date
+81a2f2f72d6d,PAYFLEX-002,Data Warehouse System 1,data_warehouse,True,True,True,False,Salesforce,internal,True,
+7766e9035f5b,PAYFLEX-002,Kyc Platform System 2,kyc_platform,True,True,True,True,CIBIL,third_party_processor,True,2026-12-29
+8fa6eb5578e7,PAYFLEX-002,Kyc Platform System 3,kyc_platform,True,True,True,False,CIBIL,third_party_processor,False,
+429a659b1b77,PAYFLEX-002,Analytics System 4,analytics,True,True,True,True,Experian,third_party_processor,True,2027-05-27
+5b80d9e6d7be,PAYFLEX-002,Crm System 5,crm,True,True,True,True,CIBIL,third_party_processor,False,
+cf60cc414bf7,PAYFLEX-002,Kyc Platform System 6,kyc_platform,True,True,True,True,Salesforce,internal,True,
+04ba1a3e8303,PAYFLEX-002,Core Banking System 7,core_banking,True,True,True,True,None,internal,True,
+55173b2e4f3d,PAYFLEX-002,Analytics System 8,analytics,True,True,True,True,None,third_party_processor,False,
+6d8e819cc899,PAYFLEX-002,Analytics System 9,analytics,False,True,True,True,CIBIL,third_party_processor,True,2027-06-02
+4445f1c4d651,PAYFLEX-002,Analytics System 10,analytics,False,True,True,True,CIBIL,internal,True,
+c909c526712f,PAYFLEX-002,Payment Gateway System 11,payment_gateway,False,True,True,True,Salesforce,third_party_processor,True,2026-11-24
+6239a56c6009,PAYFLEX-002,Kyc Platform System 12,kyc_platform,True,True,True,True,Experian,internal,True,

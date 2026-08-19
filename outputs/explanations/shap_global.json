@@ -15,25 +15,27 @@
     "policy_violation_count"
   ],
   "mean_abs_shap_values": {
-    "n_violations": 1.1261653900146484,
-    "n_warnings": 0.44011881947517395,
-    "n_critical_rules_fired": 0.13212814927101135,
-    "n_high_rules_fired": 0.6705201864242554,
-    "breach_rule_fired": 0.002700959565117955,
-    "minor_data_rule_fired": 0.026872720569372177,
-    "max_rule_score": 0.2969425320625305,
-    "max_prevalence_ratio": 0.5397980213165283,
-    "consent_violation_count": 0.20453201234340668,
-    "retention_violation_count": 0.13145136833190918,
-    "encryption_violation_count": 0.07616284489631653,
-    "access_violation_count": 0.0007918430492281914,
-    "policy_violation_count": 0.009210766293108463
+    "n_violations": 1.71146559715271,
+    "n_warnings": 0.03792376071214676,
+    "n_critical_rules_fired": 0.0,
+    "n_high_rules_fired": 0.029435520991683006,
+    "breach_rule_fired": 0.004313464276492596,
+    "minor_data_rule_fired": 0.0,
+    "max_rule_score": 0.7920408248901367,
+    "max_prevalence_ratio": 0.14910168945789337,
+    "consent_violation_count": 0.004368357360363007,
+    "retention_violation_count": 0.02443128637969494,
+    "encryption_violation_count": 0.09126175940036774,
+    "access_violation_count": 0.3242160379886627,
+    "policy_violation_count": 0.0
   },
   "top_3_features": [
     "n_violations",
-    "n_high_rules_fired",
-    "max_prevalence_ratio"
+    "max_rule_score",
+    "access_violation_count"
   ],
-  "model_version": "xgboost_v1",
-  "trained_on_samples": 595
+  "model_version": "xgboost_leakage_free_v2",
+  "trained_on_samples": 280,
+  "test_holdout_macro_f1": 1.0,
+  "test_holdout_mcc": 1.0
 }

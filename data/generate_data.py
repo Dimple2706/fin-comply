@@ -1,13 +1,31 @@
 """
-generate_data.py â€” Part 1 of the XGBoost ML training pipeline.
+[DEPRECATED] generate_data.py — DO NOT USE FOR NEW DATA GENERATION
+====================================================================
+This file is retained for historical reference only.
 
-Reads generator_config.json, generates synthetic CSVs for each tenant profile,
-runs the full anonymization + compliance pipeline, and stores results in
-evaluation_results.  Produces generation_report.txt on completion.
+Why it was deprecated (E-09):
+  - Outputs raw un-hashed IDs (consent_id, customer_id, event_id) instead of
+    pre-hashed values, causing field name mismatches with the anonymization pipeline.
+  - Generates phantom guardian_consent_id values (e.g. 'GC-<uuid>') that do not
+    reference any real consent row, creating FK orphans that trigger false DPDP-005
+    violations.
+  - Third-party FK references are not validated against system_inventory, producing
+    dangling references that the old db_writer silently patched with fake rows.
+  - Non-deterministic for many fields — same profile produces different violation
+    counts on each run, making ML training non-reproducible.
+
+Canonical replacement:
+  USE data/generate_test_tenants.py instead.
+  - Outputs pre-hashed field values matching the anonymization pipeline schema.
+  - Guarantees FK integrity: consent_records are generated before transaction_events,
+    guardian_consent_hash references real consent IDs from the same run.
+  - Deterministic: each tenant profile has a fixed seed, same profile = same CSVs.
+  - Covers all 5 test tenants: QUICKLOAN-001, PAYFLEX-002, WEALTHNEST-003,
+    RURALCRED-004, NEXUSNEOBANK-005.
 
 Usage:
-    python -m data.generate_data          (from project root)
-    python data/generate_data.py          (from project root)
+    python -m data.generate_test_tenants      (from project root)
+    python data/generate_test_tenants.py      (from project root)
 """
 
 import json
@@ -1005,5 +1023,18 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(
+        "\n"
+        "========================================================\n"
+        "  DEPRECATED: generate_data.py must not be executed.   \n"
+        "========================================================\n"
+        "  Reason: This generator produces un-hashed field names \n"
+        "  (consent_id, customer_id) and phantom FK values that  \n"
+        "  corrupted the compliance engine and ML training data.  \n"
+        "                                                         \n"
+        "  Use the canonical generator instead:                   \n"
+        "    python -m data.generate_test_tenants                 \n"
+        "    python data/generate_test_tenants.py                 \n"
+        "========================================================\n"
+    )
 

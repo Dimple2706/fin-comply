@@ -1,0 +1,16 @@
+security_hash,customer_hash,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_date,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag
+01a937129535,fa4b73fe9538,WEALTHNEST-003,True,AES-128,False,,,,,True
+81f6fbcf358a,dced2aef6d61,WEALTHNEST-003,True,AES-128,False,,,,,False
+404f35600e80,13186a843276,WEALTHNEST-003,True,AES-256,False,,,,,False
+ec372797d7db,eb9a295fa6e4,WEALTHNEST-003,True,AES-256,False,,,,,True
+98c80894ab43,af739baaf0af,WEALTHNEST-003,True,RSA-2048,False,,,,,False
+a7250ece6d6b,c96d20335551,WEALTHNEST-003,True,AES-128,False,,,,,False
+6458e4a59213,d1dd349c8b8b,WEALTHNEST-003,True,AES-256,False,,,,,False
+836e7ef4407d,eed7b831b1bc,WEALTHNEST-003,True,AES-128,False,,,,,True
+42d7ac500497,9d66f8c4671e,WEALTHNEST-003,True,AES-256,False,,,,,False
+10f0b82cfcb7,2c88ee18e03b,WEALTHNEST-003,True,AES-256,False,,,,,False
+3713658dd1a2,8e1d29ada301,WEALTHNEST-003,True,AES-256,False,,,,,True
+b9db240d003b,5893f2d61401,WEALTHNEST-003,True,AES-128,False,,,,,False
+defbf30efca6,fdbec6cbe339,WEALTHNEST-003,True,AES-128,False,,,,,False
+6f4e06386cd3,9eaa7c2e9e23,WEALTHNEST-003,True,AES-128,False,,,,,False
+b2102d031260,a92c2d8e967a,WEALTHNEST-003,True,AES-128,False,,,,,False

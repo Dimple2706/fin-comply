@@ -22,7 +22,9 @@ function ViolationCard({ violation, index }) {
   // Safely get arrays and numbers from explanation
   const signals = Array.isArray(exp?.signals_analysis) ? exp.signals_analysis : [];
   const mitigationSteps = Array.isArray(exp?.mitigation) ? exp.mitigation : [];
-  const totalShap = typeof exp?.total_shap === 'number' ? exp.total_shap : 0;
+  const totalSignalWeight = typeof exp?.total_signal_weight === 'number' 
+    ? exp.total_signal_weight 
+    : (typeof exp?.total_shap === 'number' ? exp.total_shap : 0);
 
   return (
     <Card
@@ -79,10 +81,10 @@ function ViolationCard({ violation, index }) {
           >
             <div className="p-6 grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-              {/* LEFT COLUMN: SHAP Attribution (60%) */}
+              {/* LEFT COLUMN: Rule Signal Attribution (60%) */}
               <div className="lg:col-span-3">
-                <h4 className="text-h4 text-primary mb-1">Signal Attribution</h4>
-                <p className="text-caption text-secondary mb-4">SHAP-equivalent analytical attribution</p>
+                <h4 className="text-h4 text-primary mb-1">Rule Signal Attribution</h4>
+                <p className="text-caption text-secondary mb-4">Deterministic heuristic signal weights evaluated for this violation</p>
 
                 <div className="overflow-x-auto border border-subtle rounded-lg bg-surface">
                   <table className="w-full text-left">
@@ -93,44 +95,47 @@ function ViolationCard({ violation, index }) {
                         <th className="px-4 py-2 text-label text-secondary font-medium">Weight</th>
                         <th className="px-4 py-2 text-label text-secondary font-medium text-center">Fired</th>
                         <th className="px-4 py-2 text-label text-secondary font-medium">Reason</th>
-                        <th className="px-4 py-2 text-label text-secondary font-medium text-right">φ</th>
+                        <th className="px-4 py-2 text-label text-secondary font-medium text-right">Contribution</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-subtle">
-                      {signals.map((sig, idx) => (
-                        <tr key={idx} className={sig?.fired ? 'bg-brand-glow/10' : ''}>
-                          <td className="px-4 py-3 font-mono text-sm font-bold text-primary">{sig?.signal || '—'}</td>
-                          <td className="px-4 py-3 text-caption text-secondary">{sig?.description || '—'}</td>
-                          <td className="px-4 py-3 text-sm text-primary relative min-w-[80px]">
-                            <div className="relative z-10">{(sig?.weight ?? 0).toFixed(2)}</div>
-                            <div
-                              className="absolute inset-y-1 left-2 bg-blue-500/20 rounded z-0"
-                              style={{ width: `${Math.min((sig?.weight ?? 0) * 100, 100)}%` }}
-                            />
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            {sig?.fired ? (
-                              <span className="text-green-400 font-bold">✓</span>
-                            ) : (
-                              <span className="text-muted">—</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-xs italic text-secondary max-w-[200px] truncate" title={sig?.reason || ''}>
-                            {sig?.fired ? (sig?.reason || '—') : '—'}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-right font-mono">
-                            {sig?.fired ? (
-                              <span className="text-blue-400 font-bold">{(sig?.phi ?? 0).toFixed(2)}</span>
-                            ) : (
-                              <span className="text-muted">0.00</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {signals.map((sig, idx) => {
+                        const contrib = sig?.signal_contribution ?? sig?.phi ?? 0;
+                        return (
+                          <tr key={idx} className={sig?.fired ? 'bg-brand-glow/10' : ''}>
+                            <td className="px-4 py-3 font-mono text-sm font-bold text-primary">{sig?.signal || '—'}</td>
+                            <td className="px-4 py-3 text-caption text-secondary">{sig?.description || '—'}</td>
+                            <td className="px-4 py-3 text-sm text-primary relative min-w-[80px]">
+                              <div className="relative z-10">{(sig?.weight ?? 0).toFixed(2)}</div>
+                              <div
+                                className="absolute inset-y-1 left-2 bg-blue-500/20 rounded z-0"
+                                style={{ width: `${Math.min((sig?.weight ?? 0) * 100, 100)}%` }}
+                              />
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              {sig?.fired ? (
+                                <span className="text-green-400 font-bold">✓</span>
+                              ) : (
+                                <span className="text-muted">—</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-xs italic text-secondary max-w-[200px] truncate" title={sig?.reason || ''}>
+                              {sig?.fired ? (sig?.reason || '—') : '—'}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-right font-mono">
+                              {sig?.fired ? (
+                                <span className="text-blue-400 font-bold">{contrib.toFixed(2)}</span>
+                              ) : (
+                                <span className="text-muted">0.00</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                       <tr className="bg-brand-primary/10 border-t border-brand-primary/30">
-                        <td colSpan="5" className="px-4 py-3 text-sm text-primary text-right font-medium">Total:</td>
+                        <td colSpan="5" className="px-4 py-3 text-sm text-primary text-right font-medium">Total Signal Weight:</td>
                         <td className="px-4 py-3 text-sm text-blue-400 text-right font-bold font-mono">
-                          {totalShap.toFixed(2)}
+                          {totalSignalWeight.toFixed(2)}
                         </td>
                       </tr>
                     </tbody>

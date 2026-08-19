@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact_masked,audit_frequency_days,last_audit_date,risk_level
+QUICKLOAN-001,QuickLoan Instant Credits Pvt Ltd,False,False,,180,2026-05-08,HIGH

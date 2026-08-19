@@ -1,0 +1,7 @@
+policy_hash,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,policy_value_text,effective_date,last_updated,is_active
+c46ecc18a711,NEXUSNEOBANK-005,retention,KYC Retention Policy,1825,days,,2024-12-31,2024-12-31,True
+e883daf3a929,NEXUSNEOBANK-005,retention,Transaction History Retention,2190,days,,2024-11-09,2024-11-09,True
+895215b7ab05,NEXUSNEOBANK-005,consent,Consent Expiry Policy,365,days,,2025-11-14,2025-11-14,True
+aa15d01cc19b,NEXUSNEOBANK-005,encryption,Data Encryption Standard,,,,2024-08-29,2024-08-29,True
+1933a4671f4f,NEXUSNEOBANK-005,access_control,PII Access Control Policy,,,,2025-12-18,2025-12-18,True
+93dfd5f0abcb,NEXUSNEOBANK-005,breach_notification,Breach Notification SLA,72,hours,,2026-01-16,2026-01-16,True

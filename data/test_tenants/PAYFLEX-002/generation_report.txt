@@ -1,0 +1,26 @@
+============================================================
+DPDP SYNTHETIC TEST TENANT — GENERATION REPORT
+Tenant : PAYFLEX-002 — PayFlex BNPL Solutions India Pvt Ltd
+Generated : 2026-08-18 23:25
+============================================================
+
+SEEDED VIOLATIONS GROUND TRUTH:
+----------------------------------------
+  stale_consent_reuse              n=13
+  no_notice                        n=7
+  bundled_consent                  n=48
+  minor_no_guardian                n=0
+  purpose_mismatch                 n=33
+  third_party_no_consent           n=13
+  cross_border_no_auth             n=1
+  unauthorised_access              n=6
+  pii_over_collection              n=1
+  retention_overdue                n=18
+  purpose_complete_not_deleted     n=20
+  no_encryption                    n=2
+  breach_delay                     n=2
+  no_dpa                           n=3
+  dsar_sla_breach                  n=2
+  data_accuracy_unverified         n=9
+
+TOTAL SEEDED VIOLATIONS: 178

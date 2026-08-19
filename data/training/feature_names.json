@@ -1,1 +1,15 @@
-["n_violations", "n_warnings", "n_critical_rules_fired", "n_high_rules_fired", "breach_rule_fired", "minor_data_rule_fired", "max_rule_score", "max_prevalence_ratio", "consent_violation_count", "retention_violation_count", "encryption_violation_count", "access_violation_count", "policy_violation_count"]
+[
+  "n_violations",
+  "n_warnings",
+  "n_critical_rules_fired",
+  "n_high_rules_fired",
+  "breach_rule_fired",
+  "minor_data_rule_fired",
+  "max_rule_score",
+  "max_prevalence_ratio",
+  "consent_violation_count",
+  "retention_violation_count",
+  "encryption_violation_count",
+  "access_violation_count",
+  "policy_violation_count"
+]

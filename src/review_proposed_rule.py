@@ -21,7 +21,7 @@ import json
 import psycopg
 from psycopg.rows import dict_row
 
-from rule_authoring_agent import propose_rule, save_proposal, activate_rule, reject_proposal
+from agent_layer.rule_authoring_agent_f import propose_rule, save_proposal, activate_rule, reject_proposal
 
 DB_CONFIG = {
     "host":     "localhost",

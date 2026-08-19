@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 @dataclass
@@ -18,6 +18,7 @@ class ViolationRecord:
     penalty_exposure_crore: int
     violation_threshold: float
     risk_threshold: float
+    fields_triggered: List[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         """
@@ -35,6 +36,7 @@ class ViolationRecord:
             "rule_score": round(self.rule_score, 4),
             "signals_fired": self.signals_fired,
             "signal_reasons": self.signal_reasons,
+            "fields_triggered": self.fields_triggered,
             "severity": self.severity,
             "risk_weight": round(self.risk_weight, 4),
             "penalty_exposure_crore": self.penalty_exposure_crore,

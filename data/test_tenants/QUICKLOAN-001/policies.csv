@@ -1,0 +1,7 @@
+policy_hash,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,policy_value_text,effective_date,last_updated,is_active
+1536256fdc00,QUICKLOAN-001,retention,KYC Retention Policy,1825,days,,2025-12-05,2025-12-05,True
+45704ec414d6,QUICKLOAN-001,retention,Transaction History Retention,2190,days,,2024-10-15,2024-10-15,True
+d4a1552a5eb1,QUICKLOAN-001,consent,Consent Expiry Policy,365,days,,2025-03-03,2025-03-03,True
+161438c040ab,QUICKLOAN-001,encryption,Data Encryption Standard,,,,2025-05-30,2025-05-30,True
+3dce41acb720,QUICKLOAN-001,access_control,PII Access Control Policy,,,,2025-07-19,2025-07-19,True
+f62eac764f3b,QUICKLOAN-001,breach_notification,Breach Notification SLA,72,hours,,2024-11-18,2024-11-18,True

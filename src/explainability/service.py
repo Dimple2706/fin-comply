@@ -1,4 +1,4 @@
-﻿from typing import List, Dict, Any
+from typing import List, Dict, Any
 from .explanation import ViolationExplanation
 
 RULE_EXPLANATIONS = {
@@ -253,11 +253,14 @@ def explain_violation(v: Dict[str, Any], risk_contribution: float) -> ViolationE
                 top_signal_weight = weight
                 top_contributing_signal = signal_key
 
+        contrib = weight if fired else 0.0
         signals_analysis.append({
             "signal": signal_key,
             "weight": weight,
             "fired": fired,
-            "reason": reason
+            "reason": reason,
+            "signal_contribution": round(contrib, 4),
+            "phi": round(contrib, 4),
         })
         
     return ViolationExplanation(

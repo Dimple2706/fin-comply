@@ -1,7 +1,7 @@
 # src/api/schemas.py
 
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 
 class UserRegisterRequest(BaseModel):
@@ -23,17 +23,17 @@ class AnalyzeRequest(BaseModel):
 
 class SignalDetail(BaseModel):
     """
-    SHAP-equivalent attribution for one signal.
-    phi = weight × fired (1 if fired, 0 if not).
-    Exact for linear additive scoring models.
-    Evidence: Lundberg & Lee (2017) NeurIPS.
+    Deterministic rule signal attribution.
+    signal_contribution = weight × fired (1 if fired, 0 if not).
+    Evidence: Deterministic heuristic rule scoring.
     """
-    signal: str              # "S1", "S2", etc.
-    description: str         # Human-readable meaning
-    weight: float            # Signal weight in model
-    fired: bool              # Whether this signal fired
-    reason: str              # Why it fired (from agent)
-    phi: float               # SHAP value
+    signal: str                                  # "S1", "S2", etc.
+    description: str                             # Human-readable meaning
+    weight: float                                # Signal weight in rule definition
+    fired: bool                                  # Whether this signal fired
+    reason: str                                  # Why it fired (from agent)
+    signal_contribution: float                   # Deterministic contribution
+    phi: Optional[float] = None                  # Backward-compatible alias for signal_contribution
 
 
 class FullExplanation(BaseModel):
@@ -42,15 +42,16 @@ class FullExplanation(BaseModel):
     Maps to ViolationExplanation from the explainability engine.
     All data is computed from real agent signals — nothing hardcoded.
     """
-    why_detected: str                     # what_happened (rule template)
-    evidence: str                         # what_happened_specific (dynamic, per-record)
-    risk_reason: str                      # why_violation (legal citation)
-    mitigation: List[str]                 # remediation_steps (structured list)
-    signals_analysis: List[SignalDetail]  # Full SHAP attribution table
-    top_contributing_signal: str          # Which signal contributed most
-    total_shap: float                     # Sum of all phi values
-    root_cause: str                       # PROCESS_GAP / TECHNICAL_GAP / etc.
-    penalty_exposure_crore: int           # Financial exposure under DPDP Act
+    why_detected: str                            # what_happened (rule template)
+    evidence: str                                # what_happened_specific (dynamic, per-record)
+    risk_reason: str                             # why_violation (legal citation)
+    mitigation: List[str]                        # remediation_steps (structured list)
+    signals_analysis: List[SignalDetail]         # Rule signal attribution table
+    top_contributing_signal: str                 # Which signal contributed most
+    total_signal_weight: float                   # Sum of fired signal weights
+    total_shap: Optional[float] = None           # Backward-compatible alias for total_signal_weight
+    root_cause: str                              # PROCESS_GAP / TECHNICAL_GAP / etc.
+    penalty_exposure_crore: int                  # Financial exposure under DPDP Act
 
 
 # ── Violation ────────────────────────────────────────────
@@ -94,6 +95,17 @@ class RemediationItem(BaseModel):
     penalty_exposure_crore: int
 
 
+# ── Run Metadata & Governance Versioning ─────────────────
+
+class RunMetadata(BaseModel):
+    engine_version:     str = "1.0.0"
+    schema_version:     str = "2026.1"
+    active_rule_count:  int
+    model_version:      str = "1.0"
+    model_sha256:       Optional[str] = None
+    evaluated_at:       str
+
+
 # ── Full Analysis Response ───────────────────────────────
 
 class AnalyzeResponse(BaseModel):
@@ -110,3 +122,5 @@ class AnalyzeResponse(BaseModel):
     risk_contributions:           Optional[Dict[str, float]] = None
     remediation_priority:         Optional[List[RemediationItem]] = None
     total_penalty_exposure_crore: Optional[int] = None
+    ml_layer:                     Optional[Dict[str, Any]] = None
+    run_metadata:                 Optional[RunMetadata] = None

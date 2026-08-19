@@ -23,7 +23,7 @@ import google.generativeai as genai
 from datetime import date
 from typing import Optional
 
-from field_registry import check_rule_fields, get_flat_field_list
+from agent_layer.field_registry_f import check_rule_fields, get_flat_field_list
 
 # ── Gemini client ──────────────────────────────────────────────────────────────
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])

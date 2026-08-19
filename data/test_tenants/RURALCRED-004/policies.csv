@@ -1,0 +1,7 @@
+policy_hash,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,policy_value_text,effective_date,last_updated,is_active
+2988a5c0b179,RURALCRED-004,retention,KYC Retention Policy,1825,days,,2025-01-06,2025-01-06,True
+d727587aeebe,RURALCRED-004,retention,Transaction History Retention,2190,days,,2026-02-10,2026-02-10,True
+950e8f1ab17f,RURALCRED-004,consent,Consent Expiry Policy,365,days,,2025-11-02,2025-11-02,True
+05b1d7d48a66,RURALCRED-004,encryption,Data Encryption Standard,,,,2024-12-08,2024-12-08,True
+5e72ba07b60d,RURALCRED-004,access_control,PII Access Control Policy,,,,2025-11-27,2025-11-27,True
+f5b2d2ed2c17,RURALCRED-004,breach_notification,Breach Notification SLA,72,hours,,2026-01-26,2026-01-26,True

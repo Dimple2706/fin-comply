@@ -39,6 +39,13 @@ def map_governance_config(policies: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 def map_system_inventory(sys_inv: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    LEGACY JSON MAPPER — internal systems only.
+    Maps raw system_inventory data from the legacy JSON format (pre-CSV pipeline).
+    This function exclusively handles internal system components, so dpa_signed=False
+    is the correct default. For CSV-based uploads, _anonymize_system_inventory() in
+    field_mapper.py is the active path and reads dpa_signed from the uploaded column.
+    """
     tenant_id = sys_inv["tenant_id"]
     storage = sys_inv.get("storage", "")
     if storage == "encrypted_db":
@@ -55,10 +62,10 @@ def map_system_inventory(sys_inv: Dict[str, Any]) -> Dict[str, Any]:
         "system_type": sys_type,
         "encryption_enabled": sys_inv.get("pii_encrypted", False),
         "access_control_enabled": sys_inv.get("access_control_enabled", False),
-        "data_processor_type": "internal",
+        "data_processor_type": "internal", # LEGACY PATH: internal systems only — dpa_signed=False is correct
         "retention_policy_applied": sys_inv.get("audit_logging_enabled", False),
-        "dpa_signed": False,
-        "dpa_expiry_date": None
+        "dpa_signed": False, # Correct: DPDP-016 excludes internal processors from DPA requirements
+        "dpa_expiry_date": None # Correct: no DPA required for internal processors
     }
 
 def map_policies(policies: Dict[str, Any]) -> Dict[str, Any]:

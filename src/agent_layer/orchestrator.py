@@ -1,6 +1,10 @@
 import sys
 import json
+import hashlib
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import List, Tuple, Dict
+from psycopg.sql import SQL, Identifier
 
 from .db_connection import get_connection
 from .violation_record import ViolationRecord
@@ -12,6 +16,25 @@ from .policy_agent import PolicyAgent
 import logging
 
 logger = logging.getLogger(__name__)
+
+ALLOWED_TABLES = {
+    "governance_config",
+    "system_inventory",
+    "policies",
+    "customer_master",
+    "consent_records",
+    "transaction_events",
+    "access_logs",
+    "data_lifecycle",
+    "security_events",
+    "dsar_requests",
+}
+
+def _get_model_sha256() -> str:
+    model_path = Path("src/modeling/risk_model.pkl")
+    if model_path.exists():
+        return hashlib.sha256(model_path.read_bytes()).hexdigest()
+    return "model_file_not_found"
 
 
 try:
@@ -49,32 +72,18 @@ SEVERITY_SCORE = {
 
 def load_active_rule_metadata() -> Dict[str, dict]:
     """
-    Loads all enabled rules from PostgreSQL.
-
-    This replaces the old hardcoded:
-    - ALL_RULE_WEIGHTS
-    - RULE_SOURCE_TABLE
-
-    Returns:
-    {
-        "DPDP-001": {
-            "risk_weight": 0.9,
-            "primary_table": "consent_records"
-        },
-        ...
-    }
+    Loads all enabled rules from PostgreSQL including opportunity_query.
     """
-
     conn = get_connection()
 
     try:
-
         rows = conn.execute(
             """
             SELECT
                 rule_id,
                 risk_weight,
-                primary_table
+                primary_table,
+                opportunity_query
             FROM rules
             WHERE enabled = TRUE
             ORDER BY rule_id
@@ -84,16 +93,15 @@ def load_active_rule_metadata() -> Dict[str, dict]:
         metadata = {}
 
         for row in rows:
-
             metadata[row["rule_id"]] = {
                 "risk_weight": float(row["risk_weight"]),
-                "primary_table": row["primary_table"]
+                "primary_table": row["primary_table"],
+                "opportunity_query": row.get("opportunity_query")
             }
 
         return metadata
 
     finally:
-
         conn.close()
 
 
@@ -108,14 +116,13 @@ def compute_risk_score(
 ) -> Tuple[float, str, Dict[str, float]]:
 
     """
-    Computes risk score using rule metadata loaded
-    dynamically from PostgreSQL.
+    Computes risk score using rule metadata and join-aware opportunity
+    counts loaded dynamically from PostgreSQL (E-01a fix).
     """
 
     conn = get_connection()
 
     try:
-
         table_counts = {}
 
         # Get all source tables dynamically from rules table
@@ -126,33 +133,49 @@ def compute_risk_score(
         }
 
         for table in source_tables:
+            if table not in ALLOWED_TABLES:
+                logger.warning(
+                    f"Skipping row count for unauthorized or unknown table '{table}'"
+                )
+                table_counts[table] = 1
+                continue
 
             try:
+                query = SQL(
+                    "SELECT COUNT(*) AS count FROM {} WHERE tenant_id = %s"
+                ).format(Identifier(table))
 
-                row = conn.execute(
-                    f"""
-                    SELECT COUNT(*) AS count
-                    FROM {table}
-                    WHERE tenant_id = %s
-                    """,
-                    [tenant_id]
-                ).fetchone()
+                row = conn.execute(query, [tenant_id]).fetchone()
 
                 table_counts[table] = max(
                     row["count"] if row else 1,
                     1
                 )
-
             except Exception as e:
-
                 logger.warning(
                     f"Could not count rows in {table}: {e}"
                 )
-
                 table_counts[table] = 1
 
-    finally:
+        # [E-01a FIX] Calculate join-aware opportunity counts for targeted subsets
+        opportunity_counts = {}
+        for rule_id, meta in rule_metadata.items():
+            opp_q = meta.get("opportunity_query")
+            if opp_q:
+                try:
+                    row = conn.execute(opp_q, [tenant_id]).fetchone()
+                    if row is not None:
+                        count_val = row[0] if not isinstance(row, dict) else row.get("count", 1)
+                        opportunity_counts[rule_id] = max(int(count_val) if count_val else 1, 1)
+                    else:
+                        opportunity_counts[rule_id] = table_counts.get(meta.get("primary_table"), 1)
+                except Exception as e:
+                    logger.warning(f"Could not execute opportunity query for {rule_id}: {e}")
+                    opportunity_counts[rule_id] = table_counts.get(meta.get("primary_table"), 1)
+            else:
+                opportunity_counts[rule_id] = table_counts.get(meta.get("primary_table"), 1)
 
+    finally:
         conn.close()
 
 
@@ -161,7 +184,6 @@ def compute_risk_score(
     rule_groups: Dict[str, List[ViolationRecord]] = {}
 
     for violation in violations:
-
         rule_groups.setdefault(
             violation.rule_id,
             []
@@ -172,22 +194,16 @@ def compute_risk_score(
 
     contributions: Dict[str, float] = {}
 
-
     for rule_id, rule_violations in rule_groups.items():
-
         metadata = rule_metadata.get(rule_id)
 
         # Rule should exist in PostgreSQL.
-        # If it does not, don't silently use hardcoded fallback data.
         if not metadata:
-
             logger.warning(
                 f"Rule {rule_id} produced a violation "
                 f"but is not present as an enabled DB rule."
             )
-
             continue
-
 
         affected_rows = len(rule_violations)
 
@@ -196,45 +212,23 @@ def compute_risk_score(
             for violation in rule_violations
         )
 
-
-        # IMPORTANT:
-        # risk weight now comes from PostgreSQL
         risk_weight = metadata["risk_weight"]
-
-
-        severity = (
-            rule_violations[0].severity
-        )
-
-
-        penalty_crore = (
-            rule_violations[0]
-            .penalty_exposure_crore
-        )
-
+        severity = rule_violations[0].severity
+        penalty_crore = rule_violations[0].penalty_exposure_crore
 
         # ─────────────────────────────────────────────────────
-        # Likelihood
+        # Likelihood (Join-Aware Denominator E-01a)
         # ─────────────────────────────────────────────────────
-
-        # IMPORTANT:
-        # source table now comes from PostgreSQL
-        source_table = (
-            metadata["primary_table"]
+        source_table = metadata["primary_table"]
+        total_opportunity = opportunity_counts.get(
+            rule_id,
+            table_counts.get(source_table, 1)
         )
-
-
-        total_rows = table_counts.get(
-            source_table,
-            1
-        )
-
 
         prevalence_ratio = min(
-            affected_rows / total_rows,
+            affected_rows / max(total_opportunity, 1),
             1.0
         )
-
 
         recurrence_factor = (
             1.0
@@ -242,7 +236,6 @@ def compute_risk_score(
             min(
                 _RECURRENCE_STEP
                 * (affected_rows - 1),
-
                 _RECURRENCE_MAX_BONUS
             )
         )
@@ -327,46 +320,53 @@ def compute_risk_score(
 
 
     if max_possible > 0:
-
         risk_score = round(
-
             min(
                 (raw_score / max_possible) * 100,
                 100.0
             ),
-
             1
         )
-
     else:
-
         risk_score = 0.0
 
+    # ─────────────────────────────────────────────────────────
+    # Severity Floor Policy (E-01b Fix)
+    # ─────────────────────────────────────────────────────────
+    # DPDP Statutory Policy:
+    # 1. Any CRITICAL violation (e.g. minor data without consent under Sec 9)
+    #    must never score below 65.0 (guarantees HIGH tier minimum).
+    # 2. Accumulation of 3+ HIGH severity violations must never score below 45.0 (guarantees MEDIUM tier minimum).
+    has_critical = any(
+        v.severity == "CRITICAL"
+        for v in violations
+        if getattr(v, "outcome", "VIOLATION") == "VIOLATION"
+    )
+    high_count = sum(
+        1
+        for v in violations
+        if v.severity == "HIGH" and getattr(v, "outcome", "VIOLATION") == "VIOLATION"
+    )
+
+    if has_critical:
+        risk_score = max(risk_score, 65.0)
+    elif high_count >= 3:
+        risk_score = max(risk_score, 45.0)
 
     # ─────────────────────────────────────────────────────────
     # Risk tier
     # ─────────────────────────────────────────────────────────
 
     if risk_score == 0:
-
         tier = "COMPLIANT"
-
     elif risk_score < 30:
-
         tier = "LOW"
-
     elif risk_score < 55:
-
         tier = "MEDIUM"
-
     elif risk_score < 75:
-
         tier = "HIGH"
-
     else:
-
         tier = "CRITICAL"
-
 
     return (
         risk_score,
@@ -736,7 +736,16 @@ def run_compliance_analysis(
         "ml_layer":
             report.get(
                 "ml_layer"
-            )
+            ),
+
+        "run_metadata": {
+            "engine_version": "1.0.0",
+            "schema_version": "2026.1",
+            "active_rule_count": total_obligations,
+            "model_version": "1.0",
+            "model_sha256": _get_model_sha256(),
+            "evaluated_at": datetime.now(timezone.utc).isoformat(),
+        }
     }
 
 

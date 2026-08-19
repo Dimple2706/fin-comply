@@ -1,0 +1,16 @@
+security_hash,customer_hash,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_date,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag
+bfc425d607f7,bf3d4b316341,QUICKLOAN-001,True,RSA-2048,False,,,,,False
+4df62007b985,f44682735e76,QUICKLOAN-001,False,md5,True,2025-10-30,168,moderate,"name,phone",False
+2f724e02b6fd,1325d17482b1,QUICKLOAN-001,False,none,False,,,,,False
+11b63c169ba3,6441477ee13a,QUICKLOAN-001,True,RSA-2048,False,,,,,True
+137afcb3fb85,1622eb5f84ba,QUICKLOAN-001,False,md5,False,,,,,False
+baaa616f802b,4171128fc318,QUICKLOAN-001,True,AES-256,False,,,,,True
+dc02af03f334,8b5059a388c6,QUICKLOAN-001,False,none,False,,,,,False
+0f26b276ba9f,10e0b3102da6,QUICKLOAN-001,False,none,False,,,,,False
+1acb3345978c,c0756715aaf0,QUICKLOAN-001,False,none,False,,,,,False
+b00bd632b176,f95349c35891,QUICKLOAN-001,True,AES-256,False,,,,,False
+2133ec2002ec,da23611e58ef,QUICKLOAN-001,True,AES-128,True,2026-07-18,38,moderate,"name,phone",False
+560c03b4ed37,8b5059a388c6,QUICKLOAN-001,True,AES-128,False,,,,,False
+06522c5c1d2a,ffab80f6f7ad,QUICKLOAN-001,True,AES-256,True,2026-08-02,109,moderate,"name,phone",False
+1b52877f50c0,85aae0280673,QUICKLOAN-001,True,RSA-2048,False,,,,,False
+8b805c4909df,e70f71398336,QUICKLOAN-001,True,RSA-2048,False,,,,,False

@@ -2,131 +2,133 @@
   "type": "local",
   "instance_index": 0,
   "prediction": {
-    "class": "CRITICAL",
-    "confidence": 0.969833493232727,
+    "class": "LOW",
+    "confidence": 0.4800090789794922,
     "class_probabilities": {
-      "COMPLIANT": 0.002,
-      "LOW": 0.001,
-      "MEDIUM": 0.002,
-      "HIGH": 0.026000000000000002,
-      "CRITICAL": 0.97
+      "COMPLIANT": 0.01,
+      "LOW": 0.48,
+      "MEDIUM": 0.02,
+      "HIGH": 0.013000000000000001,
+      "CRITICAL": 0.47700000000000004
     }
   },
-  "base_value": -0.0087,
+  "base_value": 0.0139,
   "feature_contributions": [
     {
       "rank": 1,
-      "feature": "n_high_rules_fired",
-      "value": 8.0,
-      "shap_value": 2.466,
+      "feature": "n_violations",
+      "value": 5.0,
+      "shap_value": 2.2129,
       "direction": "positive"
     },
     {
       "rank": 2,
-      "feature": "consent_violation_count",
-      "value": 3.0,
-      "shap_value": 0.6247,
-      "direction": "positive"
+      "feature": "access_violation_count",
+      "value": 1.0,
+      "shap_value": -0.9307,
+      "direction": "negative"
     },
     {
       "rank": 3,
-      "feature": "n_violations",
-      "value": 13.0,
-      "shap_value": -0.3632,
+      "feature": "max_rule_score",
+      "value": 1.0,
+      "shap_value": -0.1989,
       "direction": "negative"
     },
     {
       "rank": 4,
-      "feature": "n_warnings",
-      "value": 0.0,
-      "shap_value": 0.2926,
+      "feature": "max_prevalence_ratio",
+      "value": 0.0441,
+      "shap_value": 0.0862,
       "direction": "positive"
     },
     {
       "rank": 5,
-      "feature": "n_critical_rules_fired",
-      "value": 3.0,
-      "shap_value": 0.2826,
-      "direction": "positive"
+      "feature": "n_warnings",
+      "value": 0.0,
+      "shap_value": -0.0123,
+      "direction": "negative"
     },
     {
       "rank": 6,
-      "feature": "minor_data_rule_fired",
-      "value": 1.0,
-      "shap_value": 0.0284,
+      "feature": "n_critical_rules_fired",
+      "value": 0.0,
+      "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 7,
-      "feature": "max_prevalence_ratio",
-      "value": 0.0692,
-      "shap_value": 0.0106,
+      "feature": "n_high_rules_fired",
+      "value": 3.0,
+      "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 8,
       "feature": "breach_rule_fired",
-      "value": 1.0,
+      "value": 0.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 9,
-      "feature": "max_rule_score",
-      "value": 1.0,
+      "feature": "minor_data_rule_fired",
+      "value": 0.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 10,
-      "feature": "retention_violation_count",
-      "value": 2.0,
+      "feature": "consent_violation_count",
+      "value": 0.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 11,
-      "feature": "encryption_violation_count",
+      "feature": "retention_violation_count",
       "value": 1.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 12,
-      "feature": "access_violation_count",
-      "value": 1.0,
+      "feature": "encryption_violation_count",
+      "value": 0.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 13,
       "feature": "policy_violation_count",
-      "value": 0.0,
+      "value": 1.0,
       "shap_value": 0.0,
       "direction": "positive"
     }
   ],
   "top_positive_features": [
-    "n_high_rules_fired",
-    "consent_violation_count",
-    "n_warnings"
+    "n_violations",
+    "max_prevalence_ratio",
+    "n_critical_rules_fired"
   ],
   "top_negative_features": [
-    "n_violations"
+    "access_violation_count",
+    "max_rule_score",
+    "n_warnings"
   ],
   "raw_contributions": {
-    "n_high_rules_fired": 2.466,
-    "consent_violation_count": 0.6247,
-    "n_violations": -0.3632,
-    "n_warnings": 0.2926,
-    "n_critical_rules_fired": 0.2826,
-    "minor_data_rule_fired": 0.0284,
-    "max_prevalence_ratio": 0.0106,
+    "n_violations": 2.2129,
+    "access_violation_count": -0.9307,
+    "max_rule_score": -0.1989,
+    "max_prevalence_ratio": 0.0862,
+    "n_warnings": -0.0123,
+    "n_critical_rules_fired": 0.0,
+    "n_high_rules_fired": 0.0,
     "breach_rule_fired": 0.0,
-    "max_rule_score": 0.0,
+    "minor_data_rule_fired": 0.0,
+    "consent_violation_count": 0.0,
     "retention_violation_count": 0.0,
     "encryption_violation_count": 0.0,
-    "access_violation_count": 0.0,
     "policy_violation_count": 0.0
   }
 }

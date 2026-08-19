@@ -1,0 +1,13 @@
+system_hash,tenant_id,system_name,system_type,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date
+88f5e14793f2,NEXUSNEOBANK-005,Analytics System 1,analytics,True,True,True,True,AWS,internal,True,
+4885216de5d1,NEXUSNEOBANK-005,Crm System 2,crm,True,True,True,True,AWS,third_party_processor,True,2027-07-26
+a44c4cfe8bd0,NEXUSNEOBANK-005,Payment Gateway System 3,payment_gateway,True,True,True,True,Salesforce,internal,True,
+c32cf512e19a,NEXUSNEOBANK-005,Payment Gateway System 4,payment_gateway,True,True,True,True,AWS,internal,True,
+73ade29f3c2d,NEXUSNEOBANK-005,Core Banking System 5,core_banking,False,True,True,True,Salesforce,third_party_processor,True,2027-03-28
+bbf9755e259f,NEXUSNEOBANK-005,Kyc Platform System 6,kyc_platform,True,True,True,True,Experian,internal,True,
+e60f74cc5ae3,NEXUSNEOBANK-005,Payment Gateway System 7,payment_gateway,True,True,True,True,Experian,internal,True,
+0489978330e3,NEXUSNEOBANK-005,Analytics System 8,analytics,True,True,True,True,Salesforce,third_party_processor,True,2027-06-02
+a2a4641afe4e,NEXUSNEOBANK-005,Analytics System 9,analytics,True,True,True,True,Experian,third_party_processor,True,2027-01-11
+13fb4fa19849,NEXUSNEOBANK-005,Data Warehouse System 10,data_warehouse,False,True,False,False,Salesforce,third_party_processor,True,2026-12-18
+29f6c3af47a8,NEXUSNEOBANK-005,Crm System 11,crm,False,True,True,True,Experian,internal,True,
+71c1de29fff4,NEXUSNEOBANK-005,Data Warehouse System 12,data_warehouse,False,True,True,True,Salesforce,internal,True,

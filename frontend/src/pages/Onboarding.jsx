@@ -14,10 +14,12 @@ import {
   HiOutlineScale,
   HiOutlineCloudArrowUp,
   HiOutlineCheckCircle,
-  HiOutlineXMark
+  HiOutlineXMark,
+  HiOutlineCircleStack,
+  HiOutlineArrowPath
 } from 'react-icons/hi2';
 import Card from '../components/ui/Card';
-import { runAnalysis } from '../services/api';
+import { runAnalysis, runAnalysisExisting } from '../services/api';
 import { getTermsAcceptance, clearTermsAcceptance } from '../utils/termsAcceptance';
 import { TERMS_VERSION } from '../utils/termsAcceptance';
 import TermsGate from '../components/onboarding/TermsGate';
@@ -94,10 +96,17 @@ export default function Onboarding({ onComplete }) {
   const [termsAccepted, setTermsAccepted] = useState(() => getTermsAcceptance());
   const [showTermsModal, setShowTermsModal] = useState(false);
 
-  // Upload form state
+  // Workflow Mode: 'existing' (Instant DB Audit) vs 'new' (10-CSV Upload)
+  const [mode, setMode] = useState('existing');
+
+  // Existing Tenant state
+  const [existingTenantId, setExistingTenantId] = useState('');
+
+  // New Tenant Upload state
   const [orgName, setOrgName] = useState('');
   const [tenantId, setTenantId] = useState('');
   const [files, setFiles] = useState({});
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -123,16 +132,33 @@ export default function Onboarding({ onComplete }) {
   }, []);
 
   const fileCount = Object.keys(files).length;
-  const isReady = fileCount === 10 && orgName.trim() && tenantId.trim();
+  const isUploadReady = fileCount === 10 && orgName.trim() && tenantId.trim();
+  const isExistingReady = existingTenantId.trim().length > 0;
 
-  const handleRun = async () => {
-    if (!isReady) return;
+  // Run analysis for existing tenant (Direct DB evaluation)
+  const handleRunExisting = async () => {
+    if (!isExistingReady) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await runAnalysisExisting(existingTenantId);
+      onComplete(result);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  // Run analysis for new tenant (Upload + Ingest + Evaluation)
+  const handleRunUpload = async () => {
+    if (!isUploadReady) return;
     setLoading(true);
     setError(null);
 
     const formData = new FormData();
-    formData.append('tenant_name', orgName);
-    formData.append('tenant_id', tenantId);
+    formData.append('tenant_name', orgName.trim());
+    formData.append('tenant_id', tenantId.trim());
     
     for (const [key, file] of Object.entries(files)) {
       formData.append(key, file);
@@ -148,7 +174,6 @@ export default function Onboarding({ onComplete }) {
   };
 
   // ─── STEP 1: Terms Gate ───────────────────────────────────────────────
-  // The upload interface is NOT rendered (not merely hidden) until accepted.
   if (!termsAccepted) {
     return (
       <AnimatePresence mode="wait">
@@ -157,7 +182,7 @@ export default function Onboarding({ onComplete }) {
     );
   }
 
-  // ─── STEP 2: Organisation Setup + Data Upload ─────────────────────────
+  // ─── STEP 2: Organisation Setup + Data Audit ──────────────────────────
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -169,8 +194,8 @@ export default function Onboarding({ onComplete }) {
       {loading && (
         <div className="fixed inset-0 z-50 bg-base/80 backdrop-blur-sm flex flex-col items-center justify-center">
           <div className="h-12 w-12 rounded-full border-4 border-brand-primary/20 border-t-brand-primary animate-spin mb-4" />
-          <h3 className="text-h2 text-primary">Evaluating DPDP and policy compliance rules...</h3>
-          <p className="text-secondary mt-2">Evaluating compliance signals and generating explainable risk insights.</p>
+          <h3 className="text-h2 text-primary">Evaluating DPDP compliance rules & ML risk score...</h3>
+          <p className="text-secondary mt-2">Running multi-agent audit across database records and generating SHAP feature attributions.</p>
         </div>
       )}
 
@@ -256,91 +281,178 @@ export default function Onboarding({ onComplete }) {
           </motion.div>
         </div>
 
-        {/* Form Card */}
+        {/* Mode Selector & Form Card */}
         <motion.div 
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
           className="mt-12 max-w-[880px] mx-auto"
         >
+          {/* Mode Switcher Tabs */}
+          <div className="flex rounded-xl p-1.5 bg-elevated border border-subtle mb-4 max-w-[480px] mx-auto">
+            <button
+              onClick={() => { setMode('existing'); setError(null); }}
+              className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 ${
+                mode === 'existing' 
+                  ? 'bg-brand-primary text-white shadow-glow' 
+                  : 'text-secondary hover:text-primary'
+              }`}
+            >
+              <HiOutlineCircleStack className="text-base" />
+              Existing Tenant (DB Audit)
+            </button>
+            <button
+              onClick={() => { setMode('new'); setError(null); }}
+              className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2 ${
+                mode === 'new' 
+                  ? 'bg-brand-primary text-white shadow-glow' 
+                  : 'text-secondary hover:text-primary'
+              }`}
+            >
+              <HiOutlineCloudArrowUp className="text-base" />
+              New Tenant (Upload Files)
+            </button>
+          </div>
+
           <Card className="overflow-hidden">
-            <div className="p-8 pb-6 border-b border-subtle bg-base/30">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-label text-secondary mb-2">Organisation Name</label>
-                  <input 
-                    type="text" 
-                    value={orgName}
-                    onChange={(e) => setOrgName(e.target.value)}
-                    placeholder="e.g. Acme Corp"
-                    className="w-full h-11 px-4 rounded-lg bg-elevated border border-subtle text-primary placeholder-muted focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
+            {/* ────────── MODE A: EXISTING TENANT DIRECT DB AUDIT ────────── */}
+            {mode === 'existing' ? (
+              <div className="p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-10 w-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary border border-brand-primary/20">
+                    <HiOutlineCircleStack className="text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-h3 text-primary">Direct Database Compliance Audit</h3>
+                    <p className="text-caption mt-0.5">
+                      Audit an existing tenant directly from database records without re-uploading files.
+                    </p>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <label className="block text-label text-secondary mb-2">
+                    Tenant Identifier <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      value={existingTenantId}
+                      onChange={(e) => setExistingTenantId(e.target.value)}
+                      placeholder="e.g. QUICKLOAN-001, PAYFLEX-002, ACME-001"
+                      className="w-full h-12 px-4 rounded-lg bg-elevated border border-subtle text-primary placeholder-muted font-mono focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
+                      onKeyDown={(e) => { if (e.key === 'Enter' && isExistingReady && !loading) handleRunExisting(); }}
+                    />
+                  </div>
+                  <p className="text-caption text-muted mt-2">
+                    Enter the exact Tenant ID. The compliance engine will query all associated records across the 10 core tables and evaluate all 19 DPDP rules instantly.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-base/50 border border-subtle mb-6 flex items-start gap-3">
+                  <HiOutlineArrowPath className="text-brand-primary text-lg mt-0.5 flex-shrink-0" />
+                  <div className="text-caption text-secondary">
+                    <strong className="text-primary">Instant Evaluation:</strong> Bypasses CSV loading and field pseudonymization. Evaluates active database state, computes rule scores, applies ML risk prediction, and outputs explainable SHAP summaries.
+                  </div>
+                </div>
+
+                <button
+                  disabled={!isExistingReady || loading}
+                  onClick={handleRunExisting}
+                  className={`w-full h-14 rounded-lg font-medium text-white transition-all flex items-center justify-center gap-2
+                    ${isExistingReady && !loading ? 'btn-gradient shadow-glow hover:opacity-90' : 'bg-elevated text-muted cursor-not-allowed border border-subtle'}`}
+                >
+                  {loading ? 'Evaluating Rules & Computing Score...' : 'Run Compliance Audit (Direct DB)'}
+                </button>
+              </div>
+            ) : (
+              /* ────────── MODE B: NEW TENANT 10-CSV UPLOAD ────────── */
+              <div>
+                <div className="p-8 pb-6 border-b border-subtle bg-base/30">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-label text-secondary mb-2">Organisation Name</label>
+                      <input 
+                        type="text" 
+                        value={orgName}
+                        onChange={(e) => setOrgName(e.target.value)}
+                        placeholder="e.g. Acme Corp"
+                        className="w-full h-11 px-4 rounded-lg bg-elevated border border-subtle text-primary placeholder-muted focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-label text-secondary mb-2">Tenant Identifier</label>
+                      <input 
+                        type="text" 
+                        value={tenantId}
+                        onChange={(e) => setTenantId(e.target.value)}
+                        placeholder="e.g. ACME-001"
+                        className="w-full h-11 px-4 rounded-lg bg-elevated border border-subtle text-primary placeholder-muted font-mono focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-h3 text-primary">Upload Data Files</h3>
+                      <p className="text-caption mt-1">Provide CSV extracts for the 10 core systems according to the DPDP schema.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-secondary">
+                        <strong className={fileCount === 10 ? 'text-low' : 'text-primary'}>{fileCount}</strong> / 10 files
+                      </span>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {FILE_TYPES.map(type => (
+                      <FileZone 
+                        key={type.id} 
+                        type={type} 
+                        file={files[type.id]} 
+                        onDrop={handleDrop} 
+                        onRemove={handleRemove}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="h-1 w-full bg-elevated relative overflow-hidden">
+                  <motion.div 
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-brand-primary to-brand-secondary"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(fileCount / 10) * 100}%` }}
+                    transition={{ ease: "easeOut" }}
                   />
                 </div>
-                <div>
-                  <label className="block text-label text-secondary mb-2">Tenant Identifier</label>
-                  <input 
-                    type="text" 
-                    value={tenantId}
-                    onChange={(e) => setTenantId(e.target.value)}
-                    placeholder="tenant_001"
-                    className="w-full h-11 px-4 rounded-lg bg-elevated border border-subtle text-primary placeholder-muted font-mono focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
-                  />
+
+                <div className="p-6 bg-base/30">
+                  <button
+                    disabled={!isUploadReady || loading}
+                    onClick={handleRunUpload}
+                    className={`w-full h-14 rounded-lg font-medium text-white transition-all flex items-center justify-center gap-2
+                      ${isUploadReady && !loading ? 'btn-gradient shadow-glow hover:opacity-90' : 'bg-elevated text-muted cursor-not-allowed border border-subtle'}`}
+                  >
+                    {loading ? 'Ingesting & Evaluating...' : 'Upload & Run Compliance Analysis'}
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-h3 text-primary">Upload Data Files</h3>
-                  <p className="text-caption mt-1">Provide CSV extracts for the 10 core systems.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-secondary">
-                    <strong className={fileCount === 10 ? 'text-low' : 'text-primary'}>{fileCount}</strong> / 10 files
-                  </span>
-                </div>
-              </div>
-
-              {error && (
-                <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {FILE_TYPES.map(type => (
-                  <FileZone 
-                    key={type.id} 
-                    type={type} 
-                    file={files[type.id]} 
-                    onDrop={handleDrop} 
-                    onRemove={handleRemove}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="h-1 w-full bg-elevated relative overflow-hidden">
-              <motion.div 
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-brand-primary to-brand-secondary"
-                initial={{ width: 0 }}
-                animate={{ width: `${(fileCount / 10) * 100}%` }}
-                transition={{ ease: "easeOut" }}
-              />
-            </div>
-
-            <div className="p-6 bg-base/30">
-              <button
-                disabled={!isReady || loading}
-                onClick={handleRun}
-                className={`w-full h-14 rounded-lg font-medium text-white transition-all flex items-center justify-center gap-2
-                  ${isReady && !loading ? 'btn-gradient shadow-glow hover:opacity-90' : 'bg-elevated text-muted cursor-not-allowed border border-subtle'}`}
-              >
-                {loading ? 'Processing...' : 'Run Compliance Analysis'}
-              </button>
-            </div>
+            )}
           </Card>
         </motion.div>
 

@@ -1,0 +1,7 @@
+policy_hash,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,policy_value_text,effective_date,last_updated,is_active
+763f48dc22e4,PAYFLEX-002,retention,KYC Retention Policy,1825,days,,2024-10-20,2024-10-20,True
+e346cb051ec5,PAYFLEX-002,retention,Transaction History Retention,2190,days,,2024-11-15,2024-11-15,True
+ecb36e4784ba,PAYFLEX-002,consent,Consent Expiry Policy,365,days,,2026-01-08,2026-01-08,True
+1affc422092a,PAYFLEX-002,encryption,Data Encryption Standard,,,,2025-09-14,2025-09-14,True
+abf4c8ecf63c,PAYFLEX-002,access_control,PII Access Control Policy,,,,2024-08-24,2024-08-24,True
+d2bdd5a75875,PAYFLEX-002,breach_notification,Breach Notification SLA,72,hours,,2025-08-28,2025-08-28,True

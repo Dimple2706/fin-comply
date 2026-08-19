@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import Response
 
 from src.governance.audit_logger import log_event, RULE_APPROVED, RULE_REJECTED
+from src.api.auth import require_admin, require_reviewer, require_authenticated, AuthUser
 
 from src.api.schemas import (
     AnalyzeRequest, AnalyzeResponse, ViolationItem,
@@ -76,9 +77,9 @@ def ensure_evaluation_results_table(conn: psycopg.Connection) -> None:
         )
 
 
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-# SHARED HELPERS Ã¢â‚¬â€ used by both /analyze and /analyze/upload
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ─────────────────────────────────────────────────────────────
+# SHARED HELPERS — used by both /analyze and /analyze/upload
+# ─────────────────────────────────────────────────────────────
 
 def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
     tenant_id = analysis_result["tenant_id"]
@@ -92,7 +93,7 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
 
     display_name = tenant_name or tenant_id
 
-    # Ã¢â€â‚¬Ã¢â€â‚¬ Executive Summary (fail-safe) Ã¢â€â‚¬Ã¢â€â‚¬
+    # ── Executive Summary (fail-safe) ──
     try:
         executive_summary = generate_executive_summary(
             tenant_id=tenant_id,
@@ -113,14 +114,9 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
         e for e in enriched if e.outcome == "VIOLATION"
     ]
 
-    # Ã¢â€â‚¬Ã¢â€â‚¬ Group violations by rule_id Ã¢â€â‚¬Ã¢â€â‚¬
-    # ViolationExplanation fields: rule_id, rule_name, dpdp_section,
-    #   agent_name, outcome, severity, what_happened, why_violation,
-    #   signals_analysis (List[Dict]), top_contributing_signal,
-    #   top_signal_weight, penalty_exposure_crore, root_cause,
-    #   remediation_steps (List[str]), risk_contribution
+    # ── Group violations by rule_id ──
     raw_violations = analysis_result.get("violations", [])
-    # Build a lookup: rule_id -> list of raw violation dicts (which have record_id, rule_score, risk_weight etc.)
+    # Build a lookup: rule_id -> list of raw violation dicts
     raw_by_rule: dict[str, list] = {}
     for v in raw_violations:
         rid = v.get("rule_id")
@@ -130,7 +126,6 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
     grouped: dict[str, dict] = {}
     for exp in violation_enriched:
         rid = exp.rule_id
-        # Get risk_weight from the raw violation dict (not on ViolationExplanation)
         raw_list = raw_by_rule.get(rid, [])
         raw_risk_weight = raw_list[0].get("risk_weight", 0.0) if raw_list else 0.0
 
@@ -144,6 +139,7 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
                 "occurrence_count": 0,
                 "reasons": [],
                 "matched_record_ids": set(),
+                "fields_triggered": set(),
                 "best_exp": exp,
                 "max_score": exp.top_signal_weight,
                 "penalty_exposure_crore": exp.penalty_exposure_crore,
@@ -155,11 +151,14 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
                 grouped[rid]["best_exp"] = exp
 
         grouped[rid]["occurrence_count"] += 1
-        # record_id lives on the raw violation dict, not ViolationExplanation
+        # record_id and fields_triggered live on the raw violation dict
         for rv in raw_list:
             rec_id = rv.get("record_id")
             if rec_id:
                 grouped[rid]["matched_record_ids"].add(str(rec_id))
+            for f in rv.get("fields_triggered", []):
+                if f:
+                    grouped[rid]["fields_triggered"].add(str(f))
 
     # Collect signal_reasons from raw violation dicts
     for rid, raw_list in raw_by_rule.items():
@@ -179,21 +178,21 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
             else f"{entry['rule_name']} triggered"
         )
 
-        # best.signals_analysis is List[Dict] Ã¢â‚¬â€ use dict access, not dot access
         signals = []
         for s in best.signals_analysis:
             sig_def = RULE_EXPLANATIONS.get(rid, {}).get("signal_definitions", {}).get(s.get("signal", ""), {})
+            contrib = s.get("weight", 0.0) if s.get("fired", False) else 0.0
             signals.append(SignalDetail(
                 signal=s.get("signal", ""),
                 description=sig_def.get("description", s.get("description", "")),
                 weight=s.get("weight", 0.0),
                 fired=s.get("fired", False),
-                reason=s.get("reason", "Ã¢â‚¬â€"),
-                phi=s.get("weight", 0.0) if s.get("fired", False) else 0.0,
+                reason=s.get("reason", "—"),
+                signal_contribution=round(contrib, 4),
+                phi=round(contrib, 4),
             ))
 
-        # total_shap = sum of phi values
-        total_shap = sum(sig.phi for sig in signals)
+        total_weight = sum(sig.signal_contribution for sig in signals)
 
         explanation = FullExplanation(
             why_detected=best.what_happened,
@@ -202,7 +201,8 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
             mitigation=best.remediation_steps if isinstance(best.remediation_steps, list) else [],
             signals_analysis=signals,
             top_contributing_signal=best.top_contributing_signal,
-            total_shap=round(total_shap, 4),
+            total_signal_weight=round(total_weight, 4),
+            total_shap=round(total_weight, 4),
             root_cause=best.root_cause,
             penalty_exposure_crore=best.penalty_exposure_crore,
         )
@@ -221,7 +221,7 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
                 penalty_exposure_crore=entry["penalty_exposure_crore"],
                 root_cause=entry["root_cause"],
                 matched_record_ids=matched,
-                fields_triggered=[],
+                fields_triggered=sorted(list(entry["fields_triggered"])),
                 matched_logs_count=len(matched),
             )
         )
@@ -298,6 +298,8 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
         "risk_contributions": contributions,
         "remediation_priority": remediation_priority,
         "total_penalty_exposure_crore": total_penalty,
+        "ml_layer": analysis_result.get("ml_layer"),
+        "run_metadata": analysis_result.get("run_metadata"),
     }
 
 
@@ -317,20 +319,79 @@ def analyze_tenant(
     request: AnalyzeRequest,
 ):
     try:
-        analysis_result = run_compliance_analysis(request.tenant_id)
-        response = _build_full_response(analysis_result)
+        clean_tenant_id = request.tenant_id.strip()
+        if not clean_tenant_id:
+            raise HTTPException(status_code=400, detail="Tenant ID cannot be empty.")
+            
+        # Verify tenant existence in database
+        tenant_name = ""
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT tenant_name FROM governance_config WHERE tenant_id = %s LIMIT 1",
+                    (clean_tenant_id,)
+                )
+                row = cur.fetchone()
+                if row:
+                    tenant_name = row.get("tenant_name", clean_tenant_id)
+                else:
+                    cur.execute(
+                        "SELECT 1 FROM customer_master WHERE tenant_id = %s LIMIT 1",
+                        (clean_tenant_id,)
+                    )
+                    if not cur.fetchone():
+                        raise HTTPException(
+                            status_code=404,
+                            detail=f"Tenant '{clean_tenant_id}' not found in the database. Please check the Tenant ID or upload files under 'New Tenant'."
+                        )
+
+        analysis_result = run_compliance_analysis(clean_tenant_id)
+        response = _build_full_response(analysis_result, tenant_name=tenant_name)
+
+        try:
+            serializable_payload = {
+                "tenant_id": response["tenant_id"],
+                "tenant_name": tenant_name or response["tenant_id"],
+                "total_obligations": response["total_obligations"],
+                "unique_rules_violated": response["unique_rules_violated"],
+                "total_violation_occurrences": response["total_violation_occurrences"],
+                "risk_score": response["risk_score"],
+                "risk_tier": response["risk_tier"],
+                "status": response["status"],
+                "executive_summary": response["executive_summary"],
+                "total_penalty_exposure_crore": response["total_penalty_exposure_crore"],
+                "risk_contributions": response["risk_contributions"],
+                "violations": [v.model_dump() for v in response["violations"]],
+                "agent_breakdown": {k: v.model_dump() for k, v in response["agent_breakdown"].items()},
+                "remediation_priority": [r.model_dump() for r in response["remediation_priority"]],
+                "ml_layer": response.get("ml_layer"),
+                "run_metadata": response.get("run_metadata"),
+            }
+            with get_db_connection() as conn:
+                ensure_evaluation_results_table(conn)
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO evaluation_results "
+                        "(tenant_id, result_json, risk_score) "
+                        "VALUES (%s, %s, %s)",
+                        (
+                            clean_tenant_id,
+                            json.dumps(serializable_payload, default=str),
+                            float(response["risk_score"]),
+                        ),
+                    )
+                conn.commit()
+        except Exception as db_ex:
+            logging.warning(f"evaluation_results insert failed: {db_ex}")
+
         return AnalyzeResponse(**response)
 
-    except FileNotFoundError:
-        raise HTTPException(
-            status_code = 404,
-            detail      = f"Tenant '{request.tenant_id}' not found. "
-                          f"Check that redacted files exist."
-        )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
-            status_code = 500,
-            detail      = f"Analysis failed: {str(e)}"
+            status_code=500,
+            detail=f"Analysis failed: {str(e)}"
         )
 
 
@@ -415,6 +476,8 @@ async def analyze_upload(
                 "violations": [v.model_dump() for v in response["violations"]],
                 "agent_breakdown": {k: v.model_dump() for k, v in response["agent_breakdown"].items()},
                 "remediation_priority": [r.model_dump() for r in response["remediation_priority"]],
+                "ml_layer": response.get("ml_layer"),
+                "run_metadata": response.get("run_metadata"),
             }
             with get_db_connection() as conn:
                 ensure_evaluation_results_table(conn)
@@ -477,13 +540,15 @@ def download_pdf(
         raise HTTPException(status_code=500, detail="Failed to generate PDF report")
 
 
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-# RULES MANAGEMENT ENDPOINTS
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ─────────────────────────────────────────────────────────────
+# RULES MANAGEMENT ENDPOINTS (SECURED WITH RBAC - Issue E-05)
+# ─────────────────────────────────────────────────────────────
 
 @router.get("/rules")
-def list_rules():
-    """Returns all active rules ordered by rule_id. Requires any authenticated user."""
+def list_rules(
+    current_user: AuthUser = Depends(require_authenticated)
+):
+    """Returns all active rules ordered by rule_id. Requires authenticated user."""
     try:
         with get_db_connection() as conn:
             rows = conn.execute(
@@ -502,7 +567,9 @@ def list_rules():
 
 
 @router.get("/rules/proposed")
-def list_proposed_rules():
+def list_proposed_rules(
+    current_user: AuthUser = Depends(require_reviewer)
+):
     """Returns all pending proposed rules. Requires reviewer or admin role."""
     try:
         with get_db_connection() as conn:
@@ -532,6 +599,7 @@ def list_proposed_rules():
 @router.post("/rules/approve/{proposal_id}")
 def approve_rule(
     proposal_id: int,
+    current_user: AuthUser = Depends(require_admin),
 ):
     """Activates a pending proposed rule. Requires admin role."""
     try:
@@ -557,7 +625,7 @@ def approve_rule(
                 )
 
             rule = row["proposed_rule"]
-            reviewer = "system"
+            reviewer = current_user.username
 
             conn.execute(
                 """
@@ -634,8 +702,9 @@ def approve_rule(
 def reject_rule(
     proposal_id: int,
     reason: str = "No reason provided",
+    current_user: AuthUser = Depends(require_reviewer),
 ):
-    """Rejects a pending proposed rule. Requires admin role."""
+    """Rejects a pending proposed rule. Requires reviewer or admin role."""
     try:
         with get_db_connection() as conn:
             row = conn.execute(
@@ -651,7 +720,7 @@ def reject_rule(
                     detail=f"Proposal {proposal_id} is already '{row['status']}'"
                 )
 
-            reviewer = "system"
+            reviewer = current_user.username
             rule_id  = row["proposed_rule"].get("rule_id", "unknown")
 
             conn.execute(

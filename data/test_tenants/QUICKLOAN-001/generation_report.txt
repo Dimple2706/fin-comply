@@ -1,0 +1,26 @@
+============================================================
+DPDP SYNTHETIC TEST TENANT — GENERATION REPORT
+Tenant : QUICKLOAN-001 — QuickLoan Instant Credits Pvt Ltd
+Generated : 2026-08-18 23:25
+============================================================
+
+SEEDED VIOLATIONS GROUND TRUTH:
+----------------------------------------
+  stale_consent_reuse              n=25
+  no_notice                        n=18
+  bundled_consent                  n=20
+  minor_no_guardian                n=0
+  purpose_mismatch                 n=40
+  third_party_no_consent           n=9
+  cross_border_no_auth             n=4
+  unauthorised_access              n=27
+  pii_over_collection              n=5
+  retention_overdue                n=44
+  purpose_complete_not_deleted     n=31
+  no_encryption                    n=12
+  breach_delay                     n=2
+  no_dpa                           n=1
+  dsar_sla_breach                  n=5
+  data_accuracy_unverified         n=9
+
+TOTAL SEEDED VIOLATIONS: 252

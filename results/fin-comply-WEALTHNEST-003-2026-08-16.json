@@ -1,0 +1,1288 @@
+{
+  "tenant_id": "WEALTHNEST-003",
+  "total_obligations": 19,
+  "unique_rules_violated": 16,
+  "total_violation_occurrences": 366,
+  "risk_score": 39.1,
+  "risk_tier": "MEDIUM",
+  "violations": [
+    {
+      "rule_id": "DPDP-001",
+      "rule_name": "Invalid or Missing Consent Before Processing",
+      "dpdp_section": "Section 6(1)",
+      "severity": "HIGH",
+      "risk_weight": 0.9,
+      "occurrence_count": 12,
+      "contribution_to_score": 0.1131,
+      "reason": "Consent not in a valid active state at time of processing; Processing purpose does not match the purpose for which consent was obtained; Consent was bundled with T&Cs â€” void under Section 6(2)",
+      "explanation": {
+        "why_detected": "Data processing was detected without a valid active consent record. The transaction occurred after consent had expired, been revoked, or under bundled consent terms.",
+        "evidence": "Data processing was detected without a valid active consent record. The transaction occurred after consent had expired, been revoked, or under bundled consent terms.",
+        "risk_reason": "DPDP Act Section 6(1) requires a Data Fiduciary to process personal data only for purposes for which the Data Principal has given free, specific, informed, and unambiguous consent. Processing under invalid or expired consent violates this mandate.",
+        "mitigation": [
+          "Obtain fresh explicit consent from affected data principals before resuming processing",
+          "Implement a consent management system that blocks processing when consent_status is not active",
+          "Conduct an audit of all transaction_events joined to expired consent records and pause affected workflows"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Consent status is expired, revoked, or withdrawn",
+            "weight": 0.4,
+            "fired": true,
+            "reason": "Consent not in a valid active state at time of processing",
+            "phi": 0.4
+          },
+          {
+            "signal": "S2",
+            "description": "Transaction event date is after consent expiry date",
+            "weight": 0.3,
+            "fired": false,
+            "reason": "—",
+            "phi": 0
+          },
+          {
+            "signal": "S3",
+            "description": "Processing purpose does not match consented purpose",
+            "weight": 0.2,
+            "fired": true,
+            "reason": "Processing purpose does not match the purpose for which consent was obtained",
+            "phi": 0.2
+          },
+          {
+            "signal": "S4",
+            "description": "Consent was obtained as a bundled consent (not specific)",
+            "weight": 0.1,
+            "fired": true,
+            "reason": "Consent was bundled with T&Cs â€” void under Section 6(2)",
+            "phi": 0.1
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 0.7,
+        "root_cause": "PROCESS_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "PROCESS_GAP",
+      "matched_record_ids": [
+        "15bc7b55a2bf",
+        "75e35b02c3e4",
+        "7f78fe993dda",
+        "8cf73ce09cb5",
+        "8e4fe2cb166b",
+        "a22df2ef5c86",
+        "b79f5b7251b2",
+        "fa75f471aac9",
+        "unknown"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 9
+    },
+    {
+      "rule_id": "DPDP-002",
+      "rule_name": "Processing Beyond Stated Purpose",
+      "dpdp_section": "Section 5",
+      "severity": "HIGH",
+      "risk_weight": 0.85,
+      "occurrence_count": 7,
+      "contribution_to_score": 0.0399,
+      "reason": "Processing purpose directly contradicts the consented purpose; No notice was provided specifying the processing purpose before consent",
+      "explanation": {
+        "why_detected": "Personal data was processed for a purpose different from the one stated in the consent record, even where a technically active consent exists.",
+        "evidence": "Personal data was processed for a purpose different from the one stated in the consent record, even where a technically active consent exists.",
+        "risk_reason": "DPDP Act Section 4(1)(b) mandates that personal data be processed only for the specific lawful purpose for which it was collected. Processing for a different purpose — even under active consent — constitutes an unlawful act.",
+        "mitigation": [
+          "Update transaction processing workflows to enforce purpose matching against consent records at runtime",
+          "Review and correct all consent records where consented_purpose differs from current processing activity",
+          "Implement purpose limitation controls in your data processing pipeline"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Processing purpose does not match the consented purpose",
+            "weight": 0.7,
+            "fired": true,
+            "reason": "Processing purpose directly contradicts the consented purpose",
+            "phi": 0.7
+          },
+          {
+            "signal": "S2",
+            "description": "Purpose mismatch exists even though consent status is currently active — a deliberate violation",
+            "weight": 0.3,
+            "fired": false,
+            "reason": "—",
+            "phi": 0
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 0.7,
+        "root_cause": "IMPLEMENTATION_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "IMPLEMENTATION_GAP",
+      "matched_record_ids": [
+        "10d8105d5201",
+        "1da36a34a341",
+        "6078adcb0152",
+        "7528d0bc5596",
+        "9b686006a394",
+        "badbef81c34b",
+        "c5dab5fc3d06"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 7
+    },
+    {
+      "rule_id": "DPDP-003",
+      "rule_name": "Retention Beyond Allowed Period",
+      "dpdp_section": "Section 8(7)",
+      "severity": "HIGH",
+      "risk_weight": 0.8,
+      "occurrence_count": 81,
+      "contribution_to_score": 0.5791,
+      "reason": "Retention expiry date has passed â€” data should have been deleted; Retention status indicates data is past its allowed window; No legal hold is in place to justify extended retention",
+      "explanation": {
+        "why_detected": "Personal data is being retained beyond its approved retention period, or retained after its processing purpose has been completed.",
+        "evidence": "Personal data is being retained beyond its approved retention period, or retained after its processing purpose has been completed.",
+        "risk_reason": "DPDP Act Section 8(7) requires a Data Fiduciary to delete personal data as soon as it is reasonable to assume that the purpose for which it was collected is no longer being served.",
+        "mitigation": [
+          "Implement automated data deletion triggers based on retention_expiry_date and purpose_completed flags",
+          "Review the data_lifecycle table and immediately schedule deletion for all records where expiry has passed",
+          "Update your data inventory policy to include mandatory retention period review every 90 days"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Retention expiry date has passed",
+            "weight": 0.5,
+            "fired": true,
+            "reason": "Retention expiry date has passed â€” data should have been deleted",
+            "phi": 0.5
+          },
+          {
+            "signal": "S2",
+            "description": "Data is still in active or expired status despite expiry passing",
+            "weight": 0.3,
+            "fired": true,
+            "reason": "Retention status indicates data is past its allowed window",
+            "phi": 0.3
+          },
+          {
+            "signal": "S3",
+            "description": "Purpose has been marked complete but data has not been deleted",
+            "weight": 0.2,
+            "fired": true,
+            "reason": "No legal hold is in place to justify extended retention",
+            "phi": 0.2
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 1,
+        "root_cause": "TECHNICAL_GAP",
+        "penalty_exposure_crore": 200
+      },
+      "penalty_exposure_crore": 200,
+      "root_cause": "TECHNICAL_GAP",
+      "matched_record_ids": [
+        "043696bb19a9",
+        "07a616f59744",
+        "08a7f13ed055",
+        "13550d8fa604",
+        "15055cc8b728",
+        "16541ea1f059",
+        "193f63c1bfe5",
+        "1c4a24180a6a",
+        "1f04accfc27c",
+        "210d6754a644",
+        "216c673a505f",
+        "2648f507f946",
+        "28b7d3c7ff9d",
+        "2ccfe46df77a",
+        "38db6e07c8be",
+        "3f4c6457fd77",
+        "44e140546300",
+        "4915389f9ca3",
+        "49a1c3cecd0f",
+        "4cc8f51ae653",
+        "4dc5a96d1f21",
+        "4dcce52dc2a6",
+        "51310b2b42db",
+        "55eb6bb6e9cc",
+        "58708bfa4434",
+        "58c7b09bfd7d",
+        "598ec88dad49",
+        "62b0c7130c89",
+        "6f783dfdb32b",
+        "7826ebdeebe5",
+        "7ad812bfebb7",
+        "7b1078ddb8a6",
+        "7cb7ec1d4bdf",
+        "7ee1bdc1a70c",
+        "8044067b15bb",
+        "902bcc0b7c48",
+        "90b4b144fa18",
+        "92634d81f91f",
+        "933c788f20af",
+        "970eb158e6d5",
+        "971e14efb3c3",
+        "98fda359d6ea",
+        "9b369bc9e00d",
+        "9e211128ce75",
+        "a140ae548408",
+        "a306aacea359",
+        "a6332a7eba6f",
+        "a63753982210",
+        "a91cdbcc29ff",
+        "aaf8d2c04b07",
+        "b294bc1c0734",
+        "b2bd72944256",
+        "b4ff0faa12a9",
+        "b50d3cf88f64",
+        "b551812529ea",
+        "bc6e8e157749",
+        "c06ee8561c31",
+        "c0c68baac999",
+        "c1552c542e92",
+        "c280cc94802f",
+        "d4b847662508",
+        "d63981191a97",
+        "d7702f49b06e",
+        "d7caed5c4621",
+        "d80fd696e1b7",
+        "da1caa107f95",
+        "dc69bfe3cec5",
+        "e3939784546e",
+        "e5b05fabb3f9",
+        "e96f693706ac",
+        "ec0b2c5c35ed",
+        "ed442c1164db",
+        "ed8fee147866",
+        "efa5e3e0b7c3",
+        "efa6c64e3a8f",
+        "f046ed55bc24",
+        "f0e39203baa5",
+        "f3b7ca54b9fe",
+        "f4b1d4dd0098",
+        "f4e5027c09d1",
+        "fb5ef4083ef9"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 81
+    },
+    {
+      "rule_id": "DPDP-004",
+      "rule_name": "Missing Notice to Data Principal",
+      "dpdp_section": "Section 5",
+      "severity": "MEDIUM",
+      "risk_weight": 0.6,
+      "occurrence_count": 14,
+      "contribution_to_score": 0.0608,
+      "reason": "No notice was provided to the Data Principal before data collection; Consent channel indicates no explicit notice was delivered",
+      "explanation": {
+        "why_detected": "Consent was collected without providing the required notice to the Data Principal, or through a channel that implies implicit or pre-ticked consent.",
+        "evidence": "Consent was collected without providing the required notice to the Data Principal, or through a channel that implies implicit or pre-ticked consent.",
+        "risk_reason": "DPDP Act Section 5 requires that before seeking consent, the Data Fiduciary must give a clear notice describing the personal data to be processed and the purpose. Consent without notice is invalid.",
+        "mitigation": [
+          "Update all consent collection flows to display a layered notice before the consent request",
+          "Review and re-collect consent from all data principals where notice_provided is false",
+          "Implement a consent audit trail that captures notice delivery confirmation alongside consent capture"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Notice was not provided before consent was collected",
+            "weight": 0.8,
+            "fired": true,
+            "reason": "No notice was provided to the Data Principal before data collection",
+            "phi": 0.8
+          },
+          {
+            "signal": "S2",
+            "description": "Consent was collected through an implicit or pre-ticked channel",
+            "weight": 0.2,
+            "fired": true,
+            "reason": "Consent channel indicates no explicit notice was delivered",
+            "phi": 0.2
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 1,
+        "root_cause": "PROCESS_GAP",
+        "penalty_exposure_crore": 50
+      },
+      "penalty_exposure_crore": 50,
+      "root_cause": "PROCESS_GAP",
+      "matched_record_ids": [
+        "03aeb0725f12",
+        "286f7ffe1b7c",
+        "5f9cbc9bf7d9",
+        "6020f06e51d5",
+        "6a14c08878ec",
+        "778cce271f7a",
+        "7e331ab0e43d",
+        "7f78fe993dda",
+        "85a124775fea",
+        "901ccc869c03",
+        "ce1d9942024b",
+        "de1c6efc55cc",
+        "f8db9a46c086",
+        "fb510ebbba0b"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 14
+    },
+    {
+      "rule_id": "DPDP-005",
+      "rule_name": "Children's Data Without Guardian Consent",
+      "dpdp_section": "Section 9(1)",
+      "severity": "CRITICAL",
+      "risk_weight": 1,
+      "occurrence_count": 5,
+      "contribution_to_score": 0.0731,
+      "reason": "Customer is flagged as a minor â€” heightened obligations apply under Section 9; No guardian consent record linked to this minor's account",
+      "explanation": {
+        "why_detected": "Processing was identified for a minor without a verified guardian consent record.",
+        "evidence": "Processing was identified for a minor without a verified guardian consent record.",
+        "risk_reason": "DPDP Act Section 9 prohibits processing personal data of children without verifiable consent from their parent or guardian. This is a CRITICAL severity obligation with a maximum penalty of ₹200 crore.",
+        "mitigation": [
+          "Implement age verification at account creation and flag all minor accounts immediately",
+          "Obtain and record guardian consent for all existing minor accounts before resuming data processing",
+          "Restrict all data processing on minor accounts until guardian consent is confirmed and recorded"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Customer is identified as a minor",
+            "weight": 0.5,
+            "fired": true,
+            "reason": "Customer is flagged as a minor â€” heightened obligations apply under Section 9",
+            "phi": 0.5
+          },
+          {
+            "signal": "S2",
+            "description": "No guardian consent hash is recorded for this customer",
+            "weight": 0.5,
+            "fired": true,
+            "reason": "No guardian consent record linked to this minor's account",
+            "phi": 0.5
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 1,
+        "root_cause": "GOVERNANCE_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "GOVERNANCE_GAP",
+      "matched_record_ids": [
+        "1b2942e1af34",
+        "69c2e160d9ad",
+        "969a0cf5ec78",
+        "bc4898a8bb97"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 4
+    },
+    {
+      "rule_id": "DPDP-006",
+      "rule_name": "Unauthorised Third-Party Data Sharing",
+      "dpdp_section": "Section 6",
+      "severity": "HIGH",
+      "risk_weight": 0.9,
+      "occurrence_count": 49,
+      "contribution_to_score": 0.3015,
+      "reason": "Data was shared with a third party in this event; Consent scope does not include sharing with third parties; Transfer is cross-border â€” additional DPDP Chapter V obligations apply",
+      "explanation": {
+        "why_detected": "Personal data was shared with a third party without a valid active consent, or was involved in a cross-border transfer.",
+        "evidence": "Personal data was shared with a third party without a valid active consent, or was involved in a cross-border transfer.",
+        "risk_reason": "DPDP Act Section 6(1) requires explicit consent before sharing data with third parties. Cross-border transfers introduce additional regulatory exposure under DPDP Rules.",
+        "mitigation": [
+          "Review all third-party data sharing agreements and ensure explicit consent covers the sharing purpose",
+          "Implement a data sharing approval gate that validates consent_status = active before any third-party transfer",
+          "Audit all cross-border transfers and assess compliance with DPDP Rules on significant data fiduciaries"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Data was shared with a third party",
+            "weight": 0.4,
+            "fired": true,
+            "reason": "Data was shared with a third party in this event",
+            "phi": 0.4
+          },
+          {
+            "signal": "S2",
+            "description": "Third party share occurred without active consent",
+            "weight": 0.4,
+            "fired": true,
+            "reason": "Consent scope does not include sharing with third parties",
+            "phi": 0.4
+          },
+          {
+            "signal": "S3",
+            "description": "Data was transferred cross-border",
+            "weight": 0.2,
+            "fired": false,
+            "reason": "—",
+            "phi": 0
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 0.8,
+        "root_cause": "PROCESS_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "PROCESS_GAP",
+      "matched_record_ids": [
+        "009ba7b9da53",
+        "06af5fe65a38",
+        "0cb79e9c522f",
+        "1da36a34a341",
+        "1f86f17c9d55",
+        "251c9587796a",
+        "2849ebbdd0fa",
+        "2fcaacfabd9b",
+        "31dc732740fd",
+        "39e20cd08cce",
+        "464946ef6289",
+        "4abfceab92bc",
+        "4b244b726c93",
+        "55f4c8e64f34",
+        "573c5c94ecde",
+        "5bd93bec6f08",
+        "5f6217cdec33",
+        "608e936888f1",
+        "60988c203aed",
+        "60ec4a5db8f7",
+        "61641bd807aa",
+        "670c4c5ead46",
+        "68b62230ec6e",
+        "6c16631dbf72",
+        "72eb727b8719",
+        "7d40a4ff5807",
+        "815a1707948e",
+        "82d0fba3958d",
+        "83f10be5bac3",
+        "888e1a0057b2",
+        "8cd178f4627e",
+        "99903e402ab4",
+        "9b686006a394",
+        "a00d632289b8",
+        "b2d6e0a15f83",
+        "b85de0c33f1c",
+        "bfdccf88e71c",
+        "c2460d2428c5",
+        "c5dab5fc3d06",
+        "c6330203dfc0",
+        "d6b4faefc44c",
+        "d8ec9e5af2d3",
+        "db4ff6ca94bb",
+        "df39021fa28c",
+        "df90d05a766d",
+        "e063435d492f",
+        "e118026798ad",
+        "ef80426ca13b",
+        "fbff1974ebcb"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 49
+    },
+    {
+      "rule_id": "DPDP-008",
+      "rule_name": "Sensitive Data Stored Without Encryption",
+      "dpdp_section": "Section 8(5)",
+      "severity": "CRITICAL",
+      "risk_weight": 0.95,
+      "occurrence_count": 10,
+      "contribution_to_score": 0.8645,
+      "reason": "PII is stored without any encryption; Encryption algorithm used is below the minimum acceptable standard (AES-256)",
+      "explanation": {
+        "why_detected": "Personal data is being processed or stored without encryption, leaving it exposed to unauthorized access or breach.",
+        "evidence": "Personal data is being processed or stored without encryption, leaving it exposed to unauthorized access or breach.",
+        "risk_reason": "DPDP Act Section 8(5) requires Data Fiduciaries to implement reasonable security safeguards to prevent personal data breaches. Absence of encryption is a direct failure of this obligation.",
+        "mitigation": [
+          "Immediately enable AES-256 encryption for all databases and storage systems containing PII",
+          "Audit all systems in system_inventory for encryption status and prioritize unencrypted systems",
+          "Conduct a security assessment and produce an encryption implementation roadmap within 30 days"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "PII is not encrypted",
+            "weight": 0.7,
+            "fired": true,
+            "reason": "PII is stored without any encryption",
+            "phi": 0.7
+          },
+          {
+            "signal": "S2",
+            "description": "Encryption type is set to none",
+            "weight": 0.3,
+            "fired": false,
+            "reason": "—",
+            "phi": 0
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 0.7,
+        "root_cause": "TECHNICAL_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "TECHNICAL_GAP",
+      "matched_record_ids": [
+        "1d6e8d3ba733",
+        "53a300dd26c9",
+        "59e68d521a17",
+        "716406629fbd",
+        "71d708bf8dec",
+        "897805c7fc5e",
+        "8d20f185c08b",
+        "b7a42d5dd863",
+        "df82e341ff61",
+        "f2339cafd132"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 10
+    },
+    {
+      "rule_id": "DPDP-009",
+      "rule_name": "Missing Grievance Redressal Mechanism",
+      "dpdp_section": "Section 13",
+      "severity": "LOW",
+      "risk_weight": 0.3,
+      "occurrence_count": 1,
+      "contribution_to_score": 0.1236,
+      "reason": "No grievance endpoint is published or available for Data Principals; No Data Protection Officer has been assigned to receive escalations; DPO contact email is missing â€” grievance mechanism is unreachable",
+      "explanation": {
+        "why_detected": "The organization does not have a functioning grievance mechanism available for Data Principals to raise complaints.",
+        "evidence": "The organization does not have a functioning grievance mechanism available for Data Principals to raise complaints.",
+        "risk_reason": "DPDP Act Section 13 requires every Data Fiduciary to publish a contact for a Data Protection Officer or Grievance Officer and ensure complaints can be lodged and responded to.",
+        "mitigation": [
+          "Appoint a named Grievance Officer and publish their contact details on your website and in your privacy notice immediately",
+          "Establish a formal grievance intake and response workflow with SLA tracking",
+          "Set grievance_endpoint_available to true in your governance config once the mechanism is live"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Grievance endpoint is not available",
+            "weight": 1,
+            "fired": true,
+            "reason": "No grievance endpoint is published or available for Data Principals",
+            "phi": 1
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 1,
+        "root_cause": "GOVERNANCE_GAP",
+        "penalty_exposure_crore": 10
+      },
+      "penalty_exposure_crore": 10,
+      "root_cause": "GOVERNANCE_GAP",
+      "matched_record_ids": [
+        "WEALTHNEST-003"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 1
+    },
+    {
+      "rule_id": "DPDP-010",
+      "rule_name": "Failure to Honour Data Erasure Request",
+      "dpdp_section": "Section 12(1)(b)",
+      "severity": "HIGH",
+      "risk_weight": 0.85,
+      "occurrence_count": 11,
+      "contribution_to_score": 0.7714,
+      "reason": "SLA deadline for fulfilling the erasure request has been exceeded; Data lifecycle record shows data has not been deleted despite request; No legal hold exists to justify withholding deletion",
+      "explanation": {
+        "why_detected": "An erasure request submitted by a Data Principal has not been fulfilled within the SLA period or remains in pending status.",
+        "evidence": "An erasure request submitted by a Data Principal has not been fulfilled within the SLA period or remains in pending status.",
+        "risk_reason": "DPDP Act Section 12(a) grants Data Principals the right to erasure of their personal data. Failure to honor this right within the prescribed SLA is a direct statutory violation.",
+        "mitigation": [
+          "Implement an automated DSAR workflow with SLA countdown tracking and escalation alerts",
+          "Assign a responsible team to process all pending erasure requests within 24 hours",
+          "Conduct a review of all dsar_requests where sla_breached is true and provide a remediation timeline to the Board"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "The SLA for this erasure request has been breached",
+            "weight": 0.6,
+            "fired": false,
+            "reason": "—",
+            "phi": 0
+          },
+          {
+            "signal": "S2",
+            "description": "The erasure request is still in pending status",
+            "weight": 0.4,
+            "fired": true,
+            "reason": "SLA deadline for fulfilling the erasure request has been exceeded",
+            "phi": 0.4
+          }
+        ],
+        "top_contributing_signal": "S2",
+        "total_shap": 0.4,
+        "root_cause": "PROCESS_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "PROCESS_GAP",
+      "matched_record_ids": [
+        "1352fb88b45c",
+        "6d2bc1f2b933",
+        "b67d681a4ec3",
+        "b9c71b192490",
+        "c53c53815946",
+        "f2d38eb7bc06",
+        "ff9ba714d998"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 7
+    },
+    {
+      "rule_id": "DPDP-011",
+      "rule_name": "Excess Data Retention After Purpose Completion",
+      "dpdp_section": "Section 8(7)",
+      "severity": "MEDIUM",
+      "risk_weight": 0.6,
+      "occurrence_count": 81,
+      "contribution_to_score": 0.3826,
+      "reason": "Processing purpose has been marked as completed; Data is still in active retention despite purpose being complete; No legal hold justifies continued retention after purpose completion",
+      "explanation": {
+        "why_detected": "Personal data is being retained even though the processing purpose has been completed and no deletion has been initiated.",
+        "evidence": "Personal data is being retained even though the processing purpose has been completed and no deletion has been initiated.",
+        "risk_reason": "DPDP Act Section 8(7)(a) requires that personal data not be retained beyond the period necessary for the purpose for which it was processed.",
+        "mitigation": [
+          "Deploy automated retention management that triggers deletion when purpose_completed = true",
+          "Run an immediate purge job on all data_lifecycle records where purpose_completed is true and status is not deleted or pending_deletion",
+          "Update your data lifecycle policy to include a mandatory deletion SLA after purpose completion"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Processing purpose has been marked as completed",
+            "weight": 0.5,
+            "fired": true,
+            "reason": "Processing purpose has been marked as completed",
+            "phi": 0.5
+          },
+          {
+            "signal": "S2",
+            "description": "Data has not been deleted or queued for deletion despite purpose completion",
+            "weight": 0.5,
+            "fired": true,
+            "reason": "Data is still in active retention despite purpose being complete",
+            "phi": 0.5
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 1,
+        "root_cause": "TECHNICAL_GAP",
+        "penalty_exposure_crore": 200
+      },
+      "penalty_exposure_crore": 200,
+      "root_cause": "TECHNICAL_GAP",
+      "matched_record_ids": [
+        "00cf58562a67",
+        "043696bb19a9",
+        "07a616f59744",
+        "08a7f13ed055",
+        "0d07e8244288",
+        "11a679915d25",
+        "13550d8fa604",
+        "15055cc8b728",
+        "193f63c1bfe5",
+        "1f04accfc27c",
+        "1f9d2ea64ff3",
+        "210d6754a644",
+        "2648f507f946",
+        "2ccfe46df77a",
+        "2fc7ef79092a",
+        "479670d88013",
+        "49a1c3cecd0f",
+        "4dc5a96d1f21",
+        "4dcce52dc2a6",
+        "4e0c964e765c",
+        "51310b2b42db",
+        "58708bfa4434",
+        "5cb64d2fdeeb",
+        "678ff2489666",
+        "67d8557cda17",
+        "6c38fce44bf1",
+        "6f783dfdb32b",
+        "6fa27b69ae8a",
+        "7162bfa5ea62",
+        "76f38bc2d98c",
+        "775c4ff5a374",
+        "7826ebdeebe5",
+        "7ad812bfebb7",
+        "7b1078ddb8a6",
+        "7cb7ec1d4bdf",
+        "8044067b15bb",
+        "846c4fbff09d",
+        "902bcc0b7c48",
+        "906ec2e3d774",
+        "96bedc9170fd",
+        "970eb158e6d5",
+        "97f80378cac0",
+        "9d638d50788a",
+        "a140ae548408",
+        "a306aacea359",
+        "a5603f61a449",
+        "a6332a7eba6f",
+        "aaf8d2c04b07",
+        "b294bc1c0734",
+        "b4ff0faa12a9",
+        "b50d3cf88f64",
+        "b53bed0489af",
+        "b5f45a8cb74c",
+        "bc6e8e157749",
+        "c06ee8561c31",
+        "c0c68baac999",
+        "c5c55a1b9911",
+        "c886c00da8b5",
+        "cdfda1b2c17f",
+        "d16df450d44e",
+        "d17ba3dd05c3",
+        "d7702f49b06e",
+        "d7caed5c4621",
+        "dc5dd1e9e423",
+        "dc69bfe3cec5",
+        "e3939784546e",
+        "e96f693706ac",
+        "ec0b2c5c35ed",
+        "ed8fee147866",
+        "edb91bd21bdd",
+        "efa5e3e0b7c3",
+        "efa6c64e3a8f",
+        "f046ed55bc24",
+        "f04bc4a195bf",
+        "f0e39203baa5",
+        "f2ef4817b732",
+        "f3b7ca54b9fe",
+        "f403233f98b6",
+        "f4b1d4dd0098",
+        "f4e5027c09d1",
+        "feeb5b0db01c"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 81
+    },
+    {
+      "rule_id": "DPDP-012",
+      "rule_name": "Missing or Overdue Audit Logs",
+      "dpdp_section": "Section 10",
+      "severity": "MEDIUM",
+      "risk_weight": 0.55,
+      "occurrence_count": 1,
+      "contribution_to_score": 0.2585,
+      "reason": "Days since last audit exceeds the configured audit frequency â€” audit is overdue; No DPO assigned â€” accountability mechanism for audit oversight is absent",
+      "explanation": {
+        "why_detected": "Audit logging is either disabled, infrequent, or overdue, meaning processing activity cannot be verified or investigated.",
+        "evidence": "Audit logging is either disabled, infrequent, or overdue, meaning processing activity cannot be verified or investigated.",
+        "risk_reason": "DPDP Act Section 8(4) requires Data Fiduciaries to maintain a complete and accessible audit trail of all personal data processing activities.",
+        "mitigation": [
+          "Enable comprehensive audit logging on all systems processing personal data immediately",
+          "Implement a SIEM solution with automated alerting for unauthorized access events",
+          "Schedule mandatory audit reviews at the frequency set in governance_config and assign an owner"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "Audit frequency is set to more than 180 days",
+            "weight": 0.5,
+            "fired": true,
+            "reason": "Days since last audit exceeds the configured audit frequency â€” audit is overdue",
+            "phi": 0.5
+          },
+          {
+            "signal": "S2",
+            "description": "No audit date is recorded",
+            "weight": 0.3,
+            "fired": false,
+            "reason": "—",
+            "phi": 0
+          },
+          {
+            "signal": "S3",
+            "description": "Last audit date is older than the configured audit frequency",
+            "weight": 0.2,
+            "fired": true,
+            "reason": "No DPO assigned â€” accountability mechanism for audit oversight is absent",
+            "phi": 0.2
+          }
+        ],
+        "top_contributing_signal": "S1",
+        "total_shap": 0.7,
+        "root_cause": "GOVERNANCE_GAP",
+        "penalty_exposure_crore": 50
+      },
+      "penalty_exposure_crore": 50,
+      "root_cause": "GOVERNANCE_GAP",
+      "matched_record_ids": [
+        "WEALTHNEST-003"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 1
+    },
+    {
+      "rule_id": "DPDP-013",
+      "rule_name": "Unauthorised Employee Access to PII",
+      "dpdp_section": "Section 8(5)",
+      "severity": "HIGH",
+      "risk_weight": 0.9,
+      "occurrence_count": 62,
+      "contribution_to_score": 0.6848,
+      "reason": "Accessing employee's role is not in the authorised roles list for PII access; PII fields were accessed during this event; Access was denied â€” repeated denied attempts indicate probing behaviour",
+      "explanation": {
+        "why_detected": "An employee without an authorized role accessed personal data, indicating a role-based access control failure.",
+        "evidence": "An employee without an authorized role accessed personal data, indicating a role-based access control failure.",
+        "risk_reason": "DPDP Act Section 8(5) requires that access to personal data be restricted to personnel with a legitimate need. Unauthorized access is a breach of this security obligation.",
+        "mitigation": [
+          "Implement RBAC immediately to restrict PII access to compliance_officer, underwriter, and data_analyst roles only",
+          "Review all access_logs for unauthorized PII access and investigate each instance",
+          "Conduct a mandatory access control audit and revoke excess permissions within 48 hours"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "An employee accessed PII data",
+            "weight": 0.4,
+            "fired": true,
+            "reason": "Accessing employee's role is not in the authorised roles list for PII access",
+            "phi": 0.4
+          },
+          {
+            "signal": "S2",
+            "description": "The employee's role is not in the list of authorized PII access roles",
+            "weight": 0.6,
+            "fired": true,
+            "reason": "PII fields were accessed during this event",
+            "phi": 0.6
+          }
+        ],
+        "top_contributing_signal": "S2",
+        "total_shap": 1,
+        "root_cause": "HUMAN_ERROR",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "HUMAN_ERROR",
+      "matched_record_ids": [
+        "0092d1e6912c",
+        "01b55c6faf0c",
+        "03442e2e342a",
+        "12460f7d5e69",
+        "14bfc92c72e9",
+        "1a6454688829",
+        "2628cfb4ec9c",
+        "26f0f0650b59",
+        "2904d73f3790",
+        "30469bbce58a",
+        "307421a0f62b",
+        "340f2fcc779b",
+        "3603157ec338",
+        "362384f708a5",
+        "3968a068bc0f",
+        "3a9af230c1f6",
+        "3d22940cd64a",
+        "41268fead7f5",
+        "41fcc565ada1",
+        "479b3a801760",
+        "4ca9f82d835f",
+        "4d7eff2e04fe",
+        "53c333692085",
+        "550e9d1fd47c",
+        "62280479bd90",
+        "659750d378f0",
+        "6c48f5fb06df",
+        "6d4619b43367",
+        "6e8cb1a6aa2e",
+        "764e3b0616e0",
+        "795f8756963e",
+        "7a1d4b3a43a0",
+        "7ace0d56b3b3",
+        "7c19b108e546",
+        "80bbaaaa33c4",
+        "852e43cc4839",
+        "8c5aca90e117",
+        "8f015476c268",
+        "97cec0dd368d",
+        "a066bd7ceda5",
+        "a27754a3f62d",
+        "aebbcdd736ba",
+        "b8d80264a6f0",
+        "bfc99314d63e",
+        "c1fa541f3ed5",
+        "c57c62ca7179",
+        "c80d1d9717d7",
+        "c8dd3676fe9b",
+        "cabe50dd1b5a",
+        "cbfeef9f6c39",
+        "d2686896a889",
+        "d3f80ac5caef",
+        "d58e27e3c414",
+        "d6592ddcd17e",
+        "e2dd1f7af796",
+        "e2df5f07e8d0",
+        "e3d62e14bb6e",
+        "e76240cf5200",
+        "ed9ab34428a7",
+        "ef8234835306",
+        "f2b6e7e884f4",
+        "f35023428ee5"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 62
+    },
+    {
+      "rule_id": "DPDP-014",
+      "rule_name": "Delayed Breach Notification",
+      "dpdp_section": "Section 8(6)",
+      "severity": "CRITICAL",
+      "risk_weight": 0.95,
+      "occurrence_count": 9,
+      "contribution_to_score": 0.8165,
+      "reason": "A personal data breach has been detected for this tenant; Notification delay exceeds 72-hour threshold â€” CERT-In and DPDP S.8(6) violation; Breach confirmation timestamp is missing â€” notification clock cannot be verified",
+      "explanation": {
+        "why_detected": "A data breach was detected but notification to the authorities was delayed beyond the required 72-hour window, and/or a significant number of users were affected.",
+        "evidence": "A data breach was detected but notification to the authorities was delayed beyond the required 72-hour window, and/or a significant number of users were affected.",
+        "risk_reason": "DPDP Act Section 8(6) requires the Data Fiduciary to notify the Data Protection Board of India of any personal data breach. Delayed notification is a direct violation of this obligation.",
+        "mitigation": [
+          "Establish a documented breach response plan with a named incident response lead and a 72-hour notification SLA",
+          "Implement automated breach detection with immediate escalation to the DPO and legal team",
+          "Train all technical and security staff on breach identification, containment, and DPDP notification requirements"
+        ],
+        "signals_analysis": [
+          {
+            "signal": "S1",
+            "description": "A data breach was detected",
+            "weight": 0.2,
+            "fired": true,
+            "reason": "A personal data breach has been detected for this tenant",
+            "phi": 0.2
+          },
+          {
+            "signal": "S2",
+            "description": "Notification delay exceeded 72 hours",
+            "weight": 0.5,
+            "fired": true,
+            "reason": "Notification delay exceeds 72-hour threshold â€” CERT-In and DPDP S.8(6) violation",
+            "phi": 0.5
+          },
+          {
+            "signal": "S3",
+            "description": "A large or critical number of users were affected by the breach",
+            "weight": 0.3,
+            "fired": true,
+            "reason": "Breach confirmation timestamp is missing â€” notification clock cannot be verified",
+            "phi": 0.3
+          }
+        ],
+        "top_contributing_signal": "S2",
+        "total_shap": 1,
+        "root_cause": "PROCESS_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "PROCESS_GAP",
+      "matched_record_ids": [
+        "1d6e8d3ba733",
+        "25de07e638e5",
+        "53a300dd26c9",
+        "59e68d521a17",
+        "6d58015f34d9",
+        "716406629fbd",
+        "781f4ce7fbab",
+        "8d20f185c08b",
+        "df82e341ff61"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 9
+    },
+    {
+      "rule_id": "DPDP-015",
+      "rule_name": "Cross-Border Transfer Without Authorisation",
+      "dpdp_section": "Section 16",
+      "severity": "HIGH",
+      "risk_weight": 0.85,
+      "occurrence_count": 16,
+      "contribution_to_score": 0.093,
+      "reason": "Transfer is flagged as cross-border â€” Chapter V obligations triggered; Destination country is not on India's approved transfer list under Section 16",
+      "explanation": {
+        "why_detected": "An automated compliance check produced a finding for an unrecognized rule.",
+        "evidence": "An automated compliance check produced a finding for an unrecognized rule.",
+        "risk_reason": "The relevant DPDP requirement could not be automatically determined.",
+        "mitigation": [
+          "Review the specific record to manually ascertain the required corrective action."
+        ],
+        "signals_analysis": [],
+        "top_contributing_signal": "—",
+        "total_shap": 0,
+        "root_cause": "TECHNICAL_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "TECHNICAL_GAP",
+      "matched_record_ids": [
+        "1da36a34a341",
+        "251c9587796a",
+        "31dc732740fd",
+        "60988c203aed",
+        "60ec4a5db8f7",
+        "68b62230ec6e",
+        "815a1707948e",
+        "83f10be5bac3",
+        "888e1a0057b2",
+        "8cd178f4627e",
+        "9b686006a394",
+        "c5dab5fc3d06",
+        "c6330203dfc0",
+        "e063435d492f",
+        "e118026798ad",
+        "ef80426ca13b"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 16
+    },
+    {
+      "rule_id": "DPDP-016",
+      "rule_name": "Processor Accountability Failure",
+      "dpdp_section": "Section 8(2)",
+      "severity": "HIGH",
+      "risk_weight": 0.85,
+      "occurrence_count": 5,
+      "contribution_to_score": 0.3942,
+      "reason": "No Data Processing Agreement signed with this processor â€” S.8(2) direct violation; Processor stores PII â€” the absence of a DPA creates direct fiduciary liability",
+      "explanation": {
+        "why_detected": "An automated compliance check produced a finding for an unrecognized rule.",
+        "evidence": "An automated compliance check produced a finding for an unrecognized rule.",
+        "risk_reason": "The relevant DPDP requirement could not be automatically determined.",
+        "mitigation": [
+          "Review the specific record to manually ascertain the required corrective action."
+        ],
+        "signals_analysis": [],
+        "top_contributing_signal": "—",
+        "total_shap": 0,
+        "root_cause": "TECHNICAL_GAP",
+        "penalty_exposure_crore": 250
+      },
+      "penalty_exposure_crore": 250,
+      "root_cause": "TECHNICAL_GAP",
+      "matched_record_ids": [
+        "1c98e9da2087",
+        "29eb5ac21ac6",
+        "b045018b2fa0",
+        "dad219adb5fc",
+        "edc0449c07fd"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 5
+    },
+    {
+      "rule_id": "POLICY-001",
+      "rule_name": "Retention Policy Compliance",
+      "dpdp_section": "Section 8(7)",
+      "severity": "MEDIUM",
+      "risk_weight": 0.55,
+      "occurrence_count": 2,
+      "contribution_to_score": 0.0887,
+      "reason": "No retention policy type exists for this tenant; Declared retention period exceeds 730 days â€” beyond the maximum window permitted under DPDP Section 8(7)",
+      "explanation": {
+        "why_detected": "An automated compliance check produced a finding for an unrecognized rule.",
+        "evidence": "An automated compliance check produced a finding for an unrecognized rule.",
+        "risk_reason": "The relevant DPDP requirement could not be automatically determined.",
+        "mitigation": [
+          "Review the specific record to manually ascertain the required corrective action."
+        ],
+        "signals_analysis": [],
+        "top_contributing_signal": "—",
+        "total_shap": 0,
+        "root_cause": "TECHNICAL_GAP",
+        "penalty_exposure_crore": 50
+      },
+      "penalty_exposure_crore": 50,
+      "root_cause": "TECHNICAL_GAP",
+      "matched_record_ids": [
+        "32a4a64f2c77",
+        "b61b4900c507"
+      ],
+      "fields_triggered": [],
+      "matched_logs_count": 2
+    }
+  ],
+  "status": "success",
+  "executive_summary": "WEALTHNEST-003 achieved a DPDP compliance risk score of 39.1/100, classified as MEDIUM. 366 violations were detected across 16 DPDP Act sections, with a combined maximum penalty exposure of ₹3060.0 crore. The highest-risk finding is DPDP-008 (Sensitive Data Stored Without Encryption) under Section Section 8(5), contributing 0.8645 to the overall risk score. Immediate remediation is recommended for: DPDP-008, DPDP-014, DPDP-010.",
+  "agent_breakdown": {
+    "regulation_agent": {
+      "violations": 38,
+      "warnings": 292
+    },
+    "audit_agent": {
+      "violations": 237,
+      "warnings": 71
+    },
+    "risk_agent": {
+      "violations": 89,
+      "warnings": 135
+    },
+    "policy_agent": {
+      "violations": 2,
+      "warnings": 0
+    }
+  },
+  "risk_contributions": {
+    "DPDP-001": 0.1131,
+    "DPDP-002": 0.0399,
+    "DPDP-004": 0.0608,
+    "DPDP-005": 0.0731,
+    "DPDP-003": 0.5791,
+    "DPDP-009": 0.1236,
+    "DPDP-010": 0.7714,
+    "DPDP-011": 0.3826,
+    "DPDP-012": 0.2585,
+    "DPDP-013": 0.6848,
+    "DPDP-006": 0.3015,
+    "DPDP-008": 0.8645,
+    "DPDP-014": 0.8165,
+    "DPDP-015": 0.093,
+    "DPDP-016": 0.3942,
+    "POLICY-001": 0.0887
+  },
+  "remediation_priority": [
+    {
+      "priority": 1,
+      "rule_id": "DPDP-008",
+      "rule_name": "Sensitive Data Stored Without Encryption",
+      "action": "Immediately enable AES-256 encryption for all databases and storage systems containing PII",
+      "urgency": "IMMEDIATE",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 2,
+      "rule_id": "DPDP-014",
+      "rule_name": "Delayed Breach Notification",
+      "action": "Establish a documented breach response plan with a named incident response lead and a 72-hour notification SLA",
+      "urgency": "IMMEDIATE",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 3,
+      "rule_id": "DPDP-005",
+      "rule_name": "Children's Data Without Guardian Consent",
+      "action": "Implement age verification at account creation and flag all minor accounts immediately",
+      "urgency": "IMMEDIATE",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 4,
+      "rule_id": "DPDP-010",
+      "rule_name": "Failure to Honour Data Erasure Request",
+      "action": "Implement an automated DSAR workflow with SLA countdown tracking and escalation alerts",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 5,
+      "rule_id": "DPDP-013",
+      "rule_name": "Unauthorised Employee Access to PII",
+      "action": "Implement RBAC immediately to restrict PII access to compliance_officer, underwriter, and data_analyst roles only",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 6,
+      "rule_id": "DPDP-003",
+      "rule_name": "Retention Beyond Allowed Period",
+      "action": "Implement automated data deletion triggers based on retention_expiry_date and purpose_completed flags",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 200
+    },
+    {
+      "priority": 7,
+      "rule_id": "DPDP-016",
+      "rule_name": "Processor Accountability Failure",
+      "action": "Review the specific record to manually ascertain the required corrective action.",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 8,
+      "rule_id": "DPDP-006",
+      "rule_name": "Unauthorised Third-Party Data Sharing",
+      "action": "Review all third-party data sharing agreements and ensure explicit consent covers the sharing purpose",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 9,
+      "rule_id": "DPDP-001",
+      "rule_name": "Invalid or Missing Consent Before Processing",
+      "action": "Obtain fresh explicit consent from affected data principals before resuming processing",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 10,
+      "rule_id": "DPDP-015",
+      "rule_name": "Cross-Border Transfer Without Authorisation",
+      "action": "Review the specific record to manually ascertain the required corrective action.",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 11,
+      "rule_id": "DPDP-002",
+      "rule_name": "Processing Beyond Stated Purpose",
+      "action": "Update transaction processing workflows to enforce purpose matching against consent records at runtime",
+      "urgency": "HIGH",
+      "penalty_exposure_crore": 250
+    },
+    {
+      "priority": 12,
+      "rule_id": "DPDP-011",
+      "rule_name": "Excess Data Retention After Purpose Completion",
+      "action": "Deploy automated retention management that triggers deletion when purpose_completed = true",
+      "urgency": "MEDIUM",
+      "penalty_exposure_crore": 200
+    },
+    {
+      "priority": 13,
+      "rule_id": "DPDP-012",
+      "rule_name": "Missing or Overdue Audit Logs",
+      "action": "Enable comprehensive audit logging on all systems processing personal data immediately",
+      "urgency": "MEDIUM",
+      "penalty_exposure_crore": 50
+    },
+    {
+      "priority": 14,
+      "rule_id": "POLICY-001",
+      "rule_name": "Retention Policy Compliance",
+      "action": "Review the specific record to manually ascertain the required corrective action.",
+      "urgency": "MEDIUM",
+      "penalty_exposure_crore": 50
+    },
+    {
+      "priority": 15,
+      "rule_id": "DPDP-004",
+      "rule_name": "Missing Notice to Data Principal",
+      "action": "Update all consent collection flows to display a layered notice before the consent request",
+      "urgency": "MEDIUM",
+      "penalty_exposure_crore": 50
+    },
+    {
+      "priority": 16,
+      "rule_id": "DPDP-009",
+      "rule_name": "Missing Grievance Redressal Mechanism",
+      "action": "Appoint a named Grievance Officer and publish their contact details on your website and in your privacy notice immediately",
+      "urgency": "LOW",
+      "penalty_exposure_crore": 10
+    }
+  ],
+  "total_penalty_exposure_crore": 3060
+}

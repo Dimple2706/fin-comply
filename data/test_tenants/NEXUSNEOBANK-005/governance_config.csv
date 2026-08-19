@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact_masked,audit_frequency_days,last_audit_date,risk_level
+NEXUSNEOBANK-005,Nexus Digital Bank & Financial Technologies Pvt Ltd,True,True,d***@nexusneobank.in,30,2026-01-18,LOW
