@@ -228,7 +228,7 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
     ml = data.get("ml_layer")
     if ml and ml.get("ml_available"):
         ml_tier = ml.get("predicted_tier", "UNKNOWN")
-        ml_conf = ml.get("confidence", 0)
+        ml_conf = ml.get("probabilities", {}).get(ml_tier, 0)
         conf_str = f"{ml_conf:.1f}%" if ml_conf > 1 else f"{ml_conf * 100:.1f}%"
         score_data.append(["ML Predicted Risk Tier (XGBoost)", f"{ml_tier} (Confidence: {conf_str})"])
 

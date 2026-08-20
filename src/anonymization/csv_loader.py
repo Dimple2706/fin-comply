@@ -2,6 +2,26 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Set, Any
 
+class MissingColumnError(ValueError):
+    def __init__(self, filename: str, field: str, error_code: str, explanation: str):
+        self.filename = filename
+        self.field = field
+        self.error_code = error_code
+        self.explanation = explanation
+        super().__init__(f"Missing column {field} in {filename}: {explanation}")
+
+class TenantValidationError(ValueError):
+    def __init__(self, filename: str, row_number: int, expected_tenant: str, supplied_tenant: str, error_code: str):
+        self.filename = filename
+        self.row_number = row_number
+        self.expected_tenant = expected_tenant
+        self.supplied_tenant = supplied_tenant
+        self.error_code = error_code
+        super().__init__(
+            f"Validation error in {filename} at row {row_number}: {error_code} "
+            f"(Expected '{expected_tenant}', got '{supplied_tenant}')"
+        )
+
 # ═══════════════════════════════════════════════════════════════
 # EXPECTED FILES
 # ═══════════════════════════════════════════════════════════════
@@ -44,7 +64,8 @@ REQUIRED_COLUMN_GROUPS: Dict[str, List[List[str]]] = {
         ["customer_hash", "customer_id"],
         ["tenant_id"],
         ["consent_status"],
-        ["consented_purpose"]
+        ["consented_purpose"],
+        ["guardian_consent_hash", "guardian_consent_id"]
     ],
     "transaction_events": [
         ["event_hash", "event_id"],
@@ -74,7 +95,10 @@ REQUIRED_COLUMN_GROUPS: Dict[str, List[List[str]]] = {
         ["dsar_hash", "dsar_id"],
         ["customer_hash", "customer_id"],
         ["tenant_id"],
-        ["request_type"]
+        ["request_type"],
+        ["submitted_date", "submitted_at"],
+        ["sla_due_date"],
+        ["fulfilled_date", "fulfilled_at"]
     ],
     "system_inventory": [
         ["system_hash", "system_id"],
@@ -141,17 +165,48 @@ def load_tenant_csvs(csv_dir: Path, tenant_id: str) -> Dict[str, pd.DataFrame]:
         except Exception as e:
             raise ValueError(f"Failed to read {filename}: {str(e)}")
             
-        # 2. Case-insensitive & whitespace-tolerant tenant_id matching
+        # 2. Strict tenant_id matching
         clean_tenant_id = str(tenant_id).strip()
         if "tenant_id" not in df.columns:
-            df["tenant_id"] = clean_tenant_id
-        else:
-            df["tenant_id"] = df["tenant_id"].astype(str).str.strip()
-            filtered = df[df["tenant_id"].str.upper() == clean_tenant_id.upper()].copy()
-            if len(filtered) == 0 and len(df) > 0:
-                df["tenant_id"] = clean_tenant_id
-            else:
-                df = filtered
+            raise TenantValidationError(
+                filename=filename,
+                row_number=1,
+                expected_tenant=clean_tenant_id,
+                supplied_tenant="",
+                error_code="MISSING_TENANT_COLUMN"
+            )
+            
+        for i, val in enumerate(df["tenant_id"]):
+            row_num = i + 2 # Header is line 1
+            if pd.isna(val):
+                raise TenantValidationError(
+                    filename=filename,
+                    row_number=row_num,
+                    expected_tenant=clean_tenant_id,
+                    supplied_tenant="",
+                    error_code="BLANK_TENANT_ID"
+                )
+            
+            supplied = str(val).strip()
+            if not supplied:
+                raise TenantValidationError(
+                    filename=filename,
+                    row_number=row_num,
+                    expected_tenant=clean_tenant_id,
+                    supplied_tenant="",
+                    error_code="BLANK_TENANT_ID"
+                )
+                
+            if supplied != clean_tenant_id:
+                raise TenantValidationError(
+                    filename=filename,
+                    row_number=row_num,
+                    expected_tenant=clean_tenant_id,
+                    supplied_tenant=supplied,
+                    error_code="TENANT_MISMATCH"
+                )
+        
+        df["tenant_id"] = clean_tenant_id
         
         # 3. Drop suppression columns (Technique 4)
         cols_to_drop = DROP_COLUMNS.get(table_name, [])
@@ -165,7 +220,13 @@ def load_tenant_csvs(csv_dir: Path, tenant_id: str) -> Dict[str, pd.DataFrame]:
             if not any(c in df.columns for c in group):
                 missing_groups.append(" or ".join(group))
         if missing_groups:
-            raise ValueError(f"File {filename} is missing required columns: {missing_groups}")
+            missing_col = missing_groups[0].split(" or ")[0]
+            raise MissingColumnError(
+                filename=filename, 
+                field=missing_col, 
+                error_code="MISSING_COLUMN", 
+                explanation=f"File {filename} is missing required columns: {missing_groups}"
+            )
             
         # Preserve flexible JSONB extension field.
         # Older uploads may not contain it, so default to empty JSON.

@@ -18,8 +18,8 @@ from src.api.schemas import (
     AnalyzeRequest, AnalyzeResponse, ViolationItem,
     FullExplanation, SignalDetail, AgentBreakdown, RemediationItem,
 )
-from src.anonymization.csv_loader import load_tenant_csvs
-from src.anonymization.field_mapper import anonymize_dataframe
+from src.anonymization.csv_loader import load_tenant_csvs, TenantValidationError, MissingColumnError
+from src.anonymization.field_mapper import anonymize_dataframe, DsarValidationError
 from src.anonymization.db_writer import write_tenant_data
 from src.agent_layer.orchestrator import run_compliance_analysis
 from src.explainability.service import enrich_violations, generate_executive_summary, RULE_EXPLANATIONS
@@ -29,7 +29,7 @@ load_dotenv()
 
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = os.getenv('DB_PORT', '5432')
-DB_NAME = os.getenv('DB_NAME', 'compliance_db')
+DB_NAME = os.getenv('DB_NAME', 'tenant_db')
 DB_USER = os.getenv('DB_USER', 'postgres')
 DB_PASSWORD = os.getenv('DB_PASSWORD')   # Must be set in .env Ã¢â‚¬â€ no hardcoded fallback
 
@@ -441,6 +441,41 @@ async def analyze_upload(
 
             rows_written = write_tenant_data(tenant_id, mapped_data)
 
+        except TenantValidationError as tve:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "Tenant validation failed",
+                    "filename": tve.filename,
+                    "row_number": tve.row_number,
+                    "expected_tenant": tve.expected_tenant,
+                    "supplied_tenant": tve.supplied_tenant,
+                    "error_code": tve.error_code
+                }
+            )
+        except MissingColumnError as mce:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "Missing required column",
+                    "filename": mce.filename,
+                    "field": mce.field,
+                    "error_code": mce.error_code,
+                    "explanation": mce.explanation
+                }
+            )
+        except DsarValidationError as dve:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "DSAR validation failed",
+                    "filename": dve.filename,
+                    "row_number": dve.row_number,
+                    "field": dve.field,
+                    "error_code": dve.error_code,
+                    "explanation": dve.explanation
+                }
+            )
         except Exception as loader_error:
             raise HTTPException(
                 status_code=500,

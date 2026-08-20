@@ -94,13 +94,11 @@
     "severity_weight": 1.0,
     "evidence_required": [
       "is_minor",
-      "guardian_consent_id",
+      "guardian_consent_hash",
       "consent_status"
     ],
     "signal_mapping": {
-      "S1": "Customer is flagged as a minor — Section 9 mandatory safeguards apply immediately",
-      "S2": "No guardian consent record is linked to this minor's account — processing is unauthorised",
-      "S3": "Even where a consent record exists, it must be in active state — expired guardian consent is invalid"
+      "S1": "Minor without valid active guardian consent"
     },
     "penalty_tier": "TIER_1",
     "max_penalty_crore": 250,
