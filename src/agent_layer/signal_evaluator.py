@@ -13,6 +13,28 @@ def register_native(rule_id, signal_id):
         return fn
     return decorator
 
+@register_native('DPDP-005', 'guardian_consent_missing_or_invalid')
+def _eval_dpdp_005(row: dict) -> bool:
+    is_minor = row.get("is_minor", False)
+    if isinstance(is_minor, str):
+        is_minor = is_minor.lower() in ('true', 't', '1', 'yes', 'y')
+    else:
+        is_minor = bool(is_minor)
+
+    if not is_minor:
+        return False
+        
+    guardian_consent = row.get("guardian_consent_hash")
+    consent_status = row.get("consent_status")
+
+    if not guardian_consent:
+        return True
+
+    if consent_status != "active":
+        return True
+
+    return False
+
 # PART B â€” evaluate_signal function
 def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
     if (rule_id, signal_id) in NATIVE_EVALUATORS:

@@ -207,33 +207,15 @@
     "join_key": "customer_id",
     "evidence_signals": [
       {
-        "signal_id": "S1",
-        "field": "is_minor",
+        "signal_id": "guardian_consent_missing_or_invalid",
+        "field": "guardian_consent_hash",
         "operator": "equals",
         "value": true,
-        "weight": 0.4,
-        "description": "Customer is flagged as a minor \u00e2\u20ac\u201d heightened obligations apply under Section 9"
-      },
-      {
-        "signal_id": "S2",
-        "field": "guardian_consent_id",
-        "operator": "is_null",
-        "value": null,
-        "weight": 0.4,
-        "description": "No guardian consent record linked to this minor's account"
-      },
-      {
-        "signal_id": "S3",
-        "field": "consent_status",
-        "operator": "not_in",
-        "value": [
-          "active"
-        ],
-        "weight": 0.2,
-        "description": "Consent on file is not in active state even if a record exists"
+        "weight": 1.0,
+        "description": "Minor without valid active guardian consent"
       }
     ],
-    "violation_threshold": 0.7,
+    "violation_threshold": 1.0,
     "risk_threshold": 0.2,
     "recurrence_bonus": 0.25,
     "enabled": true
@@ -729,7 +711,22 @@
         "signal_id": "S2",
         "field": "transfer_country",
         "operator": "not_in",
-        "value": "approved_country_list",
+        "value": [
+          "IN",
+          "SG",
+          "UK",
+          "JP",
+          "DE",
+          "FR",
+          "AU",
+          "CA",
+          "NL",
+          "SE",
+          "CH",
+          "NZ",
+          "KR",
+          "IE"
+        ],
         "weight": 0.4,
         "description": "Destination country is not on India's approved transfer list under Section 16"
       },

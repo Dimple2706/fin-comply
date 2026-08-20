@@ -5,7 +5,7 @@ from .violation_record import ViolationRecord
 
 class RegulationAgent(BaseAgent):
     name = "regulation_agent"
-    assigned_rules = ["DPDP-001", "DPDP-002", "DPDP-004", "DPDP-005"]
+    assigned_rules = ["DPDP-001", "DPDP-002", "DPDP-004", "DPDP-005", "DPDP-007"]
 
     def _execute(self, tenant_id: str, conn: psycopg.Connection) -> List[ViolationRecord]:
         from .rule_loader import load_rules

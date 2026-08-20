@@ -112,11 +112,14 @@ class BaseAgent(abc.ABC):
                 if outcome != 'PASS':
                     # Find a good record_id from row hash fields
                     record_id = None
-                    for key in row.keys():
-                        if key.endswith('_hash') or key.endswith('_id'):
-                            # prefer hash or id
-                            record_id = row[key]
-                            break
+                    if 'primary_hash' in row and row['primary_hash']:
+                        record_id = row['primary_hash']
+                    else:
+                        for key in row.keys():
+                            if key.endswith('_hash') or key.endswith('_id'):
+                                # prefer hash or id
+                                record_id = row[key]
+                                break
                     if not record_id:
                         record_id = "unknown"
                         
@@ -140,6 +143,7 @@ class BaseAgent(abc.ABC):
                         r_thresh=rule['risk_threshold'],
                         fields_triggered=fired_fields
                     )
+                    
                     results.append(record)
                     
         except Exception as e:

@@ -398,15 +398,6 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                                 dsar["dsar_hash"], dsar["tenant_id"], dsar["customer_hash"],
                             )
                             continue
-
-                        # Enforce schema rule: sla_due_date must be exactly submitted_date + 30 days.
-                        submitted_raw = dsar.get("submitted_date")
-                        try:
-                            submitted_dt = date.fromisoformat(str(submitted_raw)) if submitted_raw else date.today()
-                        except Exception:
-                            submitted_dt = date.today()
-                        normalized_sla_due_date = (submitted_dt + timedelta(days=30)).isoformat()
-
                         cur.execute("""
                             INSERT INTO dsar_requests 
                             (dsar_hash, customer_hash, tenant_id, request_type, submitted_date, 
@@ -415,7 +406,7 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """, (
                             dsar["dsar_hash"], dsar["customer_hash"], dsar["tenant_id"], dsar["request_type"], 
-                            submitted_dt.isoformat(), dsar["acknowledged_date"], normalized_sla_due_date,
+                            dsar["submitted_date"], dsar["acknowledged_date"], dsar["sla_due_date"],
                             dsar["sla_breached"], dsar["fulfilled_date"], dsar["fulfillment_status"], 
                             dsar["rejection_reason"]
                         ))

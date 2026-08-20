@@ -153,7 +153,7 @@ def build_compliance_report(
             "max_penalty_exposure_crore": total_penalty,
             "rules_violated": rules_violated,
             "rules_with_warnings": rules_with_warnings,
-            "rules_checked": 14
+            "rules_checked": analysis_result.get("total_obligations", 16)
         },
         "violations": report_violations,
         "warnings": [e.to_dict() for e in warning_exps],

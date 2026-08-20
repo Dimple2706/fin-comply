@@ -76,8 +76,7 @@ RULE_EXPLANATIONS = {
             "Restrict all data processing on minor accounts until guardian consent is confirmed and recorded"
         ],
         "signal_definitions": {
-            "S1": {"description": "Customer is identified as a minor", "weight": 0.50},
-            "S2": {"description": "No guardian consent hash is recorded for this customer", "weight": 0.50}
+            "guardian_consent_missing_or_invalid": {"description": "Minor without valid active guardian consent", "weight": 1.0}
         }
     },
     "DPDP-006": {
@@ -91,15 +90,16 @@ RULE_EXPLANATIONS = {
             "Audit all cross-border transfers and assess compliance with DPDP Rules on significant data fiduciaries"
         ],
         "signal_definitions": {
-            "S1": {"description": "Data was shared with a third party", "weight": 0.40},
-            "S2": {"description": "Third party share occurred without active consent", "weight": 0.40},
-            "S3": {"description": "Data was transferred cross-border", "weight": 0.20}
+            "S1": {"description": "Data was shared with a third party in this event", "weight": 0.30},
+            "S2": {"description": "Consent scope does not include sharing with third parties", "weight": 0.35},
+            "S3": {"description": "No signed Data Processing Agreement on file for the receiving processor", "weight": 0.25},
+            "S4": {"description": "Transfer is cross-border — additional DPDP Chapter V obligations apply", "weight": 0.10}
         }
     },
     "DPDP-007": {
-        "rule_name": "Data Processor Agreements",
-        "what_happened": "PII is being stored in a system without a signed Data Processing Agreement, indicating potential data minimization or contractual control failures.",
-        "why_violation": "DPDP Act Section 4(1)(c) requires that only the minimum necessary personal data be processed. Third-party processors without signed DPAs expose the Data Fiduciary to direct liability.",
+        "rule_name": "Data Minimisation Violation",
+        "what_happened": "More personal data categories were collected or accessed than necessary for the stated processing purpose.",
+        "why_violation": "DPDP Act Section 4(1)(c) requires that only the minimum necessary personal data be processed. Excessive data collection or access violates the data minimisation principle.",
         "root_cause": "GOVERNANCE_GAP",
         "remediation": [
             "Conduct a data minimization audit to identify and remove personal data fields not required for the stated purpose",
@@ -107,12 +107,13 @@ RULE_EXPLANATIONS = {
             "Review system_inventory and classify each system's data retention requirement against its stated purpose"
         ],
         "signal_definitions": {
-            "S1": {"description": "PII is stored in this system", "weight": 0.50},
-            "S2": {"description": "Processor is a third party and no DPA has been signed", "weight": 0.50}
+            "S1": {"description": "Data volume accessed is disproportionately large relative to stated purpose", "weight": 0.45},
+            "S2": {"description": "System stores PII categories beyond what the declared processing purpose requires", "weight": 0.30},
+            "S3": {"description": "Stated access reason does not align with the processing purpose for this data category", "weight": 0.25}
         }
     },
     "DPDP-008": {
-        "rule_name": "Encryption and Security",
+        "rule_name": "Sensitive Data Stored Without Encryption",
         "what_happened": "Personal data is being processed or stored without encryption, leaving it exposed to unauthorized access or breach.",
         "why_violation": "DPDP Act Section 8(5) requires Data Fiduciaries to implement reasonable security safeguards to prevent personal data breaches. Absence of encryption is a direct failure of this obligation.",
         "root_cause": "TECHNICAL_GAP",
@@ -122,8 +123,9 @@ RULE_EXPLANATIONS = {
             "Conduct a security assessment and produce an encryption implementation roadmap within 30 days"
         ],
         "signal_definitions": {
-            "S1": {"description": "PII is not encrypted", "weight": 0.70},
-            "S2": {"description": "Encryption type is set to none", "weight": 0.30}
+            "S1": {"description": "PII is stored without any encryption", "weight": 0.50},
+            "S2": {"description": "System-level encryption is disabled for a PII-storing system", "weight": 0.30},
+            "S3": {"description": "Encryption algorithm used is below the minimum acceptable standard (AES-256)", "weight": 0.20}
         }
     },
     "DPDP-009": {
@@ -197,12 +199,14 @@ RULE_EXPLANATIONS = {
             "Conduct a mandatory access control audit and revoke excess permissions within 48 hours"
         ],
         "signal_definitions": {
-            "S1": {"description": "An employee accessed PII data", "weight": 0.40},
-            "S2": {"description": "The employee's role is not in the list of authorized PII access roles", "weight": 0.60}
+            "S1": {"description": "Accessing employee's role is not in the authorised roles list for PII access", "weight": 0.40},
+            "S2": {"description": "PII fields were accessed during this event", "weight": 0.30},
+            "S3": {"description": "Access was denied — repeated denied attempts indicate probing behaviour", "weight": 0.15},
+            "S4": {"description": "Large volume of data accessed — potential bulk extraction by unauthorised actor", "weight": 0.15}
         }
     },
     "DPDP-014": {
-        "rule_name": "Breach Notification",
+        "rule_name": "Delayed Breach Notification",
         "what_happened": "A data breach was detected but notification to the authorities was delayed beyond the required 72-hour window, and/or a significant number of users were affected.",
         "why_violation": "DPDP Act Section 8(6) requires the Data Fiduciary to notify the Data Protection Board of India of any personal data breach. Delayed notification is a direct violation of this obligation.",
         "root_cause": "PROCESS_GAP",
@@ -212,9 +216,42 @@ RULE_EXPLANATIONS = {
             "Train all technical and security staff on breach identification, containment, and DPDP notification requirements"
         ],
         "signal_definitions": {
-            "S1": {"description": "A data breach was detected", "weight": 0.20},
-            "S2": {"description": "Notification delay exceeded 72 hours", "weight": 0.50},
-            "S3": {"description": "A large or critical number of users were affected by the breach", "weight": 0.30}
+            "S1": {"description": "A personal data breach has been detected for this tenant", "weight": 0.20},
+            "S2": {"description": "Notification delay exceeds 72-hour threshold — CERT-In and DPDP S.8(6) violation", "weight": 0.40},
+            "S3": {"description": "Breach confirmation timestamp is missing — notification clock cannot be verified", "weight": 0.25},
+            "S4": {"description": "Large number of Data Principals affected — elevated regulatory scrutiny expected", "weight": 0.15}
+        }
+    },
+    "DPDP-015": {
+        "rule_name": "Cross-Border Transfer Without Authorisation",
+        "what_happened": "Personal data was transferred outside India without meeting Chapter V requirements of the DPDP Act.",
+        "why_violation": "DPDP Act Section 16 restricts transfer of personal data to countries not on the approved list unless adequate safeguards are in place. Cross-border transfers without authorisation expose the organisation to significant penalties.",
+        "root_cause": "GOVERNANCE_GAP",
+        "remediation": [
+            "Audit all cross-border data flows and map destination countries against the DPDP approved list",
+            "Execute Standard Contractual Clauses or Binding Corporate Rules for all international transfers",
+            "Implement a transfer impact assessment process before initiating any new cross-border data flow"
+        ],
+        "signal_definitions": {
+            "S1": {"description": "Transfer is flagged as cross-border — Chapter V obligations triggered", "weight": 0.35},
+            "S2": {"description": "Destination country is not on India's approved transfer list under Section 16", "weight": 0.40},
+            "S3": {"description": "No Data Processing Agreement covers this cross-border transfer", "weight": 0.25}
+        }
+    },
+    "DPDP-016": {
+        "rule_name": "Processor Accountability Failure",
+        "what_happened": "A third-party data processor lacks a valid Data Processing Agreement or has an expired agreement.",
+        "why_violation": "DPDP Act Section 8(2) requires the Data Fiduciary to ensure all processors operate under a valid, binding DPA. Processors without DPAs create direct fiduciary liability.",
+        "root_cause": "GOVERNANCE_GAP",
+        "remediation": [
+            "Execute signed DPAs with all third-party processors immediately",
+            "Implement DPA expiry tracking with automated renewal alerts 60 days before expiry",
+            "Conduct a processor audit and suspend data sharing with any processor lacking a valid DPA"
+        ],
+        "signal_definitions": {
+            "S1": {"description": "No Data Processing Agreement signed with this processor — S.8(2) direct violation", "weight": 0.50},
+            "S2": {"description": "DPA has expired — processor relationship is no longer legally governed", "weight": 0.35},
+            "S3": {"description": "Processor stores PII — the absence of a DPA creates direct fiduciary liability", "weight": 0.15}
         }
     }
 }

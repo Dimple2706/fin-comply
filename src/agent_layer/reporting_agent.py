@@ -16,11 +16,6 @@ from typing import List
 # Severity ordering for sorting (lower index = higher priority)
 _SEVERITY_ORDER = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
 
-# Must match ALL_RULE_WEIGHTS in orchestrator.py
-_MAX_POSSIBLE_SCORE = 14.45  # sum of all 19 rule weights
-
-_TOTAL_OBLIGATIONS = 19
-
 
 class ReportingAgent:
     """
@@ -69,6 +64,18 @@ class ReportingAgent:
         conn,
     ) -> dict:
 
+        # ── Dynamically compute total obligations and max_possible_score ──
+        try:
+            rule_stats = conn.execute(
+                "SELECT COUNT(*) AS cnt, COALESCE(SUM(risk_weight), 0) AS total_weight "
+                "FROM rules WHERE enabled = TRUE"
+            ).fetchone()
+            total_obligations = rule_stats["cnt"] if rule_stats else 16
+            max_possible_score = float(rule_stats["total_weight"]) if rule_stats else 14.45
+        except Exception:
+            total_obligations = 16
+            max_possible_score = 14.45
+
         violations_only = [v for v in all_violations if v.outcome == "VIOLATION"]
         warnings_only   = [v for v in all_violations if v.outcome == "WARNING"]
         non_pass        = [v for v in all_violations if v.outcome in ("VIOLATION", "WARNING")]
@@ -92,13 +99,14 @@ class ReportingAgent:
             "violation_report":    self._build_violation_report(violations_only, penalty_map),
             "risk_insights":       self._build_risk_insights(
                                        violations_only, risk_score, risk_tier,
-                                       penalty_map
+                                       penalty_map, max_possible_score
                                    ),
             "compliance_score":    self._build_compliance_score(
                                        compliance_score,
                                        violation_rule_ids,
                                        warning_rule_ids,
-                                       flagged_rule_ids
+                                       flagged_rule_ids,
+                                       total_obligations
                                    ),
             "mapped_regulations":  self._build_mapped_regulations(
                                        non_pass, clause_rule_map
@@ -153,6 +161,7 @@ class ReportingAgent:
         risk_score: float,
         risk_tier: str,
         penalty_map: dict,
+        max_possible_score: float = 14.45,
     ) -> dict:
         groups: dict[str, list] = {}
         for v in violations:
@@ -163,7 +172,7 @@ class ReportingAgent:
             rep = vs[0]
             # contribution_percentage = (rule_score * risk_weight / max_possible) * 100
             contribution_pct = round(
-                (rep.rule_score * float(rep.risk_weight) / _MAX_POSSIBLE_SCORE) * 100, 2
+                (rep.rule_score * float(rep.risk_weight) / max(max_possible_score, 0.01)) * 100, 2
             )
             per_rule.append({
                 "rule_id":                  rule_id,
@@ -201,17 +210,18 @@ class ReportingAgent:
         violation_rule_ids: list,
         warning_rule_ids: list,
         flagged_rule_ids: list,
+        total_obligations: int = 16,
     ) -> dict:
         violated_count = len(set(violation_rule_ids))
         warning_count  = len(set(warning_rule_ids) - set(violation_rule_ids))
-        satisfied      = _TOTAL_OBLIGATIONS - len(set(flagged_rule_ids))
+        satisfied      = total_obligations - len(set(flagged_rule_ids))
 
         return {
             "score_percentage":      round(compliance_score, 2),
             "satisfied_obligations": max(satisfied, 0),
             "violated_obligations":  violated_count,
             "warning_obligations":   warning_count,
-            "total_obligations":     _TOTAL_OBLIGATIONS,
+            "total_obligations":     total_obligations,
         }
 
     # ── KEY 4 ─────────────────────────────────────────────────────────────────

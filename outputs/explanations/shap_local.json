@@ -2,133 +2,133 @@
   "type": "local",
   "instance_index": 0,
   "prediction": {
-    "class": "LOW",
-    "confidence": 0.4800090789794922,
+    "class": "CRITICAL",
+    "confidence": 0.48826736211776733,
     "class_probabilities": {
       "COMPLIANT": 0.01,
-      "LOW": 0.48,
-      "MEDIUM": 0.02,
+      "LOW": 0.467,
+      "MEDIUM": 0.022000000000000002,
       "HIGH": 0.013000000000000001,
-      "CRITICAL": 0.47700000000000004
+      "CRITICAL": 0.488
     }
   },
-  "base_value": 0.0139,
+  "base_value": 0.1612,
   "feature_contributions": [
     {
       "rank": 1,
-      "feature": "n_violations",
-      "value": 5.0,
-      "shap_value": 2.2129,
+      "feature": "max_rule_score",
+      "value": 1.0,
+      "shap_value": 2.3079,
       "direction": "positive"
     },
     {
       "rank": 2,
       "feature": "access_violation_count",
       "value": 1.0,
-      "shap_value": -0.9307,
+      "shap_value": -0.5056,
       "direction": "negative"
     },
     {
       "rank": 3,
-      "feature": "max_rule_score",
+      "feature": "encryption_violation_count",
       "value": 1.0,
-      "shap_value": -0.1989,
+      "shap_value": -0.3319,
       "direction": "negative"
     },
     {
       "rank": 4,
       "feature": "max_prevalence_ratio",
-      "value": 0.0441,
-      "shap_value": 0.0862,
-      "direction": "positive"
+      "value": 0.0692,
+      "shap_value": -0.298,
+      "direction": "negative"
     },
     {
       "rank": 5,
-      "feature": "n_warnings",
-      "value": 0.0,
-      "shap_value": -0.0123,
+      "feature": "n_violations",
+      "value": 13.0,
+      "shap_value": -0.0836,
       "direction": "negative"
     },
     {
       "rank": 6,
-      "feature": "n_critical_rules_fired",
-      "value": 0.0,
-      "shap_value": 0.0,
-      "direction": "positive"
+      "feature": "retention_violation_count",
+      "value": 2.0,
+      "shap_value": -0.0689,
+      "direction": "negative"
     },
     {
       "rank": 7,
-      "feature": "n_high_rules_fired",
+      "feature": "consent_violation_count",
       "value": 3.0,
-      "shap_value": 0.0,
-      "direction": "positive"
+      "shap_value": -0.016,
+      "direction": "negative"
     },
     {
       "rank": 8,
-      "feature": "breach_rule_fired",
+      "feature": "n_warnings",
       "value": 0.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 9,
-      "feature": "minor_data_rule_fired",
-      "value": 0.0,
+      "feature": "n_critical_rules_fired",
+      "value": 3.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 10,
-      "feature": "consent_violation_count",
-      "value": 0.0,
+      "feature": "n_high_rules_fired",
+      "value": 8.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 11,
-      "feature": "retention_violation_count",
+      "feature": "breach_rule_fired",
       "value": 1.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 12,
-      "feature": "encryption_violation_count",
-      "value": 0.0,
+      "feature": "minor_data_rule_fired",
+      "value": 1.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 13,
       "feature": "policy_violation_count",
-      "value": 1.0,
+      "value": 0.0,
       "shap_value": 0.0,
       "direction": "positive"
     }
   ],
   "top_positive_features": [
-    "n_violations",
-    "max_prevalence_ratio",
+    "max_rule_score",
+    "n_warnings",
     "n_critical_rules_fired"
   ],
   "top_negative_features": [
     "access_violation_count",
-    "max_rule_score",
-    "n_warnings"
+    "encryption_violation_count",
+    "max_prevalence_ratio"
   ],
   "raw_contributions": {
-    "n_violations": 2.2129,
-    "access_violation_count": -0.9307,
-    "max_rule_score": -0.1989,
-    "max_prevalence_ratio": 0.0862,
-    "n_warnings": -0.0123,
+    "max_rule_score": 2.3079,
+    "access_violation_count": -0.5056,
+    "encryption_violation_count": -0.3319,
+    "max_prevalence_ratio": -0.298,
+    "n_violations": -0.0836,
+    "retention_violation_count": -0.0689,
+    "consent_violation_count": -0.016,
+    "n_warnings": 0.0,
     "n_critical_rules_fired": 0.0,
     "n_high_rules_fired": 0.0,
     "breach_rule_fired": 0.0,
     "minor_data_rule_fired": 0.0,
-    "consent_violation_count": 0.0,
-    "retention_violation_count": 0.0,
-    "encryption_violation_count": 0.0,
     "policy_violation_count": 0.0
   }
 }
