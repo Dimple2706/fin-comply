@@ -3,102 +3,102 @@
   "instance_index": 0,
   "prediction": {
     "class": "CRITICAL",
-    "confidence": 0.48826736211776733,
+    "confidence": 0.4828152060508728,
     "class_probabilities": {
       "COMPLIANT": 0.01,
-      "LOW": 0.467,
-      "MEDIUM": 0.022000000000000002,
+      "LOW": 0.473,
+      "MEDIUM": 0.021,
       "HIGH": 0.013000000000000001,
-      "CRITICAL": 0.488
+      "CRITICAL": 0.483
     }
   },
   "model": "xgboost_v1",
   "num_samples": 500,
   "feature_contributions": [
     {
-      "feature": "1.00 < consent_violation_count <= 3.00",
-      "coefficient": 0.0131,
-      "abs_contribution": 0.0131,
-      "direction": "positive"
-    },
-    {
-      "feature": "1.00 < retention_violation_count <= 6.25",
-      "coefficient": 0.0084,
-      "abs_contribution": 0.0084,
-      "direction": "positive"
-    },
-    {
       "feature": "0.00 < encryption_violation_count <= 1.00",
-      "coefficient": 0.0082,
-      "abs_contribution": 0.0082,
-      "direction": "positive"
-    },
-    {
-      "feature": "minor_data_rule_fired > 0.00",
-      "coefficient": 0.0067,
-      "abs_contribution": 0.0067,
-      "direction": "positive"
-    },
-    {
-      "feature": "n_high_rules_fired > 3.00",
-      "coefficient": 0.0056,
-      "abs_contribution": 0.0056,
+      "coefficient": 0.0105,
+      "abs_contribution": 0.0105,
       "direction": "positive"
     },
     {
       "feature": "n_warnings <= 50.00",
-      "coefficient": 0.0056,
-      "abs_contribution": 0.0056,
+      "coefficient": 0.0092,
+      "abs_contribution": 0.0092,
       "direction": "positive"
     },
     {
-      "feature": "0.03 < max_prevalence_ratio <= 0.07",
-      "coefficient": 0.005,
-      "abs_contribution": 0.005,
-      "direction": "positive"
-    },
-    {
-      "feature": "0.00 < access_violation_count <= 4.00",
-      "coefficient": 0.0041,
-      "abs_contribution": 0.0041,
-      "direction": "positive"
-    },
-    {
-      "feature": "policy_violation_count <= 0.00",
-      "coefficient": 0.004,
-      "abs_contribution": 0.004,
+      "feature": "1.00 < retention_violation_count <= 6.25",
+      "coefficient": 0.0081,
+      "abs_contribution": 0.0081,
       "direction": "positive"
     },
     {
       "feature": "0.00 < breach_rule_fired <= 1.00",
-      "coefficient": 0.0039,
-      "abs_contribution": 0.0039,
+      "coefficient": 0.0071,
+      "abs_contribution": 0.0071,
       "direction": "positive"
-    }
-  ],
-  "explanation": "Key factors driving CRITICAL prediction. To improve tier, focus on reducing: 1.00 < consent_violation_count <= 3.00",
-  "predicted_class": "CRITICAL",
-  "top_features": [
+    },
     {
       "feature": "1.00 < consent_violation_count <= 3.00",
-      "weight": 0.0131
+      "coefficient": 0.0068,
+      "abs_contribution": 0.0068,
+      "direction": "positive"
     },
     {
-      "feature": "1.00 < retention_violation_count <= 6.25",
-      "weight": 0.0084
+      "feature": "n_critical_rules_fired > 0.00",
+      "coefficient": 0.0068,
+      "abs_contribution": 0.0068,
+      "direction": "positive"
     },
     {
-      "feature": "0.00 < encryption_violation_count <= 1.00",
-      "weight": 0.0082
-    },
-    {
-      "feature": "minor_data_rule_fired > 0.00",
-      "weight": 0.0067
+      "feature": "policy_violation_count <= 0.00",
+      "coefficient": 0.0054,
+      "abs_contribution": 0.0054,
+      "direction": "positive"
     },
     {
       "feature": "n_high_rules_fired > 3.00",
-      "weight": 0.0056
+      "coefficient": 0.0054,
+      "abs_contribution": 0.0054,
+      "direction": "positive"
+    },
+    {
+      "feature": "0.03 < max_prevalence_ratio <= 0.07",
+      "coefficient": 0.0051,
+      "abs_contribution": 0.0051,
+      "direction": "positive"
+    },
+    {
+      "feature": "minor_data_rule_fired <= 0.00",
+      "coefficient": 0.0044,
+      "abs_contribution": 0.0044,
+      "direction": "positive"
     }
   ],
-  "counterfactual_summary": "Key factors driving CRITICAL prediction. To improve tier, focus on reducing: 1.00 < consent_violation_count <= 3.00"
+  "explanation": "Key factors driving CRITICAL prediction. To improve tier, focus on reducing: 0.00 < encryption_violation_count <= 1.00",
+  "predicted_class": "CRITICAL",
+  "top_features": [
+    {
+      "feature": "0.00 < encryption_violation_count <= 1.00",
+      "weight": 0.0105
+    },
+    {
+      "feature": "n_warnings <= 50.00",
+      "weight": 0.0092
+    },
+    {
+      "feature": "1.00 < retention_violation_count <= 6.25",
+      "weight": 0.0081
+    },
+    {
+      "feature": "0.00 < breach_rule_fired <= 1.00",
+      "weight": 0.0071
+    },
+    {
+      "feature": "1.00 < consent_violation_count <= 3.00",
+      "weight": 0.0068
+    }
+  ],
+  "counterfactual_summary": "Key factors driving CRITICAL prediction. To improve tier, focus on reducing: 0.00 < encryption_violation_count <= 1.00"
 }

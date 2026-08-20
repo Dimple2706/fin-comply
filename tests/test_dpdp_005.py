@@ -102,8 +102,8 @@ def test_dpdp_005_e2e_scenarios():
             cur.execute(f"DELETE FROM governance_config WHERE tenant_id = '{tenant}'")
             
             # Tenant configuration
-            cur.execute(f"INSERT INTO governance_config (tenant_id, tenant_name, primary_region, active_policies) VALUES ('{tenant}', 'Test Tenant', 'IN', '{{}}') ON CONFLICT DO NOTHING")
-            cur.execute(f"INSERT INTO governance_config (tenant_id, tenant_name, primary_region, active_policies) VALUES ('OTHER_TENANT', 'Other', 'IN', '{{}}') ON CONFLICT DO NOTHING")
+            cur.execute(f"INSERT INTO governance_config (tenant_id, tenant_name, audit_frequency_days) VALUES ('{tenant}', 'Test Tenant', 365) ON CONFLICT DO NOTHING")
+            cur.execute(f"INSERT INTO governance_config (tenant_id, tenant_name, audit_frequency_days) VALUES ('OTHER_TENANT', 'Other', 365) ON CONFLICT DO NOTHING")
             
             # Adult
             cur.execute(f"INSERT INTO customer_master (customer_hash, tenant_id, is_minor, data_principal_type, account_status, kyc_status, country, created_at) VALUES ('c_adult', '{tenant}', false, 'individual', 'active', 'verified', 'IN', '2020-01-01')")
