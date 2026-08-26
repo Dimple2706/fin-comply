@@ -15,6 +15,45 @@ const SEVERITY_COLORS = {
   LOW: 'var(--low)'
 };
 
+const CustomDonutTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-elevated border border-subtle p-3 rounded-lg shadow-card">
+        <p className="text-sm font-medium text-white mb-2">{data.name}</p>
+        <div className="flex justify-between gap-4 text-xs">
+          <span className="text-secondary">Violations:</span>
+          <span className="font-mono text-red-400">{data.value}</span>
+        </div>
+        <div className="flex justify-between gap-4 text-xs mt-1">
+          <span className="text-secondary">Warnings:</span>
+          <span className="font-mono text-yellow-400">{data.warnings}</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+const CustomBarTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-elevated border border-subtle p-3 rounded-lg shadow-card max-w-[240px]">
+        <p className="text-sm font-mono text-white">{data.rule}</p>
+        <p className="text-xs text-secondary mt-1 mb-3 leading-snug">{data.name}</p>
+        <div className="flex justify-between items-center gap-4">
+          <span className={`px-2 py-0.5 rounded text-[10px] font-bold bg-${data.severity.toLowerCase()}/10 text-${data.severity.toLowerCase()} border border-${data.severity.toLowerCase()}/20`}>
+            {data.severity}
+          </span>
+          <span className="font-mono text-white text-sm">{data.contribution.toFixed(4)}</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function ChartsSection({ breakdown, contributions, violations }) {
   // Agent Donut Data
   const donutData = Object.entries(breakdown || {})
@@ -41,45 +80,6 @@ export default function ChartsSection({ breakdown, contributions, violations }) 
     })
     .sort((a, b) => b.contribution - a.contribution);
 
-  const CustomDonutTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-elevated border border-subtle p-3 rounded-lg shadow-card">
-          <p className="text-sm font-medium text-white mb-2">{data.name}</p>
-          <div className="flex justify-between gap-4 text-xs">
-            <span className="text-secondary">Violations:</span>
-            <span className="font-mono text-red-400">{data.value}</span>
-          </div>
-          <div className="flex justify-between gap-4 text-xs mt-1">
-            <span className="text-secondary">Warnings:</span>
-            <span className="font-mono text-yellow-400">{data.warnings}</span>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const CustomBarTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-elevated border border-subtle p-3 rounded-lg shadow-card max-w-[240px]">
-          <p className="text-sm font-mono text-white">{data.rule}</p>
-          <p className="text-xs text-secondary mt-1 mb-3 leading-snug">{data.name}</p>
-          <div className="flex justify-between items-center gap-4">
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold bg-${data.severity.toLowerCase()}/10 text-${data.severity.toLowerCase()} border border-${data.severity.toLowerCase()}/20`}>
-              {data.severity}
-            </span>
-            <span className="font-mono text-white text-sm">{data.contribution.toFixed(4)}</span>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}
@@ -89,7 +89,7 @@ export default function ChartsSection({ breakdown, contributions, violations }) 
     >
       {/* LEFT: Agent Breakdown */}
       <Card className="p-6">
-        <h3 className="text-h3 text-white">Agent Analysis</h3>
+        <h3 className="text-h3 text-primary">Agent Analysis</h3>
         <div className="h-[240px] relative mt-4">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -111,7 +111,7 @@ export default function ChartsSection({ breakdown, contributions, violations }) 
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-3xl font-bold text-white">{totalAgentViolations}</span>
+            <span className="text-3xl font-bold text-primary">{totalAgentViolations}</span>
             <span className="text-caption text-secondary">Total</span>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function ChartsSection({ breakdown, contributions, violations }) 
 
       {/* RIGHT: Risk Contribution */}
       <Card className="p-6">
-        <h3 className="text-h3 text-white">Rule Risk Contributions</h3>
+        <h3 className="text-h3 text-primary">Rule Risk Contributions</h3>
         <p className="text-caption text-secondary mt-1 mb-6">Contribution to overall risk score per rule</p>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">

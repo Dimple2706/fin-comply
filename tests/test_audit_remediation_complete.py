@@ -18,6 +18,33 @@ from src.api.main import app
 from tests.test_phase7_master_verification import test_phase7_complete
 from tests.test_phase8_master_verification import test_phase8_master
 
+import pytest
+import os
+import json
+import hashlib
+
+@pytest.fixture(autouse=True)
+def setup_credentials():
+    test_credentials = {
+        hashlib.sha256(b"admin:bob_admin").hexdigest(): {
+            "username": "bob_admin",
+            "role": "admin",
+            "authorized_tenants": ["QUICKLOAN-001", "PAYFLEX-002", "WEALTHNEST-003", "RURALCRED-004", "NEXUSNEOBANK-005"]
+        },
+        hashlib.sha256(b"reviewer:alice_reviewer").hexdigest(): {
+            "username": "alice_reviewer",
+            "role": "reviewer",
+            "authorized_tenants": ["QUICKLOAN-001", "PAYFLEX-002", "WEALTHNEST-003", "RURALCRED-004", "NEXUSNEOBANK-005"]
+        }
+    }
+    old_creds = os.environ.get("FINCOMPLY_TEST_CREDENTIALS")
+    os.environ["FINCOMPLY_TEST_CREDENTIALS"] = json.dumps(test_credentials)
+    yield
+    if old_creds is not None:
+        os.environ["FINCOMPLY_TEST_CREDENTIALS"] = old_creds
+    else:
+        os.environ.pop("FINCOMPLY_TEST_CREDENTIALS", None)
+
 TENANTS = [
     "QUICKLOAN-001",
     "PAYFLEX-002",
@@ -36,7 +63,8 @@ def test_audit_remediation():
     # ── 1. Test PDF Export for all 5 Tenants ──
     print("\n[VERIFICATION 1] Testing PDF Export Generation...")
     for tenant_id in TENANTS:
-        resp = client.get(f"/report/pdf/{tenant_id}")
+        admin_headers = {"Authorization": "Bearer admin:bob_admin"}
+        resp = client.get(f"/report/pdf/{tenant_id}", headers=admin_headers)
         assert resp.status_code == 200, f"PDF generation failed for {tenant_id}: {resp.status_code} - {resp.text}"
         assert resp.headers["content-type"] == "application/pdf", f"Invalid content type: {resp.headers.get('content-type')}"
         assert resp.content.startswith(b"%PDF-"), "Generated file does not have valid PDF header"

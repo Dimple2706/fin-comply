@@ -1,4 +1,3 @@
-import { clsx } from 'clsx';
 
 export default function StatusDot({ status = 'active' }) {
   if (status === 'active') {

@@ -20,6 +20,32 @@ from src.api.main import app
 from src.api.routes import get_db_connection
 from src.agent_layer.orchestrator import ALLOWED_TABLES, _get_model_sha256
 from src.api.schemas import AnalyzeResponse
+import pytest
+import os
+import json
+import hashlib
+
+@pytest.fixture(autouse=True)
+def setup_credentials():
+    test_credentials = {
+        hashlib.sha256(b"admin:bob_admin").hexdigest(): {
+            "username": "bob_admin",
+            "role": "admin",
+            "authorized_tenants": ["QUICKLOAN-001", "PAYFLEX-002", "WEALTHNEST-003", "RURALCRED-004", "NEXUSNEOBANK-005"]
+        },
+        hashlib.sha256(b"reviewer:alice_reviewer").hexdigest(): {
+            "username": "alice_reviewer",
+            "role": "reviewer",
+            "authorized_tenants": ["QUICKLOAN-001", "PAYFLEX-002", "WEALTHNEST-003", "RURALCRED-004", "NEXUSNEOBANK-005"]
+        }
+    }
+    old_creds = os.environ.get("FINCOMPLY_TEST_CREDENTIALS")
+    os.environ["FINCOMPLY_TEST_CREDENTIALS"] = json.dumps(test_credentials)
+    yield
+    if old_creds is not None:
+        os.environ["FINCOMPLY_TEST_CREDENTIALS"] = old_creds
+    else:
+        os.environ.pop("FINCOMPLY_TEST_CREDENTIALS", None)
 
 def test_phase8_master():
     print("=" * 70)
@@ -55,7 +81,8 @@ def test_phase8_master():
     print(f"  [OK] Model fingerprint: {model_sha}")
 
     tenant_id = "QUICKLOAN-001"
-    response = client.post("/analyze", json={"tenant_id": tenant_id})
+    admin_headers = {"Authorization": "Bearer admin:bob_admin"}
+    response = client.post("/analyze", json={"tenant_id": tenant_id}, headers=admin_headers)
     assert response.status_code == 200, f"Analysis failed: {response.text}"
     
     data = response.json()

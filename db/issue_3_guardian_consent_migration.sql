@@ -2,8 +2,8 @@ BEGIN;
 
 DO $$
 BEGIN
-    IF current_database() NOT IN ('compliance_db', 'dpdp_test_isolated') THEN
-        RAISE EXCEPTION 'This migration must only be run on the local compliance_db or dpdp_test_isolated. Current database: %', current_database();
+    IF current_database() NOT IN ('compliance_db', 'dpdp_test_isolated', 'dpdp_test_isolated_temp') THEN
+        RAISE EXCEPTION 'This migration must only be run on the local compliance_db, dpdp_test_isolated or dpdp_test_isolated_temp. Current database: %', current_database();
     END IF;
 END $$;
 

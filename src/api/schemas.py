@@ -14,9 +14,9 @@ class UserRegisterRequest(BaseModel):
 class AnalyzeRequest(BaseModel):
     """
     What the client sends to our API.
-    Just the tenant_id for now.
     """
     tenant_id: str
+    audit_run_id: Optional[str] = None
 
 
 # ── XAI Signal Attribution ──────────────────────────────
@@ -52,6 +52,8 @@ class FullExplanation(BaseModel):
     total_shap: Optional[float] = None           # Backward-compatible alias for total_signal_weight
     root_cause: str                              # PROCESS_GAP / TECHNICAL_GAP / etc.
     penalty_exposure_crore: int                  # Financial exposure under DPDP Act
+    penalty_exposure_message: Optional[str] = "Maximum statutory exposure estimate — not an actual or certain fine."
+
 
 
 # ── Violation ────────────────────────────────────────────
@@ -71,6 +73,7 @@ class ViolationItem(BaseModel):
     reason:                str
     explanation:           FullExplanation
     penalty_exposure_crore: int
+    penalty_exposure_message: Optional[str] = "Maximum statutory exposure estimate — not an actual or certain fine."
     root_cause:            str
     matched_record_ids:    List[str] = []
     fields_triggered:      List[str] = []
@@ -106,6 +109,20 @@ class RunMetadata(BaseModel):
     evaluated_at:       str
 
 
+class FindingItem(BaseModel):
+    rule_id: str
+    record_id: str
+    outcome: str
+    reason: Optional[str] = None
+
+
+class RuleExecutionStatus(BaseModel):
+    rule_id: str
+    status: str
+    error_message: Optional[str] = None
+    partial_results_discarded: bool = False
+
+
 # ── Full Analysis Response ───────────────────────────────
 
 class AnalyzeResponse(BaseModel):
@@ -124,3 +141,15 @@ class AnalyzeResponse(BaseModel):
     total_penalty_exposure_crore: Optional[int] = None
     ml_layer:                     Optional[Dict[str, Any]] = None
     run_metadata:                 Optional[RunMetadata] = None
+    findings:                     Optional[List[FindingItem]] = None
+    rule_execution_statuses:      Optional[List[RuleExecutionStatus]] = None
+    compliance_score:             Optional[Dict[str, Any]] = None
+    penalty_exposure_message:     Optional[str] = "Maximum statutory exposure estimate — not an actual or certain fine."
+    audit_run_id:                 Optional[str] = None
+    run_status:                   Optional[str] = None
+    failed_rules_count:           Optional[int] = None
+    not_assessable_rules_count:   Optional[int] = None
+    outcome_count_by_state:       Optional[Dict[str, int]] = None
+    disclaimer:                   Optional[str] = "Maximum statutory exposure estimate — not an actual or certain fine."
+
+

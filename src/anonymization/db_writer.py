@@ -9,6 +9,11 @@ dotenv.load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+class CrossFileValidationError(ValueError):
+    def __init__(self, errors: list[dict]):
+        self.errors = errors
+        super().__init__(f"Cross-file validation failed: {errors}")
+
 def get_db_connection() -> psycopg.Connection:
     """
     Establishes a connection to the PostgreSQL database using psycopg v3.
@@ -22,37 +27,235 @@ def get_db_connection() -> psycopg.Connection:
         password=os.getenv("DB_PASSWORD", "postgres")
     )
 
+def validate_cross_file_relationships(tenant_id: str, data: Dict[str, Any]) -> list[dict]:
+    errors = []
+    
+    # Extract sets of existing hashes for quick lookup
+    customer_hashes = {c["customer_hash"] for c in data.get("customer_master", []) if c.get("customer_hash")}
+    consent_hashes = {c["consent_hash"] for c in data.get("consent_records", []) if c.get("consent_hash")}
+    system_hashes = {s["system_hash"] for s in data.get("system_inventory", []) if s.get("system_hash")}
+    
+    # 1. consent_records -> customer_master
+    if "customer_master" in data and "consent_records" in data:
+        for idx, row in enumerate(data.get("consent_records", [])):
+            cust_hash = row.get("customer_hash")
+            if not cust_hash or str(cust_hash).strip() == "" or str(cust_hash).strip() == "None":
+                errors.append({
+                    "source_file": "consent_records.csv",
+                    "table": "consent_records",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": None,
+                    "message": "Referenced customer is blank or null."
+                })
+            elif cust_hash not in customer_hashes:
+                errors.append({
+                    "source_file": "consent_records.csv",
+                    "table": "consent_records",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": cust_hash,
+                    "message": f"Referenced customer '{cust_hash}' does not exist in customer_master.csv."
+                })
+            
+    # 2. transaction_events -> customer_master & consent_records & system_inventory (third_party_hash)
+    if "transaction_events" in data:
+        for idx, row in enumerate(data.get("transaction_events", [])):
+            cust_hash = row.get("customer_hash")
+            if "customer_master" in data:
+                if not cust_hash or str(cust_hash).strip() == "" or str(cust_hash).strip() == "None":
+                    errors.append({
+                        "source_file": "transaction_events.csv",
+                        "table": "transaction_events",
+                        "row_number": idx + 2,
+                        "field_name": "customer_id",
+                        "invalid_reference": None,
+                        "message": "Referenced customer is blank or null."
+                    })
+                elif cust_hash not in customer_hashes:
+                    errors.append({
+                        "source_file": "transaction_events.csv",
+                        "table": "transaction_events",
+                        "row_number": idx + 2,
+                        "field_name": "customer_id",
+                        "invalid_reference": cust_hash,
+                        "message": f"Referenced customer '{cust_hash}' does not exist in customer_master.csv."
+                    })
+            
+            con_hash = row.get("consent_hash")
+            if "consent_records" in data:
+                if not con_hash or str(con_hash).strip() == "" or str(con_hash).strip() == "None":
+                    errors.append({
+                        "source_file": "transaction_events.csv",
+                        "table": "transaction_events",
+                        "row_number": idx + 2,
+                        "field_name": "consent_id",
+                        "invalid_reference": None,
+                        "message": "Referenced consent is blank or null."
+                    })
+                elif con_hash not in consent_hashes:
+                    errors.append({
+                        "source_file": "transaction_events.csv",
+                        "table": "transaction_events",
+                        "row_number": idx + 2,
+                        "field_name": "consent_id",
+                        "invalid_reference": con_hash,
+                        "message": f"Referenced consent '{con_hash}' does not exist in consent_records.csv."
+                    })
+            
+            tp_hash = row.get("third_party_hash")
+            shared = row.get("shared_with_third_party")
+            is_shared = False
+            if shared is not None:
+                if isinstance(shared, bool):
+                    is_shared = shared
+                else:
+                    is_shared = str(shared).lower() in ["true", "1", "yes", "y", "t"]
+            
+            if is_shared:
+                if not tp_hash or str(tp_hash).strip() == "" or str(tp_hash).strip() == "None":
+                    errors.append({
+                        "source_file": "transaction_events.csv",
+                        "table": "transaction_events",
+                        "row_number": idx + 2,
+                        "field_name": "third_party_id",
+                        "invalid_reference": None,
+                        "message": "Referenced third party system is blank or null but transaction is shared."
+                    })
+                elif "system_inventory" in data and tp_hash not in system_hashes:
+                    errors.append({
+                        "source_file": "transaction_events.csv",
+                        "table": "transaction_events",
+                        "row_number": idx + 2,
+                        "field_name": "third_party_id",
+                        "invalid_reference": tp_hash,
+                        "message": f"Referenced third party system '{tp_hash}' does not exist in system_inventory.csv."
+                    })
+            else:
+                if tp_hash and str(tp_hash).strip() != "" and str(tp_hash).strip() != "None":
+                    if "system_inventory" in data and tp_hash not in system_hashes:
+                        errors.append({
+                            "source_file": "transaction_events.csv",
+                            "table": "transaction_events",
+                            "row_number": idx + 2,
+                            "field_name": "third_party_id",
+                            "invalid_reference": tp_hash,
+                            "message": f"Referenced third party system '{tp_hash}' does not exist in system_inventory.csv."
+                        })
+            
+    # 3. access_logs -> customer_master
+    if "customer_master" in data and "access_logs" in data:
+        for idx, row in enumerate(data.get("access_logs", [])):
+            cust_hash = row.get("customer_hash")
+            if not cust_hash or str(cust_hash).strip() == "" or str(cust_hash).strip() == "None":
+                errors.append({
+                    "source_file": "access_logs.csv",
+                    "table": "access_logs",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": None,
+                    "message": "Referenced customer is blank or null."
+                })
+            elif cust_hash not in customer_hashes:
+                errors.append({
+                    "source_file": "access_logs.csv",
+                    "table": "access_logs",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": cust_hash,
+                    "message": f"Referenced customer '{cust_hash}' does not exist in customer_master.csv."
+                })
+            
+            sys_hash = row.get("system_hash")
+            if sys_hash and "system_inventory" in data and sys_hash not in system_hashes:
+                errors.append({
+                    "source_file": "access_logs.csv",
+                    "table": "access_logs",
+                    "row_number": idx + 2,
+                    "field_name": "system_id",
+                    "invalid_reference": sys_hash,
+                    "message": f"Referenced system '{sys_hash}' does not exist in system_inventory.csv."
+                })
+            
+    # 4. data_lifecycle -> customer_master
+    if "customer_master" in data and "data_lifecycle" in data:
+        for idx, row in enumerate(data.get("data_lifecycle", [])):
+            cust_hash = row.get("customer_hash")
+            if not cust_hash or str(cust_hash).strip() == "" or str(cust_hash).strip() == "None":
+                errors.append({
+                    "source_file": "data_lifecycle.csv",
+                    "table": "data_lifecycle",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": None,
+                    "message": "Referenced customer is blank or null."
+                })
+            elif cust_hash not in customer_hashes:
+                errors.append({
+                    "source_file": "data_lifecycle.csv",
+                    "table": "data_lifecycle",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": cust_hash,
+                    "message": f"Referenced customer '{cust_hash}' does not exist in customer_master.csv."
+                })
+            
+    # 5. security_events -> customer_master
+    if "customer_master" in data and "security_events" in data:
+        for idx, row in enumerate(data.get("security_events", [])):
+            cust_hash = row.get("customer_hash")
+            if not cust_hash or str(cust_hash).strip() == "" or str(cust_hash).strip() == "None":
+                errors.append({
+                    "source_file": "security_events.csv",
+                    "table": "security_events",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": None,
+                    "message": "Referenced customer is blank or null."
+                })
+            elif cust_hash not in customer_hashes:
+                errors.append({
+                    "source_file": "security_events.csv",
+                    "table": "security_events",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": cust_hash,
+                    "message": f"Referenced customer '{cust_hash}' does not exist in customer_master.csv."
+                })
+            
+    # 6. dsar_requests -> customer_master
+    if "customer_master" in data and "dsar_requests" in data:
+        for idx, row in enumerate(data.get("dsar_requests", [])):
+            cust_hash = row.get("customer_hash")
+            if not cust_hash or str(cust_hash).strip() == "" or str(cust_hash).strip() == "None":
+                errors.append({
+                    "source_file": "dsar_requests.csv",
+                    "table": "dsar_requests",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": None,
+                    "message": "Referenced customer is blank or null."
+                })
+            elif cust_hash not in customer_hashes:
+                errors.append({
+                    "source_file": "dsar_requests.csv",
+                    "table": "dsar_requests",
+                    "row_number": idx + 2,
+                    "field_name": "customer_id",
+                    "invalid_reference": cust_hash,
+                    "message": f"Referenced customer '{cust_hash}' does not exist in customer_master.csv."
+                })
+            
+    return errors
+
 def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
     """
     Inserts mapped tenant data into the PostgreSQL database.
-
-    This function adheres to the strict insertion order required by foreign keys.
-    All operations execute within a single transaction to ensure consistency. If any
-    error occurs, the entire transaction rolls back.
-
-    [E-04 FIX] Foreign key references are validated before insertion — missing FKs
-    are logged as data-quality warnings and the affected row is skipped. No synthetic
-    placeholder records (fake expired consents, fake third-party systems, fake customers)
-    are ever created. This prevents fabricated violations from corrupting compliance
-    results and ML training labels.
-
-    [E-10 FIX] Implements atomic tenant slice replacement. Before inserting any data,
-    all existing rows for this tenant are deleted in FK-safe child-first order within
-    the same transaction. This replaces the previous ON CONFLICT DO NOTHING strategy
-    which silently discarded corrected re-uploads and left stale data in place.
-    Re-uploading corrected CSVs now fully replaces the previous dataset.
-    
-    Gate 1: Tenant isolation is enforced throughout all inserts using `tenant_id`.
-    Technique 4 (Suppression): Only the explicitly mapped, compliant fields reach 
-    the database layer. Raw data is inherently excluded here.
-    
-    Args:
-        tenant_id (str): The identifier for the tenant.
-        data (Dict[str, Any]): The collection of mapped data dicts/lists keyed by table name.
-        
-    Returns:
-        Dict[str, int]: A summary of the number of rows written per table.
     """
+    validation_errors = validate_cross_file_relationships(tenant_id, data)
+    if validation_errors:
+        raise CrossFileValidationError(validation_errors)
+
     rows_written = {
         "governance_config": 0,
         "system_inventory": 0,
@@ -65,47 +268,6 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
         "security_events": 0,
         "dsar_requests": 0
     }
-
-    def validate_customer_exists(customer_hash: str, tenant_for_row: str) -> bool:
-        """
-        [E-04 FIX] Validates that a customer_hash FK target exists in customer_master.
-        Returns True if the customer exists, False otherwise.
-        Never creates a synthetic placeholder row.
-        """
-        cur.execute(
-            "SELECT 1 FROM customer_master WHERE customer_hash = %s AND tenant_id = %s LIMIT 1",
-            (customer_hash, tenant_for_row),
-        )
-        return cur.fetchone() is not None
-
-    def validate_consent_exists(
-        consent_hash: str,
-        customer_hash: str,
-        tenant_for_row: str,
-        event_hash: str,
-    ) -> bool:
-        """
-        [E-04 FIX] Validates that a consent_hash FK target exists in consent_records.
-        Returns True if the consent record exists, False otherwise.
-
-        This replaces the old ensure_consent_exists() that fabricated an expired
-        consent row when the referenced consent was missing. Fabricated expired
-        consent records caused false DPDP-001 violations and corrupted ML training
-        labels. Now: log the data quality warning and signal the caller to skip.
-        """
-        cur.execute(
-            "SELECT 1 FROM consent_records WHERE consent_hash = %s AND tenant_id = %s LIMIT 1",
-            (consent_hash, tenant_for_row),
-        )
-        exists = cur.fetchone() is not None
-        if not exists:
-            logger.warning(
-                "[E-04] Skipping transaction '%s' for tenant '%s': "
-                "consent_hash '%s' not found in consent_records. "
-                "Upload a consent_records CSV row with a matching consent_id to resolve.",
-                event_hash, tenant_for_row, consent_hash,
-            )
-        return exists
     
     try:
         with get_db_connection() as conn:
@@ -218,75 +380,27 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                     if isinstance(cr_list, dict):
                         cr_list = [cr_list]
                     for cr in cr_list:
-                        # [E-04 FIX] Validate customer FK — do not create placeholders
-                        if not validate_customer_exists(cr["customer_hash"], cr["tenant_id"]):
-                            logger.warning(
-                                "[E-04] Skipping consent_record '%s' for tenant '%s': "
-                                "customer_hash '%s' not found in customer_master.",
-                                cr["consent_hash"], cr["tenant_id"], cr["customer_hash"],
-                            )
-                            continue
                         cur.execute("""
                             INSERT INTO consent_records 
                             (consent_hash, customer_hash, tenant_id, consent_status, consent_date, 
                              expiry_date, withdrawal_date, consented_purpose, consent_version, notice_provided,
-                             is_bundled, consent_channel, guardian_consent_hash)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             is_bundled, consent_channel, guardian_consent_hash, third_party_sharing_permitted)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """, (
                             cr["consent_hash"], cr["customer_hash"], cr["tenant_id"], cr["consent_status"], 
                             cr["consent_date"], cr["expiry_date"], cr.get("withdrawal_date"), cr["consented_purpose"], 
                             cr["consent_version"], cr["notice_provided"], cr["is_bundled"], 
-                            cr["consent_channel"], cr["guardian_consent_hash"]
+                            cr["consent_channel"], cr["guardian_consent_hash"], cr.get("third_party_sharing_permitted")
                         ))
                         rows_written["consent_records"] += cur.rowcount
                 except Exception as e:
                     raise Exception(f"Error inserting into consent_records: {e}")
 
                 # 6. transaction_events
-                # [E-04 FIX] Validate all FK references before inserting.
-                # Missing consent_hash or third_party_hash are logged as data-quality
-                # warnings and the row is skipped — never fabricated.
                 try:
                     for tx in data.get("transaction_events", []):
                         event_hash = tx["event_hash"]
                         tenant_for_tx = tx["tenant_id"]
-
-                        # FK: customer_master (validate only — never create placeholder)
-                        if not validate_customer_exists(tx["customer_hash"], tenant_for_tx):
-                            logger.warning(
-                                "[E-04] Skipping transaction '%s' for tenant '%s': "
-                                "customer_hash '%s' not found in customer_master.",
-                                event_hash, tenant_for_tx, tx["customer_hash"],
-                            )
-                            continue
-
-                        # FK: consent_records (validate only — never create placeholder)
-                        consent_hash = tx.get("consent_hash")
-                        if consent_hash:
-                            if not validate_consent_exists(
-                                consent_hash, tx["customer_hash"], tenant_for_tx, event_hash
-                            ):
-                                # Skip this transaction — do NOT fabricate a fake expired consent
-                                continue
-
-                        # FK: system_inventory for third_party_hash (validate only — never create placeholder)
-                        third_party_hash = tx.get("third_party_hash")
-                        if third_party_hash:
-                            cur.execute(
-                                "SELECT 1 FROM system_inventory "
-                                "WHERE system_hash = %s AND tenant_id = %s LIMIT 1",
-                                (third_party_hash, tenant_for_tx),
-                            )
-                            if cur.fetchone() is None:
-                                logger.warning(
-                                    "[E-04] Transaction '%s' for tenant '%s': "
-                                    "third_party_hash '%s' not found in system_inventory. "
-                                    "Nullifying third_party_hash — upload a matching system_inventory row to resolve.",
-                                    event_hash, tenant_for_tx, third_party_hash,
-                                )
-                                # Nullify rather than fabricate a fake third-party system entry
-                                third_party_hash = None
-
                         cur.execute("""
                             INSERT INTO transaction_events 
                             (event_hash, customer_hash, tenant_id, consent_hash, event_type, 
@@ -296,7 +410,7 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                         """, (
                             event_hash, tx["customer_hash"], tenant_for_tx, tx["consent_hash"],
                             tx["event_type"], tx["processing_purpose"], tx["event_date"],
-                            tx["shared_with_third_party"], third_party_hash,
+                            tx["shared_with_third_party"], tx["third_party_hash"],
                             tx["is_cross_border"], tx["transfer_country"]
                         ))
                         rows_written["transaction_events"] += cur.rowcount
@@ -306,25 +420,17 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                 # 7. access_logs
                 try:
                     for al in data.get("access_logs", []):
-                        # [E-04 FIX] Validate customer FK — do not create placeholders
-                        if not validate_customer_exists(al["customer_hash"], al["tenant_id"]):
-                            logger.warning(
-                                "[E-04] Skipping access_log '%s' for tenant '%s': "
-                                "customer_hash '%s' not found in customer_master.",
-                                al["access_hash"], al["tenant_id"], al["customer_hash"],
-                            )
-                            continue
                         cur.execute("""
                             INSERT INTO access_logs 
                             (access_hash, customer_hash, tenant_id, employee_hash, employee_role, 
                              accessed_pii, pii_fields_accessed, access_reason, access_outcome, 
-                             data_volume_accessed, access_date) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             data_volume_accessed, access_date, system_hash, pii_fields_justified) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """, (
                             al["access_hash"], al["customer_hash"], al["tenant_id"], al["employee_hash"], 
                             al["employee_role"], al["accessed_pii"], al["pii_fields_accessed"], 
                             al["access_reason"], al["access_outcome"], al["data_volume_accessed"], 
-                            al["access_date"]
+                            al["access_date"], al.get("system_hash"), al.get("pii_fields_justified")
                         ))
                         rows_written["access_logs"] += cur.rowcount
                 except Exception as e:
@@ -336,14 +442,6 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                     if isinstance(dl_list, dict):
                         dl_list = [dl_list]
                     for dl in dl_list:
-                        # [E-04 FIX] Validate customer FK — do not create placeholders
-                        if not validate_customer_exists(dl["customer_hash"], dl["tenant_id"]):
-                            logger.warning(
-                                "[E-04] Skipping data_lifecycle '%s' for tenant '%s': "
-                                "customer_hash '%s' not found in customer_master.",
-                                dl["lifecycle_hash"], dl["tenant_id"], dl["customer_hash"],
-                            )
-                            continue
                         cur.execute("""
                             INSERT INTO data_lifecycle 
                             (lifecycle_hash, customer_hash, tenant_id, data_category, 
@@ -363,14 +461,6 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                 # 9. security_events
                 try:
                     for se in data.get("security_events", []):
-                        # [E-04 FIX] Validate customer FK — do not create placeholders
-                        if not validate_customer_exists(se["customer_hash"], se["tenant_id"]):
-                            logger.warning(
-                                "[E-04] Skipping security_event '%s' for tenant '%s': "
-                                "customer_hash '%s' not found in customer_master.",
-                                se["security_hash"], se["tenant_id"], se["customer_hash"],
-                            )
-                            continue
                         cur.execute("""
                             INSERT INTO security_events 
                             (security_hash, customer_hash, tenant_id, pii_encrypted, encryption_type, 
@@ -390,14 +480,6 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                 # 10. dsar_requests
                 try:
                     for dsar in data.get("dsar_requests", []):
-                        # [E-04 FIX] Validate customer FK — do not create placeholders
-                        if not validate_customer_exists(dsar["customer_hash"], dsar["tenant_id"]):
-                            logger.warning(
-                                "[E-04] Skipping dsar_request '%s' for tenant '%s': "
-                                "customer_hash '%s' not found in customer_master.",
-                                dsar["dsar_hash"], dsar["tenant_id"], dsar["customer_hash"],
-                            )
-                            continue
                         cur.execute("""
                             INSERT INTO dsar_requests 
                             (dsar_hash, customer_hash, tenant_id, request_type, submitted_date, 

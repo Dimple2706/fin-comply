@@ -27,9 +27,11 @@ def get_upload_files(tenant_id: str):
 
 @patch("src.api.routes.write_tenant_data")
 @patch("src.api.routes.run_compliance_analysis")
-def test_api_invalid_tenant_returns_400(mock_run_analysis, mock_write_data):
+def test_api_invalid_tenant_returns_400(mock_run_analysis, mock_write_data, authorized_client):
     files = get_upload_files("WRONG-TENANT")
     
+    # Authorized client for TENANT-A. Note that WRONG-TENANT is uploaded.
+    client = authorized_client("TENANT-A")
     response = client.post(
         "/analyze/upload",
         data={"tenant_id": "TENANT-A", "tenant_name": "Tenant A"},
@@ -51,7 +53,7 @@ def test_api_invalid_tenant_returns_400(mock_run_analysis, mock_write_data):
 @patch("src.api.routes.anonymize_dataframe")
 @patch("src.api.routes.write_tenant_data")
 @patch("src.api.routes.run_compliance_analysis")
-def test_api_valid_tenant_proceeds(mock_run_analysis, mock_write_data, mock_anonymize, mock_build_response):
+def test_api_valid_tenant_proceeds(mock_run_analysis, mock_write_data, mock_anonymize, mock_build_response, authorized_client):
     mock_write_data.return_value = 10
     mock_run_analysis.return_value = {"status": "ok"}
     mock_anonymize.return_value = [{"dummy": "data"}]
@@ -69,6 +71,7 @@ def test_api_valid_tenant_proceeds(mock_run_analysis, mock_write_data, mock_anon
     
     files = get_upload_files("TENANT-A")
     
+    client = authorized_client("TENANT-A")
     response = client.post(
         "/analyze/upload",
         data={"tenant_id": "TENANT-A", "tenant_name": "Tenant A"},

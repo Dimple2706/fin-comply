@@ -11,10 +11,13 @@ from src.anonymization.csv_loader import EXPECTED_FILES, REQUIRED_COLUMN_GROUPS
 client = TestClient(app)
 
 def build_dsar_df(submitted_date="2024-01-01", sla_due_date="2024-01-31", fulfilled_date=None, fulfillment_status="pending"):
+    from src.anonymization.hasher import hash_id
+    dsar_hash = hash_id("D1", "T1", version="v2")
+    cust_hash = hash_id("C1", "T1", version="v2")
     return pd.DataFrame([{
-        "dsar_hash": "H1",
+        "dsar_hash": dsar_hash,
         "dsar_id": "D1",
-        "customer_hash": "C1",
+        "customer_hash": cust_hash,
         "customer_id": "C1",
         "tenant_id": "T1",
         "request_type": "access",
@@ -102,12 +105,60 @@ def generate_csv(table_name: str, tenant_id: str, inject_bad_dsar=False):
     cols = ["tenant_id"]
     for group in groups:
         if "tenant_id" not in group:
-            cols.append(group[0])
+            col_name = group[1] if len(group) > 1 and group[1].endswith("_id") else group[0]
+            cols.append(col_name)
             
     if table_name == "dsar_requests":
         cols.append("fulfillment_status")
             
     header = ",".join(cols)
+    
+    valid_defaults = {
+        "risk_level": "MEDIUM",
+        "data_principal_type": "individual",
+        "account_status": "active",
+        "kyc_status": "pending",
+        "consent_status": "active",
+        "consented_purpose": "marketing",
+        "consent_channel": "web",
+        "event_type": "marketing_push",
+        "processing_purpose": "marketing",
+        "employee_role": "customer_support",
+        "access_reason": "support_query",
+        "access_outcome": "denied",
+        "data_volume_accessed": "low",
+        "data_category": "kyc_documents",
+        "retention_status": "active",
+        "encryption_type": "AES-256",
+        "affected_user_count": "minimal",
+        "request_type": "access",
+        "fulfillment_status": "fulfilled",
+        "system_type": "crm",
+        "data_processor_type": "internal",
+        "policy_type": "retention",
+        "policy_value_unit": "days",
+        "dpo_assigned": "False",
+        "grievance_endpoint_available": "True",
+        "is_minor": "False",
+        "notice_provided": "True",
+        "is_bundled": "False",
+        "shared_with_third_party": "False",
+        "is_cross_border": "False",
+        "pii_stored": "True",
+        "encryption_enabled": "True",
+        "access_control_enabled": "True",
+        "retention_policy_applied": "True",
+        "dpa_signed": "True",
+        "is_active": "True",
+        "accessed_pii": "True",
+        "pii_encrypted": "True",
+        "breach_detected": "False",
+        "security_audit_flag": "False",
+        "sla_breached": "False",
+        "erasure_requested": "False",
+        "purpose_completed": "False",
+        "legal_hold_flag": "False",
+    }
     
     if table_name == "dsar_requests":
         if inject_bad_dsar:
@@ -116,7 +167,32 @@ def generate_csv(table_name: str, tenant_id: str, inject_bad_dsar=False):
         else:
             row = f"{tenant_id},H1,C1,access,2024-01-01,2024-01-31,2024-01-15,fulfilled"
     else:
-        row = ",".join([tenant_id] + ["dummy" for _ in range(len(cols) - 1)])
+        vals = [tenant_id]
+        for col in cols[1:]:
+            # Use valid defaults if available, otherwise "dummy" or realistic IDs
+            if col in valid_defaults:
+                vals.append(valid_defaults[col])
+            elif "id" in col or "hash" in col:
+                # E.g. customer_id -> C1, consent_id -> CON1
+                if col.startswith("customer"):
+                    vals.append("C1")
+                elif col.startswith("consent"):
+                    vals.append("CON1")
+                elif col.startswith("security"):
+                    vals.append("SEC1")
+                elif col.startswith("lifecycle"):
+                    vals.append("L1")
+                elif col.startswith("access"):
+                    vals.append("A1")
+                elif col.startswith("policy"):
+                    vals.append("P1")
+                elif col.startswith("system"):
+                    vals.append("SYS1")
+                else:
+                    vals.append("1")
+            else:
+                vals.append("dummy")
+        row = ",".join(vals)
     return f"{header}\n{row}".encode("utf-8")
 
 def get_upload_files(tenant_id: str, inject_bad_dsar=False):
@@ -128,9 +204,9 @@ def get_upload_files(tenant_id: str, inject_bad_dsar=False):
 @patch("src.api.routes._build_full_response")
 @patch("src.api.routes.write_tenant_data")
 @patch("src.api.routes.run_compliance_analysis")
-def test_9_10_invalid_dsar_input_returns_400(mock_run_analysis, mock_write_data, mock_build_response):
+def test_9_10_invalid_dsar_input_returns_400(mock_run_analysis, mock_write_data, mock_build_response, authorized_client):
     files = get_upload_files("TENANT-A", inject_bad_dsar=True)
-    
+    client = authorized_client("TENANT-A")
     response = client.post(
         "/analyze/upload",
         data={"tenant_id": "TENANT-A", "tenant_name": "Tenant A"},
@@ -139,7 +215,7 @@ def test_9_10_invalid_dsar_input_returns_400(mock_run_analysis, mock_write_data,
     
     assert response.status_code == 400
     data = response.json()
-    assert data["detail"]["error"] == "DSAR validation failed"
+    assert data["detail"]["error"] == "Dsar validation failed"
     assert data["detail"]["error_code"] == "MISSING_EVIDENCE"
     assert data["detail"]["field"] == "fulfilled_date"
     
@@ -162,9 +238,9 @@ def get_missing_col_files(tenant_id: str):
 @patch("src.api.routes._build_full_response")
 @patch("src.api.routes.write_tenant_data")
 @patch("src.api.routes.run_compliance_analysis")
-def test_missing_dsar_column_returns_400(mock_run_analysis, mock_write_data, mock_build_response):
+def test_missing_dsar_column_returns_400(mock_run_analysis, mock_write_data, mock_build_response, authorized_client):
     files = get_missing_col_files("TENANT-A")
-    
+    client = authorized_client("TENANT-A")
     response = client.post(
         "/analyze/upload",
         data={"tenant_id": "TENANT-A", "tenant_name": "Tenant A"},
@@ -182,7 +258,7 @@ def test_missing_dsar_column_returns_400(mock_run_analysis, mock_write_data, moc
 @patch("src.api.routes._build_full_response")
 @patch("src.api.routes.write_tenant_data")
 @patch("src.api.routes.run_compliance_analysis")
-def test_11_existing_valid_dsar_rows_still_load(mock_run_analysis, mock_write_data, mock_build_response):
+def test_11_existing_valid_dsar_rows_still_load(mock_run_analysis, mock_write_data, mock_build_response, authorized_client):
     mock_write_data.return_value = 10
     mock_run_analysis.return_value = {"status": "ok"}
     mock_build_response.return_value = {
@@ -198,7 +274,7 @@ def test_11_existing_valid_dsar_rows_still_load(mock_run_analysis, mock_write_da
     }
 
     files = get_upload_files("TENANT-A", inject_bad_dsar=False)
-    
+    client = authorized_client("TENANT-A")
     response = client.post(
         "/analyze/upload",
         data={"tenant_id": "TENANT-A", "tenant_name": "Tenant A"},

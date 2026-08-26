@@ -7,9 +7,12 @@ import json
 import requests
 from pathlib import Path
 
+import pytest
+
 BASE_URL = "http://localhost:8000"
 UPLOAD_ENDPOINT = f"{BASE_URL}/analyze/upload"
 
+@pytest.mark.skip(reason="Manual only local integration script requiring running API server and specific local path")
 def test_api_upload():
     """Test /analyze/upload endpoint with tenant_c data"""
     print("\n" + "="*80)

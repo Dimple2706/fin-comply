@@ -364,6 +364,31 @@ class TestEmptyOptionalIds:
         assert result[0]["erasure_date"] is None
         assert result[0]["erasure_request_source"] is None
 
+    def test_omitted_optional_columns_system_and_policy(self):
+        # 1. System Inventory with omitted system_name
+        sys_df = _make_df([{
+            "system_id": "SYS-001", "tenant_id": TENANT_ID,
+            "system_type": "crm", "pii_stored": True,
+            "encryption_enabled": True, "access_control_enabled": True,
+            "retention_policy_applied": True, "data_processor_type": "internal",
+            "dpa_signed": False, "dpa_expiry_date": None
+        }])
+        assert "system_name" not in sys_df.columns
+        result_sys = anonymize_dataframe(sys_df, "system_inventory", TENANT_ID)
+        assert result_sys[0]["system_name"] is None
+
+        # 2. Policies with omitted policy_name
+        pol_df = _make_df([{
+            "policy_id": "POL-001", "tenant_id": TENANT_ID,
+            "policy_type": "retention", "policy_value_numeric": 30,
+            "policy_value_unit": "days", "effective_date": "2024-01-01",
+            "last_updated": "2024-01-01", "is_active": True
+        }])
+        assert "policy_name" not in pol_df.columns
+        result_pol = anonymize_dataframe(pol_df, "policies", TENANT_ID)
+        assert result_pol[0]["policy_name"] is None
+
+
 
 # ═══════════════════════════════════════════════════════════════
 # TEST I — Writer accepts multi-row lists (mock DB)
@@ -396,7 +421,7 @@ class TestWriterMultiRow:
                  "is_minor": False, "data_principal_type": "individual",
                  "account_status": "active", "kyc_status": "verified",
                  "country": "IN", "created_at": "2024-01-01"}
-                for i in range(250)
+                for i in range(320)
             ],
             "consent_records": [
                 {"consent_hash": f"ch_{i}", "customer_hash": f"hash_{i}",
@@ -444,11 +469,56 @@ class TestWriterMultiRow:
 
         # Verify row counts match input
         assert result["governance_config"] == 1
-        assert result["customer_master"] == 250, f"Expected 250, got {result['customer_master']}"
+        assert result["customer_master"] == 320, f"Expected 320, got {result['customer_master']}"
         assert result["consent_records"] == 320, f"Expected 320, got {result['consent_records']}"
         assert result["data_lifecycle"] == 5, f"Expected 5, got {result['data_lifecycle']}"
         assert result["system_inventory"] == 12, f"Expected 12, got {result['system_inventory']}"
         assert result["policies"] == 6, f"Expected 6, got {result['policies']}"
+
+    @patch("src.anonymization.db_writer.get_db_connection")
+    def test_consent_records_missing_customer_raises_cross_file_validation_error(self, mock_get_conn):
+        """Verify cross-file validation detects consent records referencing a missing customer."""
+        from src.anonymization.db_writer import write_tenant_data
+        from src.anonymization.db_writer import CrossFileValidationError
+
+        mock_conn = MagicMock()
+        mock_get_conn.return_value = mock_conn
+
+        data = {
+            "governance_config": {
+                "tenant_id": TENANT_ID, "tenant_name": "Test",
+                "grievance_endpoint_available": True, "dpo_assigned": False,
+                "dpo_contact_masked": None, "audit_frequency_days": 90,
+                "last_audit_date": "2024-01-01", "risk_level": "MEDIUM",
+            },
+            "customer_master": [
+                {"customer_hash": "existing_cust", "tenant_id": TENANT_ID,
+                 "is_minor": False, "data_principal_type": "individual",
+                 "account_status": "active", "kyc_status": "verified",
+                 "country": "IN", "created_at": "2024-01-01"}
+            ],
+            "consent_records": [
+                {"consent_hash": "ch_1", "customer_hash": "missing_cust",
+                 "tenant_id": TENANT_ID, "consent_status": "active",
+                 "consent_date": "2024-01-01", "expiry_date": "2025-01-01",
+                 "withdrawal_date": None, "consented_purpose": "loan_processing",
+                 "consent_version": "v1.0", "notice_provided": True,
+                 "is_bundled": False, "consent_channel": "app",
+                 "guardian_consent_hash": None}
+            ],
+            "transaction_events": [],
+            "access_logs": [],
+            "data_lifecycle": [],
+            "security_events": [],
+            "dsar_requests": [],
+            "system_inventory": [],
+            "policies": [],
+        }
+
+        import pytest
+        with pytest.raises(CrossFileValidationError) as exc_info:
+            write_tenant_data(TENANT_ID, data)
+        assert "does not exist in customer_master.csv" in str(exc_info.value)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -460,6 +530,7 @@ class TestGovernanceConfigSingleRow:
         df = _make_df([{
             "tenant_id": TENANT_ID, "tenant_name": "Test Corp",
             "grievance_endpoint_available": True, "dpo_assigned": True,
+            "dpo_contact": "dpo@test.com",
             "audit_frequency_days": 90, "last_audit_date": "2024-01-01",
             "risk_level": "MEDIUM",
         }])

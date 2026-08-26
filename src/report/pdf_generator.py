@@ -121,7 +121,7 @@ def _alternating_rows(row_count):
     return cmds
 
 
-def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
+def generate_pdf_report(tenant_id: str, db_conn, audit_run_id: str) -> io.BytesIO:
     """
     Generates a comprehensive, professional DPDP compliance audit PDF report.
     """
@@ -130,11 +130,9 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
             """
             SELECT result_json, created_at 
             FROM evaluation_results 
-            WHERE tenant_id = %s 
-            ORDER BY created_at DESC 
-            LIMIT 1
+            WHERE tenant_id = %s AND audit_run_id = %s
             """,
-            (tenant_id,)
+            (tenant_id, audit_run_id)
         )
         row = cur.fetchone()
 
@@ -147,6 +145,12 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
     else:
         result_json = row[0]
         eval_date = row[1]
+
+    if isinstance(eval_date, str):
+        try:
+            eval_date = datetime.fromisoformat(eval_date.replace("Z", "+00:00"))
+        except Exception:
+            eval_date = datetime.utcnow()
 
     data = result_json if isinstance(result_json, dict) else json.loads(result_json)
 
@@ -217,8 +221,15 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
 
     score_data = [
         ["Metric", "Value"],
+        ["Audit Run ID", str(data.get("audit_run_id", "N/A"))],
+        ["Audit Run Status", str(data.get("run_status", "completed")).upper()],
         ["ISO 31000 Risk Score", f"{score} / 100"],
         ["Deterministic Risk Tier", tier],
+        ["Compliance Score Percentage", f"{data.get('compliance_score', {}).get('score_percentage', 0.0):.1f}%"],
+        ["Satisfied Obligations (PASS)", str(data.get('compliance_score', {}).get('satisfied_obligations', 0))],
+        ["Violated Obligations (VIOLATION)", str(data.get('compliance_score', {}).get('violated_obligations', 0))],
+        ["Failed Obligations (FAILED)", str(data.get('compliance_score', {}).get('failed_obligations', 0))],
+        ["Not Assessable Obligations", str(data.get('compliance_score', {}).get('not_assessable_obligations', 0))],
         ["Unique Rules Violated", str(data.get("unique_rules_violated", 0))],
         ["Total Violation Occurrences", str(data.get("total_violation_occurrences", 0))],
         ["Maximum Financial Exposure", f"₹ {data.get('total_penalty_exposure_crore', 0)} Crore"],
@@ -234,11 +245,14 @@ def generate_pdf_report(tenant_id: str, db_conn) -> io.BytesIO:
 
     t = Table(score_data, colWidths=[page_width * 0.55, page_width * 0.45])
     style_cmds = _header_row_style() + _alternating_rows(len(score_data))
-    # Color the tier cell
-    style_cmds.append(('TEXTCOLOR', (1, 2), (1, 2), tier_color))
-    style_cmds.append(('FONTNAME', (1, 2), (1, 2), 'Helvetica-Bold'))
+    style_cmds.append(('TEXTCOLOR', (1, 4), (1, 4), tier_color))
+    style_cmds.append(('FONTNAME', (1, 4), (1, 4), 'Helvetica-Bold'))
     t.setStyle(TableStyle(style_cmds))
     elements.append(t)
+    elements.append(Spacer(1, 0.1 * inch))
+    
+    disclaimer_text = f"<b>Disclaimer:</b> {data.get('disclaimer', 'Maximum statutory exposure estimate — not an actual or certain fine.')}"
+    elements.append(Paragraph(disclaimer_text, styles['CustomBodyText']))
 
     elements.append(PageBreak())
 

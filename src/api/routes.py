@@ -8,19 +8,32 @@ import shutil
 from datetime import date
 from pathlib import Path
 from dotenv import load_dotenv
+from typing import Optional, Any
+import hashlib
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import Response
 
 from src.governance.audit_logger import log_event, RULE_APPROVED, RULE_REJECTED
-from src.api.auth import require_admin, require_reviewer, require_authenticated, AuthUser
+from src.api.auth import require_admin, require_reviewer, require_authenticated, AuthUser, verify_tenant_access, authenticate_user
 
 from src.api.schemas import (
     AnalyzeRequest, AnalyzeResponse, ViolationItem,
     FullExplanation, SignalDetail, AgentBreakdown, RemediationItem,
 )
 from src.anonymization.csv_loader import load_tenant_csvs, TenantValidationError, MissingColumnError
-from src.anonymization.field_mapper import anonymize_dataframe, DsarValidationError
-from src.anonymization.db_writer import write_tenant_data
+from src.anonymization.field_mapper import (
+    anonymize_dataframe,
+    DsarValidationError,
+    EnumValidationError,
+    GovernanceValidationError,
+    TransactionValidationError,
+    ConsentValidationError,
+    SecurityEventValidationError,
+    SystemInventoryValidationError,
+    LifecycleValidationError
+)
+from src.anonymization.db_writer import write_tenant_data, CrossFileValidationError
 from src.agent_layer.orchestrator import run_compliance_analysis
 from src.explainability.service import enrich_violations, generate_executive_summary, RULE_EXPLANATIONS
 from src.explainability.report_builder import URGENCY_ORDER, SEVERITY_TO_URGENCY
@@ -49,9 +62,28 @@ def get_db_connection():
 
 def ensure_evaluation_results_table(conn: psycopg.Connection) -> None:
     """
-    Create evaluation_results if missing, so inserts never fail silently.
+    Create evaluation_results and audit_runs if missing, so inserts never fail silently.
     """
     with conn.cursor() as cur:
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS public.audit_runs (
+                audit_run_id character varying(64) PRIMARY KEY,
+                tenant_id character varying(32) NOT NULL,
+                input_snapshot_hash character varying(64) NOT NULL,
+                rule_set_hash character varying(64) NOT NULL,
+                clause_set_hash character varying(64) NOT NULL,
+                engine_version character varying(32) NOT NULL,
+                model_hash character varying(64),
+                source_data_row_counts jsonb,
+                validation_summary jsonb,
+                status character varying(32) NOT NULL,
+                parent_audit_run_id character varying(64),
+                hash_version character varying(10) NOT NULL DEFAULT 'v2',
+                created_at timestamptz NOT NULL DEFAULT now()
+            )
+            """
+        )
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS public.evaluation_results (
@@ -62,6 +94,9 @@ def ensure_evaluation_results_table(conn: psycopg.Connection) -> None:
                 created_at timestamptz NOT NULL DEFAULT now()
             )
             """
+        )
+        cur.execute(
+            "ALTER TABLE public.evaluation_results ADD COLUMN IF NOT EXISTS audit_run_id character varying(64);"
         )
         cur.execute(
             """
@@ -75,13 +110,121 @@ def ensure_evaluation_results_table(conn: psycopg.Connection) -> None:
             ON public.evaluation_results (created_at DESC)
             """
         )
+        cur.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_evaluation_results_audit_run_id
+            ON public.evaluation_results (audit_run_id)
+            """
+        )
+
+def compute_tenant_snapshot_hash(tenant_id: str, conn) -> str:
+    tables = [
+        "customer_master",
+        "consent_records",
+        "transaction_events",
+        "access_logs",
+        "data_lifecycle",
+        "security_events",
+        "dsar_requests",
+        "system_inventory",
+        "policies",
+        "governance_config"
+    ]
+    h = hashlib.sha256()
+    for table in tables:
+        try:
+            with conn.cursor() as cur:
+                cur.execute(f"SELECT * FROM {table} WHERE tenant_id = %s", (tenant_id,))
+                rows = cur.fetchall()
+            serialized_rows = []
+            for row in rows:
+                if isinstance(row, dict):
+                    item = sorted((k, str(v)) for k, v in row.items())
+                else:
+                    item = str(row)
+                serialized_rows.append(item)
+            serialized_rows.sort()
+            h.update(json.dumps(serialized_rows, default=str).encode("utf-8"))
+        except Exception:
+            h.update(b"")
+    return h.hexdigest()
+
+def get_tenant_row_counts(tenant_id: str, conn) -> dict:
+    tables = [
+        "customer_master",
+        "consent_records",
+        "transaction_events",
+        "access_logs",
+        "data_lifecycle",
+        "security_events",
+        "dsar_requests",
+        "system_inventory",
+        "policies",
+        "governance_config"
+    ]
+    counts = {}
+    for table in tables:
+        try:
+            with conn.cursor() as cur:
+                cur.execute(f"SELECT COUNT(*) as cnt FROM {table} WHERE tenant_id = %s", (tenant_id,))
+                row = cur.fetchone()
+            counts[table] = row["cnt"] if isinstance(row, dict) else row[0]
+        except Exception:
+            counts[table] = 0
+    return counts
+
+def compute_kb_file_hash(file_path: str) -> str:
+    if not os.path.exists(file_path):
+        return "missing"
+    h = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        h.update(f.read())
+    return h.hexdigest()
+
+def get_latest_audit_run_id(tenant_id: str, conn) -> Optional[str]:
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT audit_run_id FROM audit_runs WHERE tenant_id = %s ORDER BY created_at DESC LIMIT 1",
+                (tenant_id,)
+            )
+            row = cur.fetchone()
+            if row:
+                return row["audit_run_id"] if isinstance(row, dict) else row[0]
+    except Exception:
+        pass
+    return None
+
+def resolve_audit_run_id(tenant_id: str, audit_run_id: Optional[str], conn) -> str:
+    if audit_run_id:
+        with conn.cursor() as cur:
+            cur.execute("SELECT tenant_id FROM audit_runs WHERE audit_run_id = %s", (audit_run_id,))
+            row = cur.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail=f"Audit run '{audit_run_id}' not found.")
+            run_tenant = row["tenant_id"] if isinstance(row, dict) else row[0]
+            if run_tenant != tenant_id:
+                raise HTTPException(status_code=404, detail="Requested run ID does not belong to the tenant.")
+            return audit_run_id
+    else:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT audit_run_id FROM audit_runs WHERE tenant_id = %s AND status = 'completed' ORDER BY created_at DESC LIMIT 1",
+                (tenant_id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail=f"No completed compliance data found for tenant {tenant_id}")
+            resolved_id = row["audit_run_id"] if isinstance(row, dict) else row[0]
+            return resolved_id
 
 
 # ─────────────────────────────────────────────────────────────
 # SHARED HELPERS — used by both /analyze and /analyze/upload
 # ─────────────────────────────────────────────────────────────
 
-def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
+
+def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run_id: str = None, run_status: str = "completed") -> dict:
     tenant_id = analysis_result["tenant_id"]
     contributions = analysis_result.get("risk_contributions", {})
 
@@ -282,6 +425,21 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
         for name, info in raw_breakdown.items()
     }
 
+    comp_score = analysis_result.get("compliance_score") or {}
+    violated = comp_score.get("violated_obligations", 0)
+    failed = comp_score.get("failed_obligations", 0)
+    failed_rules_count = violated + failed
+    not_assessable = comp_score.get("not_assessable_obligations", 0)
+    
+    outcome_count_by_state = {
+        "PASS": comp_score.get("satisfied_obligations", 0),
+        "VIOLATION": violated,
+        "WARNING": comp_score.get("warning_obligations", 0),
+        "NOT_ASSESSABLE": not_assessable,
+        "FAILED": failed,
+        "NOT_APPLICABLE": comp_score.get("not_applicable_obligations", 0),
+    }
+
     return {
         "tenant_id": tenant_id,
         "total_obligations": int(analysis_result.get("total_obligations", 0)),
@@ -298,9 +456,39 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "") -> dict:
         "risk_contributions": contributions,
         "remediation_priority": remediation_priority,
         "total_penalty_exposure_crore": total_penalty,
+        "compliance_score": comp_score,
+        "rule_execution_statuses": analysis_result.get("rule_execution_statuses"),
+        "findings": analysis_result.get("findings"),
         "ml_layer": analysis_result.get("ml_layer"),
         "run_metadata": analysis_result.get("run_metadata"),
+        "audit_run_id": audit_run_id,
+        "run_status": run_status,
+        "failed_rules_count": failed_rules_count,
+        "not_assessable_rules_count": not_assessable,
+        "outcome_count_by_state": outcome_count_by_state,
+        "disclaimer": "Maximum statutory exposure estimate — not an actual or certain fine.",
     }
+
+def validate_dataset_hash_version(mapped_data: dict):
+    seen = set()
+    for table_name, rows in mapped_data.items():
+        if isinstance(rows, dict):
+            rows = [rows]
+        if isinstance(rows, list):
+            for row in rows:
+                if isinstance(row, dict):
+                    for col, val in row.items():
+                        if col.endswith("_hash") and val is not None:
+                            val_str = str(val).strip()
+                            if val_str.startswith("v2:"):
+                                seen.add("v2")
+                            else:
+                                seen.add("v1")
+    if len(seen) > 1:
+        raise HTTPException(
+            status_code=400,
+            detail="Upload rejected: Cannot mix v1 and v2 identifiers in the same tenant dataset. The entire dataset must be migrated to v2 consistently."
+        )
 
 
 # Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -317,14 +505,40 @@ def health_check():
 @router.post("/analyze", response_model=AnalyzeResponse)
 def analyze_tenant(
     request: AnalyzeRequest,
+    current_user: AuthUser = Depends(authenticate_user),
 ):
     try:
         clean_tenant_id = request.tenant_id.strip()
-        if not clean_tenant_id:
-            raise HTTPException(status_code=400, detail="Tenant ID cannot be empty.")
+        verify_tenant_access(clean_tenant_id, current_user)
             
-        # Verify tenant existence in database
+        if request.audit_run_id:
+            with get_db_connection() as conn:
+                ensure_evaluation_results_table(conn)
+                resolved_run_id = resolve_audit_run_id(clean_tenant_id, request.audit_run_id, conn)
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT result_json FROM evaluation_results WHERE tenant_id = %s AND audit_run_id = %s",
+                        (clean_tenant_id, resolved_run_id)
+                    )
+                    row = cur.fetchone()
+                    if not row:
+                        raise HTTPException(status_code=404, detail=f"No evaluation results found for run '{resolved_run_id}'.")
+                    res_json = row["result_json"] if isinstance(row, dict) else row[0]
+                    res_data = res_json if isinstance(res_json, dict) else json.loads(res_json)
+                    return AnalyzeResponse(**res_data)
+
+        audit_run_id = f"run_{uuid.uuid4().hex}"
+        rule_set_hash = compute_kb_file_hash("data/dpdp_kb/dpdp_rules.json")
+        clause_set_hash = compute_kb_file_hash("data/dpdp_kb/clauses.json")
+        engine_version = "2.0.0"
+        model_hash = "xgboost_v1"
+        
+        with get_db_connection() as conn:
+            ensure_evaluation_results_table(conn)
+            parent_audit_run_id = get_latest_audit_run_id(clean_tenant_id, conn)
+
         tenant_name = ""
+        # Verify tenant existence in database
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
@@ -340,55 +554,106 @@ def analyze_tenant(
                         (clean_tenant_id,)
                     )
                     if not cur.fetchone():
+                        # Write NOT_ASSESSABLE run
+                        with conn.cursor() as cur_err:
+                            cur_err.execute(
+                                "INSERT INTO audit_runs (audit_run_id, tenant_id, input_snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, source_data_row_counts, validation_summary, status, parent_audit_run_id) "
+                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                (audit_run_id, clean_tenant_id, "", rule_set_hash, clause_set_hash, engine_version, model_hash, "{}", json.dumps({"error": f"Tenant '{clean_tenant_id}' not found."}), "not_assessable", parent_audit_run_id)
+                            )
+                        conn.commit()
                         raise HTTPException(
                             status_code=404,
                             detail=f"Tenant '{clean_tenant_id}' not found in the database. Please check the Tenant ID or upload files under 'New Tenant'."
                         )
 
-        analysis_result = run_compliance_analysis(clean_tenant_id)
-        response = _build_full_response(analysis_result, tenant_name=tenant_name)
-
-        try:
-            serializable_payload = {
-                "tenant_id": response["tenant_id"],
-                "tenant_name": tenant_name or response["tenant_id"],
-                "total_obligations": response["total_obligations"],
-                "unique_rules_violated": response["unique_rules_violated"],
-                "total_violation_occurrences": response["total_violation_occurrences"],
-                "risk_score": response["risk_score"],
-                "risk_tier": response["risk_tier"],
-                "status": response["status"],
-                "executive_summary": response["executive_summary"],
-                "total_penalty_exposure_crore": response["total_penalty_exposure_crore"],
-                "risk_contributions": response["risk_contributions"],
-                "violations": [v.model_dump() for v in response["violations"]],
-                "agent_breakdown": {k: v.model_dump() for k, v in response["agent_breakdown"].items()},
-                "remediation_priority": [r.model_dump() for r in response["remediation_priority"]],
-                "ml_layer": response.get("ml_layer"),
-                "run_metadata": response.get("run_metadata"),
-            }
-            with get_db_connection() as conn:
-                ensure_evaluation_results_table(conn)
+            # Enforce hash version boundaries only if tenant actually exists
+            parent_hash_version = None
+            if parent_audit_run_id:
                 with conn.cursor() as cur:
                     cur.execute(
-                        "INSERT INTO evaluation_results "
-                        "(tenant_id, result_json, risk_score) "
-                        "VALUES (%s, %s, %s)",
-                        (
-                            clean_tenant_id,
-                            json.dumps(serializable_payload, default=str),
-                            float(response["risk_score"]),
-                        ),
+                        "SELECT hash_version FROM audit_runs WHERE audit_run_id = %s",
+                        (parent_audit_run_id,)
                     )
-                conn.commit()
-        except Exception as db_ex:
-            logging.warning(f"evaluation_results insert failed: {db_ex}")
+                    p_row = cur.fetchone()
+                    if p_row:
+                        parent_hash_version = p_row["hash_version"] if isinstance(p_row, dict) else p_row[0]
+            
+            current_version = os.getenv("HASH_VERSION", "v2")
+            if parent_hash_version and parent_hash_version != current_version:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Re-analysis rejected: Mismatched hash version. This tenant's data was previously assessed with version '{parent_hash_version}', but current engine version is '{current_version}'. You must migrate the tenant dataset completely."
+                )
+
+        # Retrieve row counts and snapshot hash before analysis
+        with get_db_connection() as conn:
+            row_counts = get_tenant_row_counts(clean_tenant_id, conn)
+            snapshot_hash = compute_tenant_snapshot_hash(clean_tenant_id, conn)
+
+        analysis_result = run_compliance_analysis(clean_tenant_id)
+        response = _build_full_response(analysis_result, tenant_name=tenant_name, audit_run_id=audit_run_id, run_status="completed")
+
+        # Insert audit_runs and evaluation_results
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO audit_runs (audit_run_id, tenant_id, input_snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, source_data_row_counts, validation_summary, status, parent_audit_run_id) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (audit_run_id, clean_tenant_id, snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, json.dumps(row_counts), json.dumps({"status": "success"}), "completed", parent_audit_run_id)
+                )
+                
+                serializable_payload = {
+                    "tenant_id": response["tenant_id"],
+                    "tenant_name": tenant_name or response["tenant_id"],
+                    "total_obligations": response["total_obligations"],
+                    "unique_rules_violated": response["unique_rules_violated"],
+                    "total_violation_occurrences": response["total_violation_occurrences"],
+                    "risk_score": response["risk_score"],
+                    "risk_tier": response["risk_tier"],
+                    "status": response["status"],
+                    "executive_summary": response["executive_summary"],
+                    "total_penalty_exposure_crore": response["total_penalty_exposure_crore"],
+                    "risk_contributions": response["risk_contributions"],
+                    "violations": [v.model_dump() for v in response["violations"]],
+                    "agent_breakdown": {k: v.model_dump() for k, v in response["agent_breakdown"].items()},
+                    "remediation_priority": [r.model_dump() for r in response["remediation_priority"]],
+                    "ml_layer": response.get("ml_layer"),
+                    "run_metadata": response.get("run_metadata"),
+                    "findings": response.get("findings"),
+                    "rule_execution_statuses": response.get("rule_execution_statuses"),
+                    "compliance_score": response.get("compliance_score"),
+                    "audit_run_id": audit_run_id,
+                    "run_status": response.get("run_status"),
+                    "failed_rules_count": response.get("failed_rules_count"),
+                    "not_assessable_rules_count": response.get("not_assessable_rules_count"),
+                    "outcome_count_by_state": response.get("outcome_count_by_state"),
+                    "disclaimer": response.get("disclaimer"),
+                }
+                cur.execute(
+                    "INSERT INTO evaluation_results (tenant_id, result_json, risk_score, audit_run_id) "
+                    "VALUES (%s, %s, %s, %s)",
+                    (clean_tenant_id, json.dumps(serializable_payload, default=str), float(response["risk_score"]), audit_run_id)
+                )
+            conn.commit()
 
         return AnalyzeResponse(**response)
 
     except HTTPException:
         raise
     except Exception as e:
+        # Write failed run
+        try:
+            with get_db_connection() as conn_err:
+                with conn_err.cursor() as cur_err:
+                    cur_err.execute(
+                        "INSERT INTO audit_runs (audit_run_id, tenant_id, input_snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, source_data_row_counts, validation_summary, status, parent_audit_run_id) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        (audit_run_id, clean_tenant_id, "", rule_set_hash, clause_set_hash, engine_version, model_hash, "{}", json.dumps({"error": str(e)}), "failed", parent_audit_run_id)
+                    )
+                conn_err.commit()
+        except Exception:
+            pass
         raise HTTPException(
             status_code=500,
             detail=f"Analysis failed: {str(e)}"
@@ -409,155 +674,251 @@ async def analyze_upload(
     policies: UploadFile = File(...),
     tenant_id: str = Form(...),
     tenant_name: str = Form(...),
+    current_user: AuthUser = Depends(authenticate_user),
 ):
+    verify_tenant_access(tenant_id, current_user)
+    
+    # ── Upload requests size limits ───────────────────────
+    MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB per file
+    uploaded_file_map = {
+        "governance_config.csv": governance_config,
+        "customer_master.csv": customer_master,
+        "consent_records.csv": consent_records,
+        "transaction_events.csv": transaction_events,
+        "access_logs.csv": access_logs,
+        "data_lifecycle.csv": data_lifecycle,
+        "security_events.csv": security_events,
+        "dsar_requests.csv": dsar_requests,
+        "system_inventory.csv": system_inventory,
+        "policies.csv": policies,
+    }
+
+    for csv_filename, uploaded_file in uploaded_file_map.items():
+        chunk = await uploaded_file.read(MAX_FILE_SIZE + 1)
+        if len(chunk) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Upload rejected: File '{uploaded_file.filename}' exceeds maximum allowed size of 5MB."
+            )
+        await uploaded_file.seek(0)
+
+    audit_run_id = f"run_{uuid.uuid4().hex}"
+    rule_set_hash = compute_kb_file_hash("data/dpdp_kb/dpdp_rules.json")
+    clause_set_hash = compute_kb_file_hash("data/dpdp_kb/clauses.json")
+    engine_version = "2.0.0"
+    model_hash = "xgboost_v1"
+
+    with get_db_connection() as conn:
+        ensure_evaluation_results_table(conn)
+        parent_audit_run_id = get_latest_audit_run_id(tenant_id, conn)
+
+    temp_dir = None
     try:
-        temp_dir = None
-        try:
-            temp_dir = tempfile.mkdtemp()
+        temp_dir = tempfile.mkdtemp()
+        uploaded_file_map = {
+            "governance_config.csv": governance_config,
+            "customer_master.csv": customer_master,
+            "consent_records.csv": consent_records,
+            "transaction_events.csv": transaction_events,
+            "access_logs.csv": access_logs,
+            "data_lifecycle.csv": data_lifecycle,
+            "security_events.csv": security_events,
+            "dsar_requests.csv": dsar_requests,
+            "system_inventory.csv": system_inventory,
+            "policies.csv": policies,
+        }
 
-            uploaded_file_map = {
-                "governance_config.csv": governance_config,
-                "customer_master.csv": customer_master,
-                "consent_records.csv": consent_records,
-                "transaction_events.csv": transaction_events,
-                "access_logs.csv": access_logs,
-                "data_lifecycle.csv": data_lifecycle,
-                "security_events.csv": security_events,
-                "dsar_requests.csv": dsar_requests,
-                "system_inventory.csv": system_inventory,
-                "policies.csv": policies,
-            }
+        for csv_filename, uploaded_file in uploaded_file_map.items():
+            csv_bytes = await uploaded_file.read()
+            csv_path = Path(temp_dir) / csv_filename
+            with open(csv_path, "wb") as f:
+                f.write(csv_bytes)
 
-            for csv_filename, uploaded_file in uploaded_file_map.items():
-                csv_bytes = await uploaded_file.read()
-                csv_path = Path(temp_dir) / csv_filename
-                with open(csv_path, "wb") as f:
-                    f.write(csv_bytes)
+        loaded_data = load_tenant_csvs(Path(temp_dir), tenant_id)
+        mapped_data = {}
+        for table_name, df in loaded_data.items():
+            mapped_data[table_name] = anonymize_dataframe(df, table_name, tenant_id)
 
-            loaded_data = load_tenant_csvs(Path(temp_dir), tenant_id)
-            mapped_data = {}
-            for table_name, df in loaded_data.items():
-                mapped_data[table_name] = anonymize_dataframe(df, table_name, tenant_id)
+        validate_dataset_hash_version(mapped_data)
 
-            rows_written = write_tenant_data(tenant_id, mapped_data)
-
-        except TenantValidationError as tve:
-            raise HTTPException(
-                status_code=400,
-                detail={
-                    "error": "Tenant validation failed",
-                    "filename": tve.filename,
-                    "row_number": tve.row_number,
-                    "expected_tenant": tve.expected_tenant,
-                    "supplied_tenant": tve.supplied_tenant,
-                    "error_code": tve.error_code
-                }
-            )
-        except MissingColumnError as mce:
-            raise HTTPException(
-                status_code=400,
-                detail={
-                    "error": "Missing required column",
-                    "filename": mce.filename,
-                    "field": mce.field,
-                    "error_code": mce.error_code,
-                    "explanation": mce.explanation
-                }
-            )
-        except DsarValidationError as dve:
-            raise HTTPException(
-                status_code=400,
-                detail={
-                    "error": "DSAR validation failed",
-                    "filename": dve.filename,
-                    "row_number": dve.row_number,
-                    "field": dve.field,
-                    "error_code": dve.error_code,
-                    "explanation": dve.explanation
-                }
-            )
-        except Exception as loader_error:
-            raise HTTPException(
-                status_code=500,
-                detail=f"CSV ingestion failed: {str(loader_error)}"
-            )
-        finally:
-            if temp_dir and os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
-
-        try:
-            analysis_result = run_compliance_analysis(tenant_id)
-            response = _build_full_response(analysis_result, tenant_name)
-        except Exception as analysis_error:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Analysis engine failed: {str(analysis_error)}"
-            )
-
-        try:
-            # Serialize the FULL response including violations, agent_breakdown, remediation
-            serializable_payload = {
-                "tenant_id": response["tenant_id"],
-                "tenant_name": tenant_name,
-                "total_obligations": response["total_obligations"],
-                "unique_rules_violated": response["unique_rules_violated"],
-                "total_violation_occurrences": response["total_violation_occurrences"],
-                "risk_score": response["risk_score"],
-                "risk_tier": response["risk_tier"],
-                "status": response["status"],
-                "executive_summary": response["executive_summary"],
-                "total_penalty_exposure_crore": response["total_penalty_exposure_crore"],
-                "risk_contributions": response["risk_contributions"],
-                "violations": [v.model_dump() for v in response["violations"]],
-                "agent_breakdown": {k: v.model_dump() for k, v in response["agent_breakdown"].items()},
-                "remediation_priority": [r.model_dump() for r in response["remediation_priority"]],
-                "ml_layer": response.get("ml_layer"),
-                "run_metadata": response.get("run_metadata"),
-            }
+        # Check if parent hash version matches
+        parent_hash_version = None
+        if parent_audit_run_id:
             with get_db_connection() as conn:
-                ensure_evaluation_results_table(conn)
                 with conn.cursor() as cur:
                     cur.execute(
-                        "INSERT INTO evaluation_results "
-                        "(tenant_id, result_json, risk_score) "
-                        "VALUES (%s, %s, %s)",
-                        (
-                            tenant_id,
-                            json.dumps(serializable_payload, default=str),
-                            float(response["risk_score"]),
-                        ),
+                        "SELECT hash_version FROM audit_runs WHERE audit_run_id = %s",
+                        (parent_audit_run_id,)
                     )
-                conn.commit()
-        except Exception as db_ex:
-            logging.warning(f"evaluation_results insert failed: {db_ex}")
+                    p_row = cur.fetchone()
+                    if p_row:
+                        parent_hash_version = p_row["hash_version"] if isinstance(p_row, dict) else p_row[0]
+        
+        current_version = os.getenv("HASH_VERSION", "v2")
+        if parent_hash_version and parent_hash_version != current_version:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Re-analysis rejected: Mismatched hash version. This tenant's data was previously assessed with version '{parent_hash_version}', but current engine version is '{current_version}'. You must migrate the tenant dataset completely."
+            )
 
-        return AnalyzeResponse(**response)
+        rows_written = write_tenant_data(tenant_id, mapped_data)
 
-    except HTTPException:
-        raise
-    except ValueError as val_error:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Validation error: {str(val_error)}"
-        )
-    except Exception as e:
+    except Exception as validation_err:
+        # Determine status: Validation errors make the run NOT_ASSESSABLE or FAILED
+        status = "not_assessable" if isinstance(validation_err, (TenantValidationError, MissingColumnError, DsarValidationError, EnumValidationError, GovernanceValidationError, TransactionValidationError, ConsentValidationError, SecurityEventValidationError, SystemInventoryValidationError, LifecycleValidationError, CrossFileValidationError)) else "failed"
+        
+        # Save error info
+        validation_summary = {"error": str(validation_err)}
+        if hasattr(validation_err, "filename"):
+            validation_summary["filename"] = getattr(validation_err, "filename")
+        if hasattr(validation_err, "row_number"):
+            validation_summary["row_number"] = getattr(validation_err, "row_number")
+        if hasattr(validation_err, "field"):
+            validation_summary["field"] = getattr(validation_err, "field")
+        if hasattr(validation_err, "error_code"):
+            validation_summary["error_code"] = getattr(validation_err, "error_code")
+        if hasattr(validation_err, "explanation"):
+            validation_summary["explanation"] = getattr(validation_err, "explanation")
+        if hasattr(validation_err, "errors"):
+            validation_summary["errors"] = getattr(validation_err, "errors")
+
+        try:
+            with get_db_connection() as conn_err:
+                with conn_err.cursor() as cur_err:
+                    cur_err.execute(
+                        "INSERT INTO audit_runs (audit_run_id, tenant_id, input_snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, source_data_row_counts, validation_summary, status, parent_audit_run_id) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        (audit_run_id, tenant_id, "", rule_set_hash, clause_set_hash, engine_version, model_hash, "{}", json.dumps(validation_summary), status, parent_audit_run_id)
+                    )
+                conn_err.commit()
+        except Exception:
+            pass
+
+        if temp_dir and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
+        # Re-raise the exact exception type with appropriate HTTP response
+        if isinstance(validation_err, HTTPException):
+            raise validation_err
+        elif isinstance(validation_err, TenantValidationError):
+            raise HTTPException(status_code=400, detail={
+                "error": "Tenant validation failed",
+                "filename": validation_err.filename,
+                "row_number": validation_err.row_number,
+                "expected_tenant": validation_err.expected_tenant,
+                "supplied_tenant": validation_err.supplied_tenant,
+                "error_code": validation_err.error_code
+            })
+        elif isinstance(validation_err, MissingColumnError):
+            raise HTTPException(status_code=400, detail={
+                "error": "Missing required column",
+                "filename": validation_err.filename,
+                "field": validation_err.field,
+                "error_code": validation_err.error_code,
+                "explanation": validation_err.explanation
+            })
+        elif isinstance(validation_err, (DsarValidationError, EnumValidationError, GovernanceValidationError, TransactionValidationError, ConsentValidationError, SecurityEventValidationError, SystemInventoryValidationError, LifecycleValidationError)):
+            raise HTTPException(status_code=400, detail={
+                "error": validation_err.__class__.__name__.replace("ValidationError", " validation failed"),
+                "filename": validation_err.filename,
+                "row_number": validation_err.row_number,
+                "field": validation_err.field,
+                "error_code": validation_err.error_code,
+                "explanation": validation_err.explanation
+            })
+        elif isinstance(validation_err, CrossFileValidationError):
+            raise HTTPException(status_code=400, detail={"error": "Cross-file validation failed", "error_code": "CROSS_FILE_VALIDATION_FAILED", "details": validation_err.errors})
+        else:
+            raise HTTPException(status_code=500, detail=f"CSV ingestion failed: {str(validation_err)}")
+
+    finally:
+        if temp_dir and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
+    try:
+        # Retrieve row counts and snapshot hash before analysis
+        with get_db_connection() as conn:
+            row_counts = get_tenant_row_counts(tenant_id, conn)
+            snapshot_hash = compute_tenant_snapshot_hash(tenant_id, conn)
+
+        analysis_result = run_compliance_analysis(tenant_id)
+        response = _build_full_response(analysis_result, tenant_name, audit_run_id=audit_run_id, run_status="completed")
+    except Exception as analysis_error:
+        try:
+            with get_db_connection() as conn_err:
+                with conn_err.cursor() as cur_err:
+                    cur_err.execute(
+                        "INSERT INTO audit_runs (audit_run_id, tenant_id, input_snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, source_data_row_counts, validation_summary, status, parent_audit_run_id) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        (audit_run_id, tenant_id, "", rule_set_hash, clause_set_hash, engine_version, model_hash, "{}", json.dumps({"error": str(analysis_error)}), "failed", parent_audit_run_id)
+                    )
+                conn_err.commit()
+        except Exception:
+            pass
         raise HTTPException(
             status_code=500,
-            detail=f"Upload analysis failed: {str(e)}"
+            detail=f"Analysis engine failed: {str(analysis_error)}"
         )
+
+    try:
+        serializable_payload = {
+            "tenant_id": response["tenant_id"],
+            "tenant_name": tenant_name,
+            "total_obligations": response["total_obligations"],
+            "unique_rules_violated": response["unique_rules_violated"],
+            "total_violation_occurrences": response["total_violation_occurrences"],
+            "risk_score": response["risk_score"],
+            "risk_tier": response["risk_tier"],
+            "status": response["status"],
+            "executive_summary": response["executive_summary"],
+            "total_penalty_exposure_crore": response["total_penalty_exposure_crore"],
+            "risk_contributions": response["risk_contributions"],
+            "violations": [v.model_dump() for v in response["violations"]],
+            "agent_breakdown": {k: v.model_dump() for k, v in response["agent_breakdown"].items()},
+            "remediation_priority": [r.model_dump() for r in response["remediation_priority"]],
+            "ml_layer": response.get("ml_layer"),
+            "run_metadata": response.get("run_metadata"),
+            "findings": response.get("findings"),
+            "rule_execution_statuses": response.get("rule_execution_statuses"),
+            "compliance_score": response.get("compliance_score"),
+            "audit_run_id": audit_run_id,
+            "run_status": response.get("run_status"),
+            "failed_rules_count": response.get("failed_rules_count"),
+            "not_assessable_rules_count": response.get("not_assessable_rules_count"),
+            "outcome_count_by_state": response.get("outcome_count_by_state"),
+            "disclaimer": response.get("disclaimer"),
+        }
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO audit_runs (audit_run_id, tenant_id, input_snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, source_data_row_counts, validation_summary, status, parent_audit_run_id) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (audit_run_id, tenant_id, snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, json.dumps(row_counts), json.dumps({"status": "success"}), "completed", parent_audit_run_id)
+                )
+                cur.execute(
+                    "INSERT INTO evaluation_results (tenant_id, result_json, risk_score, audit_run_id) "
+                    "VALUES (%s, %s, %s, %s)",
+                    (tenant_id, json.dumps(serializable_payload, default=str), float(response["risk_score"]), audit_run_id)
+                )
+            conn.commit()
+    except Exception as db_ex:
+        logging.warning(f"evaluation_results / audit_runs insert failed: {db_ex}")
+
+    return AnalyzeResponse(**response)
 
 
 @router.get("/report/pdf/{tenant_id}")
 def download_pdf(
     tenant_id: str,
+    audit_run_id: Optional[str] = None,
+    current_user: AuthUser = Depends(authenticate_user),
 ):
-    """
-    Placeholder PDF endpoint. (PDF Generation module to be built in Phase 4).
-    """
     try:
+        verify_tenant_access(tenant_id, current_user)
         from src.report.pdf_generator import generate_pdf_report
         with get_db_connection() as conn:
-            pdf_buffer = generate_pdf_report(tenant_id, conn)
+            resolved_run_id = resolve_audit_run_id(tenant_id, audit_run_id, conn)
+            pdf_buffer = generate_pdf_report(tenant_id, conn, resolved_run_id)
             
         return Response(
             content=pdf_buffer.getvalue(),
@@ -568,6 +929,8 @@ def download_pdf(
         )
     except ImportError:
          raise HTTPException(status_code=501, detail="PDF module not implemented yet")
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -785,7 +1148,9 @@ def reject_rule(
 _bias_report_cache = None
 
 @router.get("/governance/bias-report")
-async def get_bias_report():
+async def get_bias_report(
+    current_user: AuthUser = Depends(require_authenticated),
+):
   global _bias_report_cache
   if _bias_report_cache is None:
     from src.governance.bias_monitor import (
@@ -794,4 +1159,90 @@ async def get_bias_report():
     _bias_report_cache = run_bias_check()
     save_bias_report(_bias_report_cache)
   return _bias_report_cache
+
+
+@router.get("/dashboard/{tenant_id}")
+def get_dashboard_data(
+    tenant_id: str,
+    audit_run_id: Optional[str] = None,
+    current_user: AuthUser = Depends(authenticate_user),
+):
+    """
+    Returns dashboard analysis data for the specified tenant and audit run.
+    """
+    try:
+        clean_tenant_id = tenant_id.strip()
+        verify_tenant_access(clean_tenant_id, current_user)
+        with get_db_connection() as conn:
+            ensure_evaluation_results_table(conn)
+            resolved_run_id = resolve_audit_run_id(clean_tenant_id, audit_run_id, conn)
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT result_json FROM evaluation_results WHERE tenant_id = %s AND audit_run_id = %s",
+                    (clean_tenant_id, resolved_run_id)
+                )
+                row = cur.fetchone()
+                if not row:
+                    raise HTTPException(status_code=404, detail="No evaluation results found for this run.")
+                res_json = row["result_json"] if isinstance(row, dict) else row[0]
+                return res_json if isinstance(res_json, dict) else json.loads(res_json)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/report/history/{tenant_id}")
+def get_report_history(
+    tenant_id: str,
+    current_user: AuthUser = Depends(authenticate_user),
+):
+    """
+    Returns all audit run history for the specified tenant.
+    """
+    try:
+        clean_tenant_id = tenant_id.strip()
+        verify_tenant_access(clean_tenant_id, current_user)
+        # Verify tenant existence
+        tenant_exists = False
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1 FROM governance_config WHERE tenant_id = %s LIMIT 1", (clean_tenant_id,))
+                if cur.fetchone():
+                    tenant_exists = True
+                else:
+                    cur.execute("SELECT 1 FROM customer_master WHERE tenant_id = %s LIMIT 1", (clean_tenant_id,))
+                    if cur.fetchone():
+                        tenant_exists = True
+            
+            if not tenant_exists:
+                raise HTTPException(status_code=404, detail=f"Tenant '{clean_tenant_id}' not found.")
+
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT audit_run_id, status, created_at, validation_summary FROM audit_runs WHERE tenant_id = %s ORDER BY created_at DESC",
+                    (clean_tenant_id,)
+                )
+                rows = cur.fetchall()
+                history = []
+                for r in rows:
+                    if isinstance(r, dict):
+                        history.append({
+                            "audit_run_id": r["audit_run_id"],
+                            "status": r["status"],
+                            "created_at": str(r["created_at"]),
+                            "validation_summary": r["validation_summary"]
+                        })
+                    else:
+                        history.append({
+                            "audit_run_id": r[0],
+                            "status": r[1],
+                            "created_at": str(r[2]),
+                            "validation_summary": r[3]
+                        })
+                return {"tenant_id": clean_tenant_id, "history": history}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 

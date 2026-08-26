@@ -1,7 +1,7 @@
 import json
 from src.agent_layer.orchestrator import run_compliance_analysis
 
-def test_tenant(tenant_id):
+def run_tenant_test(tenant_id):
     print(f"=== Testing {tenant_id} ===")
     report = run_compliance_analysis(tenant_id)
     ml_layer = report.get('ml_layer', {})
@@ -35,6 +35,6 @@ def test_tenant(tenant_id):
         print(json.dumps(ml_layer, indent=2))
         
 if __name__ == "__main__":
-    test_tenant('tenant_a')
+    run_tenant_test('tenant_a')
     print("\n")
-    test_tenant('GEN-010')
+    run_tenant_test('GEN-010')

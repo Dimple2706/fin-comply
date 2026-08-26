@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -15,7 +14,7 @@ export default function RemediationSection({ items }) {
     >
       <Card className="overflow-hidden">
         <div className="p-6 border-b border-subtle">
-          <h3 className="text-h3 text-white">Remediation Priority Matrix</h3>
+          <h3 className="text-h3 text-primary">Remediation Priority Matrix</h3>
           <p className="text-caption text-secondary mt-1">Sorted by regulatory urgency and penalty exposure</p>
         </div>
         
@@ -39,7 +38,7 @@ export default function RemediationSection({ items }) {
                   transition={{ delay: 0.4 + (index * 0.05) }}
                   className={`border-b border-subtle hover:bg-elevated transition-colors ${index % 2 === 0 ? 'bg-surface' : 'bg-base/30'}`}
                 >
-                  <td className="px-6 py-4 font-bold text-white">
+                  <td className="px-6 py-4 font-bold text-primary">
                     #{item.priority}
                   </td>
                   <td className="px-6 py-4">
@@ -55,7 +54,7 @@ export default function RemediationSection({ items }) {
                     <Badge severity={item.urgency} />
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="text-sm font-medium text-white">₹{item.penalty_exposure_crore} Cr</span>
+                    <span className="text-sm font-medium text-primary">₹{item.penalty_exposure_crore} Cr</span>
                     <div className="w-full h-1 bg-elevated mt-2 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-red-500/50" 

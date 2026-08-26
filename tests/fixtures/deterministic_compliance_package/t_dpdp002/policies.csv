@@ -1,0 +1,2 @@
+policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,policy_value_text
+P1,t_dpdp002,retention,Retention Policy,365,days,2026-08-01,2026-08-01,True,

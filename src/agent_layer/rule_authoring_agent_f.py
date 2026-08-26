@@ -28,7 +28,7 @@ from agent_layer.field_registry_f import check_rule_fields, get_flat_field_list
 # ── Gemini client ──────────────────────────────────────────────────────────────
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 _model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-3.6-flash",
     generation_config={
         "temperature":        0.2,
         "max_output_tokens":  2000,
@@ -111,7 +111,7 @@ REGULATORY TEXT TO CONVERT:
 
 def propose_rule(source_text: str, conn: psycopg.Connection) -> dict:
     prompt   = _build_prompt(source_text, conn)
-    response = _model.generate_content(prompt)
+    response = _model.generate_content(prompt, request_options={"timeout": 10.0})
     raw      = response.text.strip()
 
     raw = re.sub(r"^```(?:json)?\s*", "", raw, flags=re.IGNORECASE)

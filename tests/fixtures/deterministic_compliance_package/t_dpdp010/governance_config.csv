@@ -1,0 +1,2 @@
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact_masked,audit_frequency_days,last_audit_date,risk_level
+t_dpdp010,Clean Tenant,True,True,dpo@test.local,90,2026-08-01,MEDIUM

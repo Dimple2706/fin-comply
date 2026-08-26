@@ -4,7 +4,7 @@ import { HiChevronDown } from 'react-icons/hi2';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 
-function ViolationCard({ violation, index }) {
+function ViolationCard({ violation }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const exp = violation.explanation;
 
@@ -212,7 +212,7 @@ export default function ViolationsSection({ violations }) {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-3">
-            <h3 className="text-h2 text-white">Violations Detected</h3>
+            <h3 className="text-h2 text-primary">Violations Detected</h3>
             <span className="px-2.5 py-0.5 bg-elevated border border-subtle rounded-full text-xs font-bold text-primary">
               {violations.length} rules
             </span>

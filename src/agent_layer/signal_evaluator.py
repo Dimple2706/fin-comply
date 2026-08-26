@@ -26,6 +26,7 @@ def _eval_dpdp_005(row: dict) -> bool:
         
     guardian_consent = row.get("guardian_consent_hash")
     consent_status = row.get("consent_status")
+    guardian_consent_status = row.get("guardian_consent_status")
 
     if not guardian_consent:
         return True
@@ -33,9 +34,27 @@ def _eval_dpdp_005(row: dict) -> bool:
     if consent_status != "active":
         return True
 
+    if guardian_consent_status != "active":
+        return True
+
     return False
 
-# PART B â€” evaluate_signal function
+@register_native('DPDP-006', 'S2')
+def _eval_dpdp_006_s2(row: dict) -> bool:
+    sharing_permitted = row.get("third_party_sharing_permitted")
+    if sharing_permitted is None:
+        return True  # If evidence is missing, it fails consent (Fires signal S2)
+    if isinstance(sharing_permitted, str):
+        return sharing_permitted.lower() not in ('true', 't', '1', 'yes', 'y')
+    return not bool(sharing_permitted)
+
+@register_native('DPDP-009', 'S3')
+def _eval_dpdp_009_s3(row: dict) -> bool:
+    # Reconcile raw email check with masked email presence
+    contact = row.get("dpo_contact_masked")
+    return contact is None or str(contact).strip() == "" or str(contact).strip().lower() == "none"
+
+# PART B — evaluate_signal function
 def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
     if (rule_id, signal_id) in NATIVE_EVALUATORS:
         return NATIVE_EVALUATORS[(rule_id, signal_id)](row)
@@ -47,6 +66,8 @@ def evaluate_signal(rule_id, signal_id, signal_def, row: dict) -> bool:
     # Handle known schema mappings from rules JSON
     if field == 'expiry_timestamp' and 'expiry_date' in row:
         field = 'expiry_date'
+    elif field == 'breach_confirmed_at' and 'breach_confirmed_date' in row:
+        field = 'breach_confirmed_date'
         
     # If the field is not a normal column, try additional_attributes JSONB.
     if field not in row:

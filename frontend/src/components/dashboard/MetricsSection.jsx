@@ -7,7 +7,7 @@ import {
 
 function CountUp({ value, suffix = '', prefix = '' }) {
   return (
-    <span className="text-[36px] font-bold text-white leading-none">
+    <span className="text-[36px] font-bold text-primary leading-none">
       {prefix}{value}{suffix}
     </span>
   );
@@ -100,7 +100,7 @@ export default function MetricsSection({ data }) {
 
         <div className="absolute top-[60%] text-center">
           <div className="flex items-baseline justify-center gap-1">
-            <span className="text-[48px] font-bold text-white leading-none">
+            <span className="text-[48px] font-bold text-primary leading-none">
               {scoreNum.toFixed(1)}
             </span>
 

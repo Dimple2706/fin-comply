@@ -50,10 +50,7 @@ class ReportingAgent:
                 "tenant_id": tenant_id,
             }
 
-    # ──────────────────────────────────────────────────────────────────────────
     # Private helpers
-    # ──────────────────────────────────────────────────────────────────────────
-
     def _build(
         self,
         tenant_id: str,
@@ -64,7 +61,7 @@ class ReportingAgent:
         conn,
     ) -> dict:
 
-        # ── Dynamically compute total obligations and max_possible_score ──
+        # Dynamically compute total obligations and max_possible_score
         try:
             rule_stats = conn.execute(
                 "SELECT COUNT(*) AS cnt, COALESCE(SUM(risk_weight), 0) AS total_weight "
@@ -80,20 +77,47 @@ class ReportingAgent:
         warnings_only   = [v for v in all_violations if v.outcome == "WARNING"]
         non_pass        = [v for v in all_violations if v.outcome in ("VIOLATION", "WARNING")]
 
-        # ── collect unique rule_ids that have at least one non-PASS result ──
+        # collect unique rule_ids that have at least one non-PASS result
         violation_rule_ids = list({v.rule_id for v in violations_only})
         warning_rule_ids   = list({v.rule_id for v in warnings_only})
         flagged_rule_ids   = list({v.rule_id for v in non_pass})
 
-        # ── fetch clause + rule metadata in a single JOIN query ──────────────
+        # fetch clause + rule metadata in a single JOIN query
         clause_rule_map = self._fetch_clause_rule_data(flagged_rule_ids, conn)
 
-        # ── fetch max_penalty_crore for violation rules ──────────────────────
+        # fetch max_penalty_crore for violation rules
         penalty_map = {
             rid: clause_rule_map[rid]["max_penalty_crore"]
             for rid in violation_rule_ids
             if rid in clause_rule_map
         }
+
+        # Dynamically compute states for active rules to ensure 100% score alignment
+        try:
+            db_rules = conn.execute("SELECT rule_id FROM rules WHERE enabled = TRUE").fetchall()
+            active_rule_ids = [r["rule_id"] for r in db_rules]
+        except Exception:
+            active_rule_ids = list(set(v.rule_id for v in all_violations))
+
+        rule_states = {}
+        for r_id in active_rule_ids:
+            records = [v for v in all_violations if v.rule_id == r_id]
+            if any(r.outcome == "FAILED" for r in records):
+                rule_states[r_id] = "FAILED"
+            elif any(r.outcome == "VIOLATION" for r in records):
+                rule_states[r_id] = "VIOLATION"
+            elif any(r.outcome == "NOT_ASSESSABLE" for r in records):
+                rule_states[r_id] = "NOT_ASSESSABLE"
+            elif any(r.outcome == "PASS" for r in records):
+                rule_states[r_id] = "PASS"
+            else:
+                rule_states[r_id] = "NOT_APPLICABLE"
+
+        violated_count = sum(1 for s in rule_states.values() if s == "VIOLATION")
+        pass_count = sum(1 for s in rule_states.values() if s == "PASS")
+        not_assessable_count = sum(1 for s in rule_states.values() if s == "NOT_ASSESSABLE")
+        failed_count = sum(1 for s in rule_states.values() if s == "FAILED")
+        not_applicable_count = sum(1 for s in rule_states.values() if s == "NOT_APPLICABLE")
 
         return {
             "violation_report":    self._build_violation_report(violations_only, penalty_map),
@@ -102,28 +126,28 @@ class ReportingAgent:
                                        penalty_map, max_possible_score
                                    ),
             "compliance_score":    self._build_compliance_score(
-                                       compliance_score,
-                                       violation_rule_ids,
-                                       warning_rule_ids,
-                                       flagged_rule_ids,
-                                       total_obligations
+                                       compliance_score=compliance_score,
+                                       pass_count=pass_count,
+                                       violated_count=violated_count,
+                                       warning_count=len(set(warning_rule_ids) - set(violation_rule_ids)),
+                                       not_assessable_count=not_assessable_count,
+                                       failed_count=failed_count,
+                                       not_applicable_count=not_applicable_count,
+                                       total_obligations=len(active_rule_ids)
                                    ),
             "mapped_regulations":  self._build_mapped_regulations(
                                        non_pass, clause_rule_map
                                    ),
             "explainable_insights": self._build_explainable_insights(
-                                        violations_only, clause_rule_map
-                                    ),
+                                         violations_only, clause_rule_map
+                                     ),
         }
-
-    # ── KEY 1 ─────────────────────────────────────────────────────────────────
 
     def _build_violation_report(self, violations: list, penalty_map: dict) -> list:
         """
-        Sorted by severity (CRITICAL → HIGH → MEDIUM → LOW).
+        Sorted by severity (CRITICAL -> HIGH -> MEDIUM -> LOW).
         One entry per unique rule_id (aggregates multiple affected records).
         """
-        # group by rule_id
         groups: dict[str, list] = {}
         for v in violations:
             groups.setdefault(v.rule_id, []).append(v)
@@ -148,12 +172,11 @@ class ReportingAgent:
                 "fields_triggered":       sorted(all_fields),
                 "affected_records_count": len(vs),
                 "penalty_exposure_crore": penalty_map.get(rule_id, rep.penalty_exposure_crore),
+                "penalty_exposure_message": "Maximum statutory exposure estimate — not an actual or certain fine.",
             })
 
         entries.sort(key=lambda e: _SEVERITY_ORDER.get(e["severity"], 99))
         return entries
-
-    # ── KEY 2 ─────────────────────────────────────────────────────────────────
 
     def _build_risk_insights(
         self,
@@ -200,31 +223,31 @@ class ReportingAgent:
             "per_rule_contributions":      per_rule,
             "critical_rules":              critical_rules_deduped,
             "total_penalty_exposure_crore": total_penalty,
+            "penalty_exposure_message":    "Maximum statutory exposure estimate — not an actual or certain fine.",
         }
-
-    # ── KEY 3 ─────────────────────────────────────────────────────────────────
 
     def _build_compliance_score(
         self,
         compliance_score: float,
-        violation_rule_ids: list,
-        warning_rule_ids: list,
-        flagged_rule_ids: list,
-        total_obligations: int = 16,
+        pass_count: int,
+        violated_count: int,
+        warning_count: int,
+        not_assessable_count: int,
+        failed_count: int,
+        not_applicable_count: int,
+        total_obligations: int,
     ) -> dict:
-        violated_count = len(set(violation_rule_ids))
-        warning_count  = len(set(warning_rule_ids) - set(violation_rule_ids))
-        satisfied      = total_obligations - len(set(flagged_rule_ids))
-
         return {
-            "score_percentage":      round(compliance_score, 2),
-            "satisfied_obligations": max(satisfied, 0),
-            "violated_obligations":  violated_count,
-            "warning_obligations":   warning_count,
-            "total_obligations":     total_obligations,
+            "score_percentage":          round(compliance_score, 2),
+            "satisfied_obligations":     pass_count,
+            "violated_obligations":      violated_count,
+            "warning_obligations":       warning_count,
+            "not_assessable_obligations": not_assessable_count,
+            "failed_obligations":        failed_count,
+            "not_applicable_obligations": not_applicable_count,
+            "total_obligations":         total_obligations,
+            "applicable_obligations":    pass_count + violated_count + not_assessable_count + failed_count,
         }
-
-    # ── KEY 4 ─────────────────────────────────────────────────────────────────
 
     def _build_mapped_regulations(
         self, non_pass: list, clause_rule_map: dict
@@ -252,7 +275,7 @@ class ReportingAgent:
                 "violation_status":       v.outcome,
             }
 
-            # ── Semantic enrichment (additive — never breaks the pipeline) ────
+            # Semantic enrichment (additive)
             try:
                 from src.intelligence.regulation_mapper import enrich_mapped_regulation
                 entry = enrich_mapped_regulation(entry)
@@ -271,12 +294,10 @@ class ReportingAgent:
         ))
         return entries
 
-    # ── KEY 5 ─────────────────────────────────────────────────────────────────
-
     def _build_explainable_insights(
         self, violations: list, clause_rule_map: dict
     ) -> list:
-        from src.explainability.llm_narrator import narrate_violation, PIIBoundaryError  # noqa: PLC0415
+        from src.explainability.llm_narrator import narrate_violation, PIIBoundaryError
 
         seen: set[str] = set()
         entries = []
@@ -289,7 +310,7 @@ class ReportingAgent:
             meta             = clause_rule_map.get(v.rule_id, {})
             signal_mapping   = meta.get("signal_mapping", {})  # JSONB dict {S1: text, ...}
             legal_text       = meta.get("legal_text", "")
-            evidence_signals = meta.get("evidence_signals", [])  # list from rules.evidence_signals
+            evidence_signals = meta.get("evidence_signals", [])
 
             fired_set = set(v.signals_fired)
 
@@ -300,7 +321,7 @@ class ReportingAgent:
                 if sig_id in fired_set
             }
 
-            # record_evidence: signal_id → reason string for each fired signal
+            # record_evidence: signal_id -> reason string for each fired signal
             record_evidence: dict = {}
             for sig_id, reason in zip(v.signals_fired, v.signal_reasons):
                 record_evidence[sig_id] = reason
@@ -322,7 +343,7 @@ class ReportingAgent:
                 if sig.get("signal_id", "") in fired_set
             ]
 
-            # ── LLM narration ─────────────────────────────────────────────────
+            # LLM narration
             try:
                 narration = narrate_violation(
                     rule_id=v.rule_id,
@@ -336,14 +357,14 @@ class ReportingAgent:
                 _log.getLogger(__name__).warning(
                     "[reporting_agent] PII blocked narration for %s: %s", v.rule_id, pii_exc
                 )
-                from src.explainability.llm_narrator import _fallback  # noqa
+                from src.explainability.llm_narrator import _fallback
                 narration = _fallback(v.rule_id, f"PIIBoundaryError: {pii_exc}")
             except Exception as exc:
                 import logging as _log
                 _log.getLogger(__name__).warning(
                     "[reporting_agent] narrate_violation failed for %s: %s", v.rule_id, exc
                 )
-                from src.explainability.llm_narrator import _fallback  # noqa
+                from src.explainability.llm_narrator import _fallback
                 narration = _fallback(v.rule_id, str(exc))
 
             entry = {
@@ -365,17 +386,11 @@ class ReportingAgent:
 
         return entries
 
-
-    # ── DB fetch (single JOIN) ────────────────────────────────────────────────
-
     def _fetch_clause_rule_data(
         self, rule_ids: list, conn
     ) -> dict[str, dict]:
         """
         Fetches clause + rule metadata for the given rule_ids in a single JOIN.
-        Returns {rule_id: {legal_title, plain_english_obligation, legal_text,
-                           signal_mapping, max_penalty_crore, primary_table,
-                           join_tables, assigned_agent, evidence_signals}}
         """
         if not rule_ids:
             return {}
@@ -405,7 +420,6 @@ class ReportingAgent:
 
         result = {}
         for row in rows:
-            # handle both dict-rows (psycopg dict_row) and plain tuples
             if isinstance(row, dict):
                 r = row
             else:

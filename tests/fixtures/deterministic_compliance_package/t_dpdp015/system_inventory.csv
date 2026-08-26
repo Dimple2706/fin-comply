@@ -1,0 +1,2 @@
+system_id,tenant_id,system_name,system_type,pii_stored,encryption_enabled,access_control_enabled,data_processor_type,retention_policy_applied,dpa_signed,dpa_expiry_date
+SYS1,t_dpdp015,CRM,crm,True,True,True,third_party_processor,True,True,2027-08-01

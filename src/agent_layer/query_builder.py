@@ -19,20 +19,41 @@ NATIVE_QUERIES = {
     "DPDP-006": """
         SELECT p.*, cr.*, si.*
         FROM transaction_events p
-        LEFT JOIN consent_records cr ON p.consent_hash = cr.consent_hash
-        LEFT JOIN system_inventory si ON p.third_party_hash = si.system_hash
+        LEFT JOIN consent_records cr ON p.consent_hash = cr.consent_hash AND p.tenant_id = cr.tenant_id
+        LEFT JOIN system_inventory si ON p.third_party_hash = si.system_hash AND p.tenant_id = si.tenant_id
         WHERE p.tenant_id = %s
     """,
     "DPDP-007": """
         SELECT p.*, si.*
         FROM access_logs p
-        LEFT JOIN system_inventory si ON si.tenant_id = p.tenant_id
+        LEFT JOIN system_inventory si ON si.system_hash = p.system_hash AND si.tenant_id = p.tenant_id
         WHERE p.tenant_id = %s
     """,
     "DPDP-008": """
-        SELECT p.*, si.*
+        SELECT p.*
         FROM security_events p
-        LEFT JOIN system_inventory si ON si.tenant_id = p.tenant_id
+        WHERE p.tenant_id = %s
+    """,
+    "DPDP-010": """
+        SELECT p.*,
+               CASE WHEN dl.has_active_retention THEN 'not_deleted' ELSE 'deleted' END AS retention_status,
+               dl.has_legal_hold AS legal_hold_flag
+        FROM dsar_requests p
+        LEFT JOIN LATERAL (
+            SELECT 
+                EXISTS (
+                    SELECT 1 FROM data_lifecycle d 
+                    WHERE d.customer_hash = p.customer_hash 
+                      AND d.tenant_id = p.tenant_id 
+                      AND d.retention_status <> 'deleted'
+                ) AS has_active_retention,
+                EXISTS (
+                    SELECT 1 FROM data_lifecycle d 
+                    WHERE d.customer_hash = p.customer_hash 
+                      AND d.tenant_id = p.tenant_id 
+                      AND d.legal_hold_flag = true
+                ) AS has_legal_hold
+        ) dl ON true
         WHERE p.tenant_id = %s
     """,
     "DPDP-012": """
@@ -53,7 +74,7 @@ NATIVE_QUERIES = {
     "DPDP-015": """
         SELECT p.*, si.*
         FROM transaction_events p
-        LEFT JOIN system_inventory si ON p.third_party_hash = si.system_hash
+        LEFT JOIN system_inventory si ON p.third_party_hash = si.system_hash AND p.tenant_id = si.tenant_id
         WHERE p.tenant_id = %s
     """
 }
@@ -83,7 +104,7 @@ def build_query(rule: dict, tenant_id: str) -> tuple[str, list]:
             # Assign short alias
             alias = f"{table[:2]}{i}"
             select_clause += f", {alias}.*"
-            join_clauses.append(f"LEFT JOIN {table} {alias} ON p.{join_key} = {alias}.{join_key}")
+            join_clauses.append(f"LEFT JOIN {table} {alias} ON p.{join_key} = {alias}.{join_key} AND p.tenant_id = {alias}.tenant_id")
             
     sql_parts = [select_clause, from_clause]
     sql_parts.extend(join_clauses)

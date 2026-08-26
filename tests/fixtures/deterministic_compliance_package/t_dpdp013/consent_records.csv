@@ -1,0 +1,2 @@
+consent_id,customer_id,tenant_id,consent_status,consented_purpose,notice_provided,is_bundled,consent_channel,guardian_consent_id,consent_date,expiry_date,third_party_sharing_permitted
+CON1,C1,t_dpdp013,granted,marketing,True,False,web,,2026-08-01,2027-08-01,True

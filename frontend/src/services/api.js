@@ -1,19 +1,29 @@
 import axios from 'axios';
 
-// In development, Vite proxy forwards /analyze and /report to the backend.
-// In production, set VITE_API_BASE_URL to the actual backend URL.
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: 'http://localhost:8000',
 });
 
-// Attach RBAC auth token to outgoing requests
+// Configure simple token-based headers
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('fincomply_auth_token') || 'admin:admin_operator';
-  config.headers['Authorization'] = `Bearer ${token}`;
+  const token = localStorage.getItem('token') || 'secure_test_admin_token_2026';
+  config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+
+const formatDetailError = (detail) => {
+  if (!detail) return null;
+  if (Array.isArray(detail)) {
+    return detail.map((e) => `${e.loc?.join('.') || 'error'}: ${e.msg}`).join(', ');
+  }
+  if (typeof detail === 'object') {
+    if (detail.message || detail.detail) {
+      return detail.message || detail.detail;
+    }
+    return JSON.stringify(detail);
+  }
+  return String(detail);
+};
 
 export const runAnalysis = async (formData) => {
   try {
@@ -21,9 +31,10 @@ export const runAnalysis = async (formData) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.detail || 'Failed to analyze data');
+      const errMsg = formatDetailError(error.response.data?.detail) || 'Failed to analyze data';
+      throw new Error(errMsg, { cause: error });
     }
-    throw new Error('Network error. Ensure the backend is running.');
+    throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
 
@@ -33,9 +44,10 @@ export const runAnalysisExisting = async (tenantId) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.detail || 'Failed to analyze existing tenant');
+      const errMsg = formatDetailError(error.response.data?.detail) || 'Failed to analyze existing tenant';
+      throw new Error(errMsg, { cause: error });
     }
-    throw new Error('Network error. Ensure the backend is running.');
+    throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
 
@@ -48,9 +60,9 @@ export const downloadPdfReport = async (tenantId) => {
   } catch (error) {
     if (error.response) {
       const detail = error.response.data?.detail;
-      throw new Error(detail || 'Failed to generate PDF.');
+      throw new Error(detail || 'Failed to generate PDF.', { cause: error });
     }
-    throw new Error('Network error. Ensure the backend is running.');
+    throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
 
@@ -60,9 +72,9 @@ export const getRules = async () => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.detail || 'Failed to fetch active rules');
+      throw new Error(error.response.data.detail || 'Failed to fetch active rules', { cause: error });
     }
-    throw new Error('Network error. Ensure the backend is running.');
+    throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
 
@@ -72,9 +84,9 @@ export const getProposedRules = async () => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.detail || 'Failed to fetch proposed rules');
+      throw new Error(error.response.data.detail || 'Failed to fetch proposed rules', { cause: error });
     }
-    throw new Error('Network error. Ensure the backend is running.');
+    throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
 
@@ -84,9 +96,9 @@ export const approveRule = async (proposalId) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.detail || `Failed to approve proposal ${proposalId}`);
+      throw new Error(error.response.data.detail || `Failed to approve proposal ${proposalId}`, { cause: error });
     }
-    throw new Error('Network error. Ensure the backend is running.');
+    throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
 
@@ -98,9 +110,8 @@ export const rejectRule = async (proposalId, reason = 'Rejected by reviewer') =>
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.detail || `Failed to reject proposal ${proposalId}`);
+      throw new Error(error.response.data.detail || `Failed to reject proposal ${proposalId}`, { cause: error });
     }
-    throw new Error('Network error. Ensure the backend is running.');
+    throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
-
