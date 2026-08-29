@@ -2,28 +2,28 @@
 
 @layer theme {
   :root {
-    /* Background layers (dark theme) */
-    --bg-base: #080C14;
-    --bg-surface: #0F1623;
-    --bg-elevated: #1A2235;
-    --bg-border: #1E2D45;
+    /* Background layers (light subtle theme) */
+    --bg-base: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F1F5F9;
+    --bg-border: #E2E8F0;
 
-    /* Brand colors */
-    --brand-primary: #3B82F6;
-    --brand-secondary: #6366F1;
-    --brand-glow: rgba(59, 130, 246, 0.15);
+    /* Brand colors (adjusted for light theme readability) */
+    --brand-primary: #2563EB;
+    --brand-secondary: #4F46E5;
+    --brand-glow: rgba(37, 99, 235, 0.08);
 
-    /* Semantic colors (for violation severity) */
-    --critical: #EF4444;
-    --high: #F97316;
-    --medium: #EAB308;
-    --low: #22C55E;
-    --info: #3B82F6;
+    /* Semantic colors (adjusted for light theme readability) */
+    --critical: #DC2626;
+    --high: #EA580C;
+    --medium: #CA8A04;
+    --low: #16A34A;
+    --info: #2563EB;
 
     /* Text hierarchy */
-    --text-primary: #F1F5F9;
-    --text-secondary: #94A3B8;
-    --text-muted: #475569;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
   }
 }
 
@@ -107,6 +107,8 @@
   .bg-base { background-color: var(--bg-base); }
   .bg-surface { background-color: var(--bg-surface); }
   .bg-elevated { background-color: var(--bg-elevated); }
+  .bg-brand-primary { background-color: var(--brand-primary); }
+  .bg-brand-secondary { background-color: var(--brand-secondary); }
   .border-subtle { border-color: var(--bg-border); }
   .text-primary { color: var(--text-primary); }
   .text-secondary { color: var(--text-secondary); }
@@ -126,13 +128,13 @@
 
 @layer utilities {
   .glass-hero {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.08);
   }
   
   .shadow-card {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
   }
   
   .shadow-glow {

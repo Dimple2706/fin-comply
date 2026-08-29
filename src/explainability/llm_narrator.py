@@ -54,7 +54,7 @@ def _pii_scan(text: str) -> bool:
 # ── Lazy Gemini client (avoids crash on import when key is placeholder) ───────
 
 _model = None
-_MODEL_NAME = "gemini-1.5-flash"
+_MODEL_NAME = "gemini-3.6-flash"
 
 
 def _get_model():
@@ -228,7 +228,7 @@ def narrate_violation(
     # ── Step 3: Call Gemini ───────────────────────────────────────────────────
     try:
         model = _get_model()
-        response = model.generate_content(prompt)
+        response = model.generate_content(prompt, request_options={"timeout": 10.0})
         raw_text = response.text
 
         # ── Step 4: Parse response ────────────────────────────────────────────
@@ -239,7 +239,7 @@ def narrate_violation(
           LLM_CALL,
           details={
             'rule_id': rule_id,
-            'model': 'gemini-1.5-flash',
+            'model': 'gemini-3.6-flash',
             'grounded': True,
             'prompt_length_chars': len(prompt)
           }

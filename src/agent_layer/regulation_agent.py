@@ -8,9 +8,4 @@ class RegulationAgent(BaseAgent):
     assigned_rules = ["DPDP-001", "DPDP-002", "DPDP-004", "DPDP-005", "DPDP-007"]
 
     def _execute(self, tenant_id: str, conn: psycopg.Connection) -> List[ViolationRecord]:
-        from .rule_loader import load_rules
-        records = []
-        rules = load_rules(self.name, conn)
-        for rule in rules:
-            records.extend(self._run_rule_dynamic(rule, tenant_id, conn))
-        return records
+        return self._execute_rules(tenant_id, conn)

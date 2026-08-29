@@ -3,13 +3,13 @@
   "instance_index": 0,
   "prediction": {
     "class": "CRITICAL",
-    "confidence": 0.4828152060508728,
+    "confidence": 0.493892103433609,
     "class_probabilities": {
       "COMPLIANT": 0.01,
-      "LOW": 0.473,
-      "MEDIUM": 0.021,
+      "LOW": 0.461,
+      "MEDIUM": 0.022000000000000002,
       "HIGH": 0.013000000000000001,
-      "CRITICAL": 0.483
+      "CRITICAL": 0.494
     }
   },
   "base_value": 0.1612,
@@ -38,14 +38,14 @@
     {
       "rank": 4,
       "feature": "max_prevalence_ratio",
-      "value": 0.06570000000000001,
+      "value": 0.081,
       "shap_value": -0.298,
       "direction": "negative"
     },
     {
       "rank": 5,
       "feature": "n_violations",
-      "value": 12.0,
+      "value": 13.0,
       "shap_value": -0.0836,
       "direction": "negative"
     },
@@ -73,14 +73,14 @@
     {
       "rank": 9,
       "feature": "n_critical_rules_fired",
-      "value": 2.0,
+      "value": 3.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
     {
       "rank": 10,
       "feature": "n_high_rules_fired",
-      "value": 8.0,
+      "value": 7.0,
       "shap_value": 0.0,
       "direction": "positive"
     },
@@ -94,7 +94,7 @@
     {
       "rank": 12,
       "feature": "minor_data_rule_fired",
-      "value": 0.0,
+      "value": 1.0,
       "shap_value": 0.0,
       "direction": "positive"
     },

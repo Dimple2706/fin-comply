@@ -103,14 +103,12 @@ REQUIRED_COLUMN_GROUPS: Dict[str, List[List[str]]] = {
     "system_inventory": [
         ["system_hash", "system_id"],
         ["tenant_id"],
-        ["system_name"],
         ["system_type"]
     ],
     "policies": [
         ["policy_hash", "policy_id"],
         ["tenant_id"],
-        ["policy_type"],
-        ["policy_name"]
+        ["policy_type"]
     ]
 }
 

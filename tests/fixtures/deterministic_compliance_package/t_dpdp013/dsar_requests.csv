@@ -1,0 +1,2 @@
+dsar_id,customer_id,tenant_id,request_type,submitted_date,acknowledged_date,sla_due_date,sla_breached,fulfilled_date,fulfillment_status,rejection_reason
+DS1,C1,t_dpdp013,access,2026-08-01,2026-08-02,2026-08-31,False,,pending,

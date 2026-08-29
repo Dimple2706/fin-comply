@@ -1,0 +1,2 @@
+customer_id,tenant_id,is_minor,data_principal_type,account_status,kyc_status,country,created_at
+C1,t_dpdp012,False,individual,active,verified,IN,2026-08-01

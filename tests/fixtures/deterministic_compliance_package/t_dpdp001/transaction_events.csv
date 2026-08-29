@@ -1,0 +1,2 @@
+event_id,customer_id,tenant_id,consent_id,event_type,processing_purpose,event_date,shared_with_third_party,third_party_id,is_cross_border,transfer_country
+TX1,C1,t_dpdp001,CON1,marketing_push,marketing,2026-08-15,True,SYS1,False,

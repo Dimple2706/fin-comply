@@ -1,0 +1,304 @@
+Current status
+Area	Status
+Issue 1: tenant validation	Core fix completed
+Issue 2: DSAR date fabrication	Main fix completed, edge cases remain
+Issue 3: guardian consent	Not fully completed
+Remaining 16-rule correctness	Several important problems remain
+Input dataset	Not valid as trusted ground truth
+Security	Critical issues remain
+Full test suite	Not healthy
+UI/API/PDF parity	Not proven
+
+
+Critical warning before pushing
+Do not run git add -A.
+The project currently contains these untracked repository archives:
+.git.zip — approximately 90 MB
+.git (2).zip — approximately 176 MB
+Do not commit either file. They may contain repository history and configuration.
+Also avoid committing these generated changes unless intentionally required:
+logs/audit.log.jsonl
+outputs/explanations/lime_explanation.json
+outputs/explanations/shap_local.json
+Other generated reports, plots and model outputs
+Before a public GitHub push, fix these security problems:
+A database password is hardcoded in [prepare_risk_features.py (line 43)](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\src\\modeling\\prepare_risk_features.py:43) and at least one test.
+
+Remove the credential from the code and Git history if possible.
+
+Rotate the database password if it is a real password.
+
+The .gitignore file appears to contain corrupted/null-byte text and should be recreated cleanly.
+
+Confirm .env is not staged:
+
+git status
+git diff --cached
+Issue 1: tenant isolation
+Status: Core behaviour is resolved.
+The loader now rejects:
+Missing tenant_id
+Blank or null tenant IDs
+Mixed tenants
+Wrong tenant
+Different letter casing
+Tenant mismatch in any individual row
+Invalid uploads return HTTP 400 before the database writer or analysis engine runs.
+Remaining work:
+Validate the tenant ID format and maximum length.
+Bind authenticated users to allowed tenant IDs.
+A user must not be allowed to submit another company’s tenant_id.
+Add an integration test proving Tenant A cannot replace, analyse or download Tenant B’s data.
+Issue 2: DSAR dates
+Status: The original date-fabrication problem is mostly resolved.
+The active CSV mapper and database writer now preserve genuine:
+submitted_date
+sla_due_date
+fulfilled_date
+They no longer generate those DSAR dates using date.today().
+Remaining DSAR problems:
+Missing or invalid fulfillment_status is silently converted to pending. It should be rejected.
+
+partially_fulfilled is accepted as an enum but is not properly validated.
+
+A rejected request can have uploaded fulfillment evidence silently discarded.
+
+Rules for acknowledged_date are not fully validated.
+
+The legacy [pipeline.py](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\src\\anonymization\\pipeline.py) still contains date fabrication. It should either be removed, clearly disabled or brought under the same strict contract.
+
+Acceptance criteria:
+Every DSAR status has a documented date contract.
+Invalid combinations return HTTP 400.
+No DSAR input value is silently changed or discarded.
+The same input produces identical output regardless of system date.
+Issue 3: DPDP-005 guardian consent
+Status: Not resolved.
+The active PostgreSQL rule is now migrated correctly to:
+guardian_consent_missing_or_invalid
+weight = 1.0
+violation_threshold = 1.0
+The SQL query now joins the referenced guardian consent record. However, the evaluator does not use the joined guardian status.
+In [signal_evaluator.py (line 16)](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\src\\agent_layer\\signal_evaluator.py:16), it checks:
+consent_status = row.get("consent_status")
+It should also check:
+guardian_consent_status
+I directly tested the current function:
+valid guardian          -> False
+orphan guardian hash    -> False  WRONG
+inactive guardian       -> False  WRONG
+no guardian             -> True
+adult                    -> False
+True means violation. Therefore, orphan and expired guardian records incorrectly pass.
+Required fix:
+Adult → no DPDP-005 finding.
+Minor without consent → violation.
+Minor with blank guardian hash → violation.
+Minor with a guardian hash that references no record → violation.
+Minor with inactive child consent → violation.
+Minor with inactive guardian consent → violation.
+Minor with valid active child and guardian records → pass.
+Multiple consent records → one finding per distinct invalid child consent.
+Also update [clauses.json (line 89)](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\data\\dpdp_kb\\clauses.json:89) to use the real signal ID instead of the generic S1.
+Issue 4: database writer silently changes the dataset
+Status: Critical and unresolved.
+The writer currently:
+Skips consent records with missing customers.
+Skips transactions with missing consent.
+Skips access/security/DSAR rows with missing customers.
+Changes an unknown third_party_hash to NULL.
+Continues analysis using the incomplete data.
+This can produce a false compliance report because uploaded evidence disappears before analysis.
+Required behaviour:
+Validate every cross-file relationship before deleting existing tenant data.
+Collect all errors.
+Return HTTP 400 with filename, row number and missing reference.
+Do not delete old tenant data.
+Do not skip rows.
+Do not convert unknown references to NULL.
+Do not start analysis on incomplete data.
+Relevant file: [db_writer.py (line 93)](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\src\\anonymization\\db_writer.py:93).
+Issue 5: evidence is still fabricated outside DSAR
+Status: Critical and unresolved.
+Examples in [field_mapper.py (line 216)](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\src\\anonymization\\field_mapper.py:216):
+Missing third party IDs can generate an invented hash.
+Missing cross-border destination can become US.
+Missing DPO contact can become d***@masked.local.
+Missing lifecycle expiry can be changed using today’s date.
+Missing erasure date can become today.
+Missing breach notification delay can become 0.
+Missing affected-user evidence can become minimal.
+Missing breached categories can become unspecified.
+Invalid enum values are often replaced with defaults.
+For audit evidence, the system must not invent a convenient value.
+Use three outcomes:
+Valid evidence → preserve it.
+Missing evidence necessary for the rule → NOT_ASSESSABLE.
+Logically invalid evidence → reject the upload.
+Issue 6: DPDP-007 and DPDP-008 multiply findings
+Status: Critical and unresolved.
+[query_builder.py (line 26)](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\src\\agent_layer\\query_builder.py:26) joins every access/security row to every system belonging to the tenant.
+Verified database example:
+Tenant	Real rows	Systems	Query rows
+QUICKLOAN DPDP-007	99 access logs	12	1,188
+QUICKLOAN DPDP-008	15 security events	12	180
+
+
+This corrupts:
+Finding counts
+Prevalence
+Risk score
+Report totals
+Explanations
+Fix:
+Do not join only through tenant_id.
+DPDP-008 can evaluate each security event directly.
+If DPDP-007 needs a system, add a real system_hash relationship to the input/schema and join using tenant_id + system_hash.
+Add tests proving that adding an unrelated system does not change finding counts.
+DPDP-007 has another problem: pii_fields_justified is expected inside additional_attributes, but the writer does not store additional_attributes. QUICKLOAN currently has zero stored justification evidence rows. The rule therefore cannot be assessed correctly.
+Issue 7: remaining rule/schema mismatches
+These must be reviewed individually:
+DPDP-009 expects dpo_contact_email, but the database stores dpo_contact_masked.
+DPDP-014 expects breach_confirmed_at, but the database stores breach_confirmed_date. The current alias is applied after evaluation, so the missing-field signal can incorrectly fire.
+DPDP-015 in PostgreSQL still uses the string approved_country_list, while the JSON file contains an actual country list.
+DPDP-006 cannot reliably represent whether consent specifically permitted third-party sharing.
+DPDP-010 can multiply DSAR and lifecycle records by joining only through the customer.
+Generic rule joins should include tenant equality, not just hash equality.
+For every rule, create a contract containing:
+Rule ID
+Required tables
+Exact evidence fields
+Join relationship
+PASS case
+VIOLATION case
+NOT_APPLICABLE case
+NOT_ASSESSABLE case
+Expected finding identity
+Then test all 16 contracts.
+Issue 8: rule failures are treated like passes
+Status: Critical and unresolved.
+BaseAgent.run() and dynamic rule execution catch exceptions and return empty findings.
+Therefore:
+Rule query fails → zero findings → compliance score may increase
+That is unsafe.
+Required behaviour:
+A failed rule must become NOT_ASSESSABLE or make the run fail.
+It must never be silently treated as PASS.
+The report must show the failed rule and error reason.
+Compliance score must not count failed rules as satisfied.
+Issue 9: compliance scoring inconsistencies
+Remaining problems:
+The top-level score counts only violated rules.
+The detailed report removes warnings from satisfied obligations.
+Therefore, the percentage and satisfied/warning counts can contradict each other.
+DPDP-007/008 duplicate findings distort prevalence and risk contributions.
+No explicit treatment exists for NOT_APPLICABLE and NOT_ASSESSABLE.
+Penalty exposure must be labelled as a maximum estimate—not an actual or certain fine.
+Scoring must be deterministic and tested using small, manually calculated fixtures.
+Issue 10: audit-run reproducibility
+evaluation_results stores:
+Tenant
+Result JSON
+Risk score
+Timestamp
+It does not provide a complete immutable audit identity.
+Add:
+audit_run_id
+Input snapshot hash
+Rule-set version/hash
+Clause-set version/hash
+Engine version
+Model hash
+Source-data row counts
+Validation summary
+Parent run ID for re-analysis
+Status: completed/failed/not-assessable
+The API, dashboard and PDF must all select the same audit_run_id, not independently select “the latest” result.
+Issue 11: authentication and tenant authorization
+Status: Critical security problem.
+The following endpoints have no authentication:
+/analyze
+/analyze/upload
+/report/pdf/{tenant_id}
+/governance/bias-report
+An attacker who knows a tenant ID may be able to replace or inspect another tenant’s data.
+Also, [auth.py (line 20)](C:\\Users\\Shravani Bhosale\\OneDrive\\Desktop\\dpdp_compliance\\src\\api\\auth.py:20) accepts any token beginning with:
+admin:
+reviewer:
+auditor:
+That is an authentication bypass.
+Required work:
+Remove prefix-based authentication.
+Require securely generated credentials.
+Store credential hashes, not plain API keys.
+Bind every user to authorised tenant IDs.
+Protect upload, analysis, reports and history endpoints.
+Add 401, 403 and cross-tenant tests.
+Add upload size limits and tenant ID format validation.
+Issue 12: hashing security
+Current concerns:
+A predictable default HMAC key is used if the environment variable is absent.
+Hashes are truncated to 12 hexadecimal characters.
+Client-supplied *_hash values are accepted without verifying they are genuine hashes.
+The canonical generator and runtime mapper use different default salts.
+Required work:
+Require a secret HMAC key at startup—no production default.
+Never log the key.
+Decide whether uploads accept raw IDs or pre-hashed IDs.
+If pre-hashed input remains supported, strictly validate format and trust boundary.
+Consider increasing hash length and migrating schema safely.
+Add stable join, collision and cross-tenant hash tests.
+Issue 13: tests are not trustworthy yet
+Problems:
+Several legacy tests import removed src.rules_engine modules, so the complete test suite does not collect.
+The DPDP-005 database test can use DB_NAME from the normal environment and mutate a real development database.
+It uses SQL f-strings instead of parameters.
+It is not reliably repeatable or self-cleaning.
+Focused passing tests do not prove all 16 rules work.
+Required setup:
+Provision a temporary isolated PostgreSQL database for integration tests.
+Apply schema and migrations automatically.
+Use parameterised SQL.
+Roll back each test.
+Never use the normal application database.
+Make the full suite collect and finish with zero errors.
+Add one complete API upload → database → rules → score → PDF parity test.
+Issue 14: supplied input package is not suitable as ground truth
+The supplied ZIP was structurally organised, but it is not reliable expected-answer data.
+Earlier audit totals found:
+720 customers
+908 consent records
+1,455 transactions
+155 purpose mismatches
+136 transactions before consent
+656 transactions after consent expiry
+60 transactions after withdrawal
+47 active/granted consents already expired
+Even the intended clean NEXUS tenant contained:
+51 transactions before consent
+227 after expiry
+16 after withdrawal
+The ZIP also lacks fields now required by the stricter system, including guardian-consent and DSAR fulfillment evidence.
+Create a new deterministic package with:
+Documented scenario for every tenant
+Expected finding count for each rule
+Expected record hashes
+Expected score
+Valid cross-file references
+A genuinely clean tenant with zero unintended violations
+A manifest such as expected_results.json
+Recommended order for your friend
+Remove secrets and fix repository hygiene.
+Finish DPDP-005 correctly.
+Add strict cross-file validation and eliminate skipped rows.
+Remove all evidence fabrication.
+Fix DPDP-007 and DPDP-008 joins.
+Align the remaining rule fields and database rules.
+Add NOT_APPLICABLE and NOT_ASSESSABLE.
+Make agents fail safely instead of returning empty results.
+Correct and formally test scoring.
+Create immutable audit runs.
+Secure authentication and tenant authorization.
+Generate trustworthy deterministic test data.
+Make the complete test suite pass.
+Prove API, dashboard and PDF parity.--

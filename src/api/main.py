@@ -5,11 +5,10 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # STARTUP
-    from src.governance.audit_logger import (
-      log_event, APP_STARTUP, MODEL_LOADED, 
-      MODEL_LOAD_FAILED
-    )
+    from src.anonymization.hasher import validate_hmac_secret_or_fail, check_database_migration_complete
+    validate_hmac_secret_or_fail()
+    check_database_migration_complete()
+    from src.governance.audit_logger import log_event, APP_STARTUP, MODEL_LOADED, MODEL_LOAD_FAILED
     
     startup_status = {}
     

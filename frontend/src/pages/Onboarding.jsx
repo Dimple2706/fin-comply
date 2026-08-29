@@ -365,8 +365,8 @@ export default function Onboarding({ onComplete }) {
                 <button
                   disabled={!isExistingReady || loading}
                   onClick={handleRunExisting}
-                  className={`w-full h-14 rounded-lg font-medium text-white transition-all flex items-center justify-center gap-2
-                    ${isExistingReady && !loading ? 'btn-gradient shadow-glow hover:opacity-90' : 'bg-elevated text-muted cursor-not-allowed border border-subtle'}`}
+                  className={`w-full h-14 rounded-lg font-medium transition-all flex items-center justify-center gap-2
+                    ${isExistingReady && !loading ? 'btn-gradient text-white shadow-glow hover:opacity-90' : 'bg-elevated text-muted cursor-not-allowed border border-subtle'}`}
                 >
                   {loading ? 'Evaluating Rules & Computing Score...' : 'Run Compliance Audit (Direct DB)'}
                 </button>
@@ -445,8 +445,8 @@ export default function Onboarding({ onComplete }) {
                   <button
                     disabled={!isUploadReady || loading}
                     onClick={handleRunUpload}
-                    className={`w-full h-14 rounded-lg font-medium text-white transition-all flex items-center justify-center gap-2
-                      ${isUploadReady && !loading ? 'btn-gradient shadow-glow hover:opacity-90' : 'bg-elevated text-muted cursor-not-allowed border border-subtle'}`}
+                    className={`w-full h-14 rounded-lg font-medium transition-all flex items-center justify-center gap-2
+                      ${isUploadReady && !loading ? 'btn-gradient text-white shadow-glow hover:opacity-90' : 'bg-elevated text-muted cursor-not-allowed border border-subtle'}`}
                   >
                     {loading ? 'Ingesting & Evaluating...' : 'Upload & Run Compliance Analysis'}
                   </button>

@@ -98,7 +98,7 @@
       "consent_status"
     ],
     "signal_mapping": {
-      "S1": "Minor without valid active guardian consent"
+      "guardian_consent_missing_or_invalid": "Minor without valid active guardian consent"
     },
     "penalty_tier": "TIER_1",
     "max_penalty_crore": 250,

@@ -9,6 +9,9 @@ import RemediationSection from '../components/dashboard/RemediationSection';
 import ViolationsSection from '../components/dashboard/ViolationsSection';
 import { downloadPdfReport } from '../services/api';
 
+const staticReportSuffix = Date.now().toString().slice(-6);
+const staticGeneratedTime = new Date().toLocaleString('en-GB');
+
 export default function Dashboard({ data, onReset }) {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
 
@@ -145,8 +148,8 @@ export default function Dashboard({ data, onReset }) {
             </button>
           </div>
           <div className="text-center text-caption text-muted">
-            <p className="font-mono mb-1">Report ID: {data.tenant_id}-{Date.now().toString().slice(-6)}</p>
-            <p>Generated: {new Date().toLocaleString('en-GB')}</p>
+            <p className="font-mono mb-1">Report ID: {data.tenant_id}-{staticReportSuffix}</p>
+            <p>Generated: {staticGeneratedTime}</p>
           </div>
         </motion.section>
       </main>

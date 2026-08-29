@@ -28,11 +28,72 @@ class BaseAgent(abc.ABC):
         pass
 
     def run(self, tenant_id: str, conn: psycopg.Connection) -> List[ViolationRecord]:
+        import logging
+        logger = logging.getLogger(self.__class__.__name__)
         try:
             return self._execute(tenant_id, conn)
         except Exception as e:
-            print(f"Error in {self.name} for tenant {tenant_id}: {e}")
-            return []
+            logger.error(f"Agent execution failure in {self.name}: {type(e).__name__}")
+            # Generate FAILED records for all assigned rules
+            records = []
+            for rule_id in self.assigned_rules:
+                records.append(self._make_record(
+                    rule_id=rule_id,
+                    rule_name=f"Rule {rule_id}",
+                    dpdp_section="Unknown",
+                    tenant_id=tenant_id,
+                    record_id="None",
+                    outcome="FAILED",
+                    rule_score=0.0,
+                    signals_fired=[],
+                    signal_reasons=["Agent execution failed: rule load/execution error."],
+                    severity="HIGH",
+                    risk_weight=0.5,
+                    penalty_crore=100,
+                    v_thresh=0.5,
+                    r_thresh=0.3,
+                    fields_triggered=[]
+                ))
+            return records
+
+    def _execute_rules(self, tenant_id: str, conn: psycopg.Connection) -> List[ViolationRecord]:
+        from .rule_loader import load_rules
+        import logging
+        logger = logging.getLogger(self.__class__.__name__)
+        records = []
+        try:
+            rules = load_rules(self.name, conn)
+        except Exception as e:
+            logger.error(f"Failed to load rules for agent {self.name}: {type(e).__name__}")
+            # propagate exception up to run() to trigger all-rules failure
+            raise e
+
+        for rule in rules:
+            try:
+                records.extend(self._run_rule_dynamic(rule, tenant_id, conn))
+            except Exception as e:
+                logger.error(
+                    f"[RULE_FAILURE] Rule {rule['rule_id']} failed during execution. Exception: {type(e).__name__}"
+                )
+                records.append(self._make_record(
+                    rule_id=rule['rule_id'],
+                    rule_name=rule['rule_name'],
+                    dpdp_section=rule['dpdp_section'],
+                    tenant_id=tenant_id,
+                    record_id="None",
+                    outcome="FAILED",
+                    rule_score=0.0,
+                    signals_fired=[],
+                    signal_reasons=["Rule execution failed due to an internal query or evaluation error."],
+                    severity=rule['severity'],
+                    risk_weight=rule['risk_weight'],
+                    penalty_crore=rule.get('max_penalty_crore', 100),
+                    v_thresh=rule['violation_threshold'],
+                    r_thresh=rule['risk_threshold'],
+                    fields_triggered=[]
+                ))
+        return records
+
 
     def _compute_rule_score(self, signals_fired: List[str], signal_weights: Dict[str, float]) -> float:
         total = sum(signal_weights[s] for s in signals_fired)
@@ -75,6 +136,8 @@ class BaseAgent(abc.ABC):
     def _run_rule_dynamic(self, rule: dict, tenant_id: str, conn) -> list:
         from .query_builder import build_query
         from .signal_evaluator import evaluate_all_signals
+        from .outcome_evaluator import determine_row_outcome
+        from .result_state import RuleOutcome
         import logging
 
         if not hasattr(self, 'logger'):
@@ -92,64 +155,93 @@ class BaseAgent(abc.ABC):
 
             signals = rule.get('evidence_signals', [])
             
+            if not rows:
+                # A rule must never use "zero findings" to mean NOT_APPLICABLE or PASS.
+                # If there are no rows, it is NOT_APPLICABLE due to no matching data.
+                record = self._make_record(
+                    rule_id=rule['rule_id'],
+                    rule_name=rule['rule_name'],
+                    dpdp_section=rule['dpdp_section'],
+                    tenant_id=tenant_id,
+                    record_id="None",
+                    outcome=RuleOutcome.NOT_APPLICABLE,
+                    rule_score=0.0,
+                    signals_fired=[],
+                    signal_reasons=["No matching data/records found to evaluate this rule."],
+                    severity=rule['severity'],
+                    risk_weight=rule['risk_weight'],
+                    penalty_crore=rule.get('max_penalty_crore', 100),
+                    v_thresh=rule['violation_threshold'],
+                    r_thresh=rule['risk_threshold'],
+                    fields_triggered=[]
+                )
+                return [record]
+            
             for row in rows:
                 signal_results, fired_fields = evaluate_all_signals(
                     rule['rule_id'], signals, row
                 )
                 
+                fired_signals = [s['signal_id'] for s in signals if signal_results.get(s['signal_id'], False)]
+                
+                outcome, reason = determine_row_outcome(
+                    rule['rule_id'],
+                    row,
+                    fired_signals,
+                    signals,
+                    rule['violation_threshold'],
+                    rule['risk_threshold']
+                )
+                
+                # Find a good record_id from row hash fields
+                record_id = None
+                if 'primary_hash' in row and row['primary_hash']:
+                    record_id = str(row['primary_hash']).strip()
+                else:
+                    for key in row.keys():
+                        if key.endswith('_hash') or key.endswith('_id'):
+                            if row[key]:
+                                record_id = str(row[key]).strip()
+                                break
+                if not record_id:
+                    record_id = "unknown"
+
+                    
                 score = sum(
                     s.get('weight', 0.0) for s in signals
                     if signal_results.get(s['signal_id'], False)
                 )
                 score = round(score, 4)
-                
-                outcome = self._classify_outcome(
-                    score,
-                    rule['violation_threshold'],
-                    rule['risk_threshold']
-                )
-                
-                if outcome != 'PASS':
-                    # Find a good record_id from row hash fields
-                    record_id = None
-                    if 'primary_hash' in row and row['primary_hash']:
-                        record_id = row['primary_hash']
-                    else:
-                        for key in row.keys():
-                            if key.endswith('_hash') or key.endswith('_id'):
-                                # prefer hash or id
-                                record_id = row[key]
-                                break
-                    if not record_id:
-                        record_id = "unknown"
-                        
-                    reasons = [s['description'] for s in signals if signal_results.get(s['signal_id'], False)]
-                    fired_signals = [s['signal_id'] for s in signals if signal_results.get(s['signal_id'], False)]
 
-                    record = self._make_record(
-                        rule_id=rule['rule_id'],
-                        rule_name=rule['rule_name'],
-                        dpdp_section=rule['dpdp_section'],
-                        tenant_id=tenant_id,
-                        record_id=record_id,
-                        outcome=outcome,
-                        rule_score=score,
-                        signals_fired=fired_signals,
-                        signal_reasons=reasons,
-                        severity=rule['severity'],
-                        risk_weight=rule['risk_weight'],
-                        penalty_crore=rule.get('max_penalty_crore', 100),
-                        v_thresh=rule['violation_threshold'],
-                        r_thresh=rule['risk_threshold'],
-                        fields_triggered=fired_fields
-                    )
-                    
-                    results.append(record)
+                reasons = [reason] if reason else [s['description'] for s in signals if signal_results.get(s['signal_id'], False)]
+                if not reasons:
+                    reasons = ["No violation detected"]
+
+                record = self._make_record(
+                    rule_id=rule['rule_id'],
+                    rule_name=rule['rule_name'],
+                    dpdp_section=rule['dpdp_section'],
+                    tenant_id=tenant_id,
+                    record_id=record_id,
+                    outcome=outcome,
+                    rule_score=score,
+                    signals_fired=fired_signals,
+                    signal_reasons=reasons,
+                    severity=rule['severity'],
+                    risk_weight=rule['risk_weight'],
+                    penalty_crore=rule.get('max_penalty_crore', 100),
+                    v_thresh=rule['violation_threshold'],
+                    r_thresh=rule['risk_threshold'],
+                    fields_triggered=fired_fields
+                )
+                results.append(record)
                     
         except Exception as e:
             conn.rollback()
             self.logger.error(
                 f"Dynamic eval failed for {rule['rule_id']}: {e}"
             )
-        
+            # A rule query/evaluation exception is left as clearly distinguishable
+            raise e
         return results
+

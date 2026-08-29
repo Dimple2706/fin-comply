@@ -110,7 +110,7 @@ def load_active_rule_metadata() -> Dict[str, dict]:
 # ─────────────────────────────────────────────────────────────
 
 def compute_risk_score(
-    violations: List[ViolationRecord],
+    all_violations: List[ViolationRecord],
     tenant_id: str,
     rule_metadata: Dict[str, dict]
 ) -> Tuple[float, str, Dict[str, float]]:
@@ -120,7 +120,9 @@ def compute_risk_score(
     counts loaded dynamically from PostgreSQL (E-01a fix).
     """
 
+    violations = [v for v in all_violations if v.outcome == "VIOLATION"]
     conn = get_connection()
+
 
     try:
         table_counts = {}
@@ -205,6 +207,12 @@ def compute_risk_score(
             )
             continue
 
+        # Deduplicate violations by record_id
+        unique_violations = {}
+        for rv in rule_violations:
+            if rv.record_id not in unique_violations:
+                unique_violations[rv.record_id] = rv
+        rule_violations = list(unique_violations.values())
         affected_rows = len(rule_violations)
 
         max_rule_score = max(
@@ -310,12 +318,17 @@ def compute_risk_score(
     # IMPORTANT:
     # No more hardcoded ALL_RULE_WEIGHTS.
     # Maximum possible weight is calculated from ACTIVE DB rules.
+    # Exclude NOT_APPLICABLE rules from the max possible denominator
+    not_applicable_rules = set()
+    for r_id in rule_metadata.keys():
+        records = [v for v in all_violations if v.rule_id == r_id]
+        if records and all(r.outcome == "NOT_APPLICABLE" for r in records):
+            not_applicable_rules.add(r_id)
+
     max_possible = sum(
-
-        metadata["risk_weight"]
-
-        for metadata
-        in rule_metadata.values()
+        meta["risk_weight"]
+        for r_id, meta in rule_metadata.items()
+        if r_id not in not_applicable_rules
     )
 
 
@@ -388,15 +401,9 @@ def run_compliance_analysis(
 
     # ── Load rules dynamically ───────────────────────────────
 
-    rule_metadata = (
-        load_active_rule_metadata()
-    )
-
-
-    total_obligations = len(
-        rule_metadata
-    )
-
+    all_rule_metadata = load_active_rule_metadata()
+    total_obligations = len(all_rule_metadata)
+    rule_metadata = {k: v for k, v in all_rule_metadata.items() if not k.startswith("POLICY-")}
 
     print(
         f"[orchestrator] active rules from DB = "
@@ -467,58 +474,42 @@ def run_compliance_analysis(
 
 
     # ── Step 2: Dynamic risk scoring ─────────────────────────
-
     risk_score, tier, contributions = (
-
         compute_risk_score(
-
-            violations_only,
-
+            all_violations,
             tenant_id,
-
             rule_metadata
         )
     )
 
-
     # ── Step 3: Compliance score ─────────────────────────────
+    # Group all_violations by rule_id to determine rule-level states
+    rule_states = {}
+    for r_id in rule_metadata.keys():
+        records = [v for v in all_violations if v.rule_id == r_id]
+        if any(r.outcome == "FAILED" for r in records):
+            rule_states[r_id] = "FAILED"
+        elif any(r.outcome == "VIOLATION" for r in records):
+            rule_states[r_id] = "VIOLATION"
+        elif any(r.outcome == "NOT_ASSESSABLE" for r in records):
+            rule_states[r_id] = "NOT_ASSESSABLE"
+        elif any(r.outcome == "PASS" for r in records):
+            rule_states[r_id] = "PASS"
+        else:
+            rule_states[r_id] = "NOT_APPLICABLE"
 
-    violated_rules = len({
+    violated_rules_count = sum(1 for s in rule_states.values() if s == "VIOLATION")
+    pass_rules_count = sum(1 for s in rule_states.values() if s == "PASS")
+    not_assessable_rules_count = sum(1 for s in rule_states.values() if s == "NOT_ASSESSABLE")
+    failed_rules_count = sum(1 for s in rule_states.values() if s == "FAILED")
+    not_applicable_rules_count = sum(1 for s in rule_states.values() if s == "NOT_APPLICABLE")
 
-        violation.rule_id
-
-        for violation
-        in violations_only
-
-        if violation.rule_id
-        in rule_metadata
-    })
-
-
-    if total_obligations > 0:
-
-        compliance_score = round(
-
-            max(
-
-                (
-                    total_obligations
-                    - violated_rules
-                )
-
-                / total_obligations
-
-                * 100,
-
-                0.0
-            ),
-
-            1
-        )
-
+    denom = pass_rules_count + violated_rules_count + not_assessable_rules_count + failed_rules_count
+    if denom > 0:
+        compliance_score = round((pass_rules_count / denom) * 100.0, 1)
     else:
+        compliance_score = 100.0
 
-        compliance_score = 0.0
 
 
     # ── Step 4: Agent breakdown ──────────────────────────────
@@ -745,7 +736,32 @@ def run_compliance_analysis(
             "model_version": "1.0",
             "model_sha256": _get_model_sha256(),
             "evaluated_at": datetime.now(timezone.utc).isoformat(),
-        }
+        },
+        "findings": [
+            {
+                "rule_id": f.rule_id,
+                "record_id": f.record_id,
+                "outcome": f.outcome,
+                "reason": f.signal_reasons[0] if f.signal_reasons else None
+            }
+            for f in all_violations
+        ],
+        "rule_execution_statuses": [
+            {
+                "rule_id": rule_id,
+                "status": (
+                    "FAILED" if any(f.rule_id == rule_id and f.outcome == "FAILED" for f in all_violations)
+                    else "NOT_ASSESSABLE" if any(f.rule_id == rule_id and f.outcome == "NOT_ASSESSABLE" for f in all_violations)
+                    else "COMPLETED"
+                ),
+                "error_message": next(
+                    (f.signal_reasons[0] for f in all_violations if f.rule_id == rule_id and f.outcome in ("FAILED", "NOT_ASSESSABLE") and f.signal_reasons),
+                    None
+                ),
+                "partial_results_discarded": any(f.rule_id == rule_id and f.outcome == "FAILED" for f in all_violations)
+            }
+            for rule_id in rule_metadata.keys()
+        ]
     }
 
 

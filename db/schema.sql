@@ -376,6 +376,8 @@ CREATE TABLE public.access_logs (
     access_outcome public.access_outcome NOT NULL,
     data_volume_accessed public.volume_band DEFAULT 'low'::public.volume_band NOT NULL,
     access_date date NOT NULL,
+    system_hash character(12),
+    pii_fields_justified boolean,
     CONSTRAINT chk_denied_no_pii CHECK (((access_outcome <> 'denied'::public.access_outcome) OR ((accessed_pii = false) AND (pii_fields_accessed IS NULL)))),
     CONSTRAINT chk_pii_fields_consistency CHECK (((accessed_pii = true) = ((pii_fields_accessed IS NOT NULL) AND ((pii_fields_accessed)::text <> ''::text))))
 );
@@ -401,6 +403,7 @@ CREATE TABLE public.consent_records (
     is_bundled boolean DEFAULT false NOT NULL,
     consent_channel public.consent_channel NOT NULL,
     guardian_consent_hash character(12),
+    third_party_sharing_permitted boolean,
     CONSTRAINT chk_bundled_channel CHECK (((is_bundled = false) OR (consent_channel = ANY (ARRAY['implicit'::public.consent_channel, 'pre_ticked'::public.consent_channel])))),
     CONSTRAINT chk_expiry_after_consent CHECK ((expiry_date > consent_date)),
     CONSTRAINT chk_notice_channel CHECK (((notice_provided = true) OR (consent_channel = ANY (ARRAY['implicit'::public.consent_channel, 'pre_ticked'::public.consent_channel])))),

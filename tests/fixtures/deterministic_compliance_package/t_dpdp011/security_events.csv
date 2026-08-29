@@ -1,0 +1,2 @@
+security_id,customer_id,tenant_id,pii_encrypted,encryption_type,breach_detected,breach_confirmed_date,notification_delay_hours,affected_user_count,data_categories_breached,security_audit_flag
+SEC1,C1,t_dpdp011,True,AES-256,False,,,0,,False

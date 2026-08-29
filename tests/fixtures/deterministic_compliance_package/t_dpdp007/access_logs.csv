@@ -1,0 +1,2 @@
+access_id,customer_id,tenant_id,employee_id,employee_role,accessed_pii,pii_fields_accessed,access_reason,access_outcome,data_volume_accessed,access_date,pii_fields_justified
+ACC1,C1,t_dpdp007,E1,collections_agent,True,name,loan_review,granted,bulk,2026-08-02,False
