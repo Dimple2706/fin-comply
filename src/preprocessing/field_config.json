@@ -192,7 +192,15 @@
     },
     "transfer_country": {
       "gate": "LEGAL", "action": "KEEP",
-      "reason": "DPDP S.16 — destination country evaluated against approved list (DPDP-015 S2)."
+      "reason": "DPDP S.16 — destination is required to identify the transfer and applicable notified restrictions."
+    },
+    "transfer_restriction_compliant": {
+      "gate": "LEGAL", "action": "KEEP",
+      "reason": "Recorded outcome of the organisation's assessment against applicable Central Government restrictions under DPDP S.16."
+    },
+    "transfer_assessment_reference": {
+      "gate": "LEGAL", "action": "KEEP",
+      "reason": "Evidence reference supporting the S.16 transfer assessment; avoids inferring legality from a private country list."
     },
     "amount": {
       "gate": "DROP", "action": "DROP",
@@ -230,7 +238,7 @@
     },
     "employee_role": {
       "gate": "LOGIC", "action": "KEEP",
-      "reason": "Primary input for unauthorised access detection. DPDP-013 S1."
+      "reason": "Descriptive audit context only. Role names are not treated as a universal legal authorization allowlist."
     },
     "accessed_pii": {
       "gate": "LOGIC", "action": "KEEP",
@@ -246,7 +254,11 @@
     },
     "access_outcome": {
       "gate": "LOGIC", "action": "KEEP",
-      "reason": "Denied attempts are security signals. DPDP-013 S3."
+      "reason": "Records whether the technical control granted or denied the attempt; a denied attempt is not treated as a completed unauthorised disclosure."
+    },
+    "access_authorized": {
+      "gate": "LEGAL", "action": "KEEP",
+      "reason": "Explicit tenant authorization evidence used by DPDP-013. NULL produces NOT_ASSESSABLE."
     },
     "data_volume_accessed": {
       "gate": "GATE_3_CANDIDATE", "action": "KEEP",
@@ -352,7 +364,7 @@
     "notification_delay": {
       "gate": "LEGAL", "action": "KEEP",
       "redacted_name": "notification_delay_hours",
-      "reason": "Direct violation metric — exceeding 72h threshold is DPDP-014 S2. Exact value required."
+      "reason": "Hours taken to furnish prescribed detailed breach information to the Board. More than 72 hours triggers DPDP-014 under Rule 7."
     },
     "affected_user_count": {
       "gate": "LEGAL", "action": "BUCKET",
@@ -429,14 +441,18 @@
       "gate": "LEGAL", "action": "KEEP",
       "reason": "DPDP S.14 direct compliance check. DPDP-009 S1."
     },
+    "is_significant_data_fiduciary": {
+      "gate": "LEGAL", "action": "KEEP",
+      "reason": "Explicit Section 10 applicability evidence. NULL means the SDF-only rule is not assessable; designation is never inferred."
+    },
     "data_protection_officer_assigned": {
       "gate": "LEGAL", "action": "KEEP",
       "redacted_name": "dpo_assigned",
-      "reason": "DPDP S.10 SDF obligation. Governance gap signal. DPDP-009 S2."
+      "reason": "DPDP S.10 additional obligation for a designated Significant Data Fiduciary."
     },
     "dpo_contact_email": {
       "gate": "LOGIC", "action": "KEEP",
-      "reason": "Masked to first char + domain. Reachability of grievance mechanism. DPDP-009 S3.",
+      "reason": "Masked to first char + domain. Required when a DPO is explicitly assigned.",
       "note": "Mask pattern: first_char + *** + @domain. Applied during redaction, not dropped."
     },
     "audit_frequency": {

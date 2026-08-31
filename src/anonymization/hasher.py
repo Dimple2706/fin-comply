@@ -59,12 +59,12 @@ def validate_hash_string(h: str) -> bool:
 def check_database_migration_complete():
     # If ENV = "production", query DB schema directly to verify customer_hash has varchar(67)+ width
     if os.getenv("ENV") == "production":
-        import psycopg2
+        import psycopg
         db_url = os.getenv("DATABASE_URL")
         if not db_url:
             raise RuntimeError("Fatal: DATABASE_URL is required in production.")
         try:
-            conn = psycopg2.connect(db_url)
+            conn = psycopg.connect(db_url)
             try:
                 with conn.cursor() as cur:
                     cur.execute("""

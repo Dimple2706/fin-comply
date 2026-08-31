@@ -378,6 +378,7 @@ CREATE TABLE public.access_logs (
     access_date date NOT NULL,
     system_hash character(12),
     pii_fields_justified boolean,
+    access_authorized boolean,
     CONSTRAINT chk_denied_no_pii CHECK (((access_outcome <> 'denied'::public.access_outcome) OR ((accessed_pii = false) AND (pii_fields_accessed IS NULL)))),
     CONSTRAINT chk_pii_fields_consistency CHECK (((accessed_pii = true) = ((pii_fields_accessed IS NOT NULL) AND ((pii_fields_accessed)::text <> ''::text))))
 );
@@ -492,6 +493,7 @@ ALTER TABLE public.dsar_requests OWNER TO postgres;
 CREATE TABLE public.governance_config (
     tenant_id character varying(32) NOT NULL,
     tenant_name character varying(128) NOT NULL,
+    is_significant_data_fiduciary boolean,
     grievance_endpoint_available boolean DEFAULT false NOT NULL,
     dpo_assigned boolean DEFAULT false NOT NULL,
     dpo_contact_masked character varying(64),
@@ -510,6 +512,8 @@ ALTER TABLE public.governance_config OWNER TO postgres;
 --
 
 COMMENT ON TABLE public.governance_config IS 'Tenant-level governance state. One row per client. Anchor for all FK references to tenant_id.';
+
+COMMENT ON COLUMN public.governance_config.is_significant_data_fiduciary IS 'Explicit applicability evidence for additional Significant Data Fiduciary duties under DPDP Act Section 10. NULL means not assessable; it must never be inferred from company size or risk.';
 
 
 --
@@ -614,6 +618,8 @@ CREATE TABLE public.transaction_events (
     third_party_hash character(12),
     is_cross_border boolean DEFAULT false NOT NULL,
     transfer_country character(2),
+    transfer_restriction_compliant boolean,
+    transfer_assessment_reference character varying(256),
     CONSTRAINT chk_cross_border_country CHECK (((is_cross_border = false) OR (transfer_country IS NOT NULL))),
     CONSTRAINT chk_domestic_no_country CHECK (((is_cross_border = true) OR (transfer_country IS NULL))),
     CONSTRAINT chk_third_party_id CHECK (((shared_with_third_party = false) OR (third_party_hash IS NOT NULL)))

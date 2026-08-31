@@ -108,6 +108,7 @@ def generate_single_tenant(profile: dict):
     gov_rows = [{
         "tenant_id":                    tenant_id,
         "tenant_name":                  tenant_name,
+        "is_significant_data_fiduciary": profile["is_significant_data_fiduciary"],
         "grievance_endpoint_available": profile["grievance_endpoint"],
         "dpo_assigned":                 profile["dpo_assigned"],
         "dpo_contact_masked":           profile["dpo_contact"],
@@ -169,6 +170,11 @@ def generate_single_tenant(profile: dict):
     for i, (ptype, pname, val, unit, active) in enumerate(policy_defs, 1):
         raw_id = uid("POL", i)
         eff = rand_date(730, 180)
+        policy_text = {
+            "retention": "purpose_and_legal_basis",
+            "consent": "explicit",
+            "encryption": "AES-256",
+        }.get(ptype)
         pol_rows.append({
             "policy_hash":          h(raw_id, tenant_id),
             "tenant_id":            tenant_id,
@@ -176,7 +182,7 @@ def generate_single_tenant(profile: dict):
             "policy_name":          pname,
             "policy_value_numeric": val,
             "policy_value_unit":    unit,
-            "policy_value_text":    None,
+            "policy_value_text":    policy_text,
             "effective_date":       eff,
             "last_updated":         eff,
             "is_active":            active,
@@ -271,6 +277,7 @@ def generate_single_tenant(profile: dict):
                 "is_bundled":            is_bundled,
                 "consent_channel":       channel,
                 "guardian_consent_hash": None,
+                "third_party_sharing_permitted": True,
             })
             cust_consents[raw_cid].append({
                 "raw_id": raw_con_id,
@@ -312,11 +319,14 @@ def generate_single_tenant(profile: dict):
 
             is_cb = False
             country = None
+            restriction_compliant = None
+            assessment_reference = None
             if is_tp:
                 is_cb = random.random() < 0.25
                 if is_cb:
                     country = wc(["US","AE","GB","SG"], [0.4, 0.3, 0.2, 0.1])
-                    seed_v("cross_border_no_auth", raw_eid)
+                    restriction_compliant = not seed_v("cross_border_no_auth", raw_eid)
+                    assessment_reference = f"SYNTH-TRANSFER-{tenant_id}-{raw_eid}"
 
             tp_hash = random.choice(tp_hashes) if (is_tp and tp_hashes) else (tp_hashes[0] if tp_hashes else None)
             if is_tp and not tp_hash:
@@ -334,6 +344,8 @@ def generate_single_tenant(profile: dict):
                 "third_party_hash":        tp_hash if is_tp else None,
                 "is_cross_border":         is_cb,
                 "transfer_country":        country,
+                "transfer_restriction_compliant": restriction_compliant,
+                "transfer_assessment_reference": assessment_reference,
             })
     write_csv(os.path.join(out_dir, "transaction_events.csv"), tx_rows)
     print(f"  [OK] transaction_events.csv ({len(tx_rows)} rows)")
@@ -348,7 +360,7 @@ def generate_single_tenant(profile: dict):
 
         role   = wc(["collections_agent","customer_support","engineer"], [0.50, 0.30, 0.20]) if unauth else random.choice(EMPLOYEE_ROLES)
         reason = random.choice(ROLE_REASONS[role])
-        outcome = wc(["granted","denied"], [0.55, 0.45]) if unauth else "granted"
+        outcome = "granted"
 
         pii_fields = [] if outcome == "denied" else (
             random.sample(PII_CATEGORIES, k=random.randint(1, 3)) if unauth
@@ -357,7 +369,8 @@ def generate_single_tenant(profile: dict):
         accessed = len(pii_fields) > 0
         pii_str  = ",".join(pii_fields) if accessed else None
 
-        if accessed and set(pii_fields) - set(ROLE_PII.get(role, [])):
+        pii_scope_justified = not (accessed and set(pii_fields) - set(ROLE_PII.get(role, [])))
+        if not pii_scope_justified:
             seed_v("pii_over_collection", raw_aid)
 
         acc_rows.append({
@@ -372,6 +385,9 @@ def generate_single_tenant(profile: dict):
             "access_outcome":       outcome,
             "data_volume_accessed": "medium" if accessed else "low",
             "access_date":          rand_date(180, 1),
+            "system_hash":          random.choice(sys_rows)["system_hash"],
+            "pii_fields_justified": pii_scope_justified if accessed else None,
+            "access_authorized":    (not unauth) if accessed else None,
         })
     write_csv(os.path.join(out_dir, "access_logs.csv"), acc_rows)
     print(f"  [OK] access_logs.csv ({len(acc_rows)} rows)")
@@ -531,6 +547,7 @@ ALL_PROFILES = [
         "n_customers":      60,
         "seed":             101,
         "minor_ratio":      0.02,
+        "is_significant_data_fiduciary": False,
         "dpo_assigned":     False,
         "grievance_endpoint": False,
         "dpo_contact":      None,
@@ -562,6 +579,7 @@ ALL_PROFILES = [
         "n_customers":      120,
         "seed":             202,
         "minor_ratio":      0.01,
+        "is_significant_data_fiduciary": False,
         "dpo_assigned":     True,
         "grievance_endpoint": True,
         "dpo_contact":      "c***@payflex.in",
@@ -593,6 +611,7 @@ ALL_PROFILES = [
         "n_customers":      200,
         "seed":             303,
         "minor_ratio":      0.00,
+        "is_significant_data_fiduciary": True,
         "dpo_assigned":     True,
         "grievance_endpoint": True,
         "dpo_contact":      "d***@wealthnest.in",
@@ -624,6 +643,7 @@ ALL_PROFILES = [
         "n_customers":      90,
         "seed":             404,
         "minor_ratio":      0.06,
+        "is_significant_data_fiduciary": False,
         "dpo_assigned":     False,
         "grievance_endpoint": False,
         "dpo_contact":      None,
@@ -655,6 +675,7 @@ ALL_PROFILES = [
         "n_customers":      250,
         "seed":             505,
         "minor_ratio":      0.00,
+        "is_significant_data_fiduciary": True,
         "dpo_assigned":     True,
         "grievance_endpoint": True,
         "dpo_contact":      "d***@nexusneobank.in",

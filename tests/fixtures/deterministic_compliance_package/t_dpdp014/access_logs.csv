@@ -1,2 +1,2 @@
-access_id,customer_id,tenant_id,employee_id,employee_role,accessed_pii,pii_fields_accessed,access_reason,access_outcome,data_volume_accessed,access_date,pii_fields_justified
-ACC1,C1,t_dpdp014,E1,compliance_officer,True,name,loan_review,granted,low,2026-08-02,True
+access_id,customer_id,tenant_id,employee_id,employee_role,accessed_pii,pii_fields_accessed,access_reason,access_outcome,data_volume_accessed,access_date,pii_fields_justified,access_authorized
+ACC1,C1,t_dpdp014,E1,compliance_officer,True,name,loan_review,granted,low,2026-08-02,True,True

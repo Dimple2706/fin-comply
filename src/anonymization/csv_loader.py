@@ -119,8 +119,7 @@ DROP_COLUMNS: Dict[str, List[str]] = {
     "customer_master": ["name", "age", "gender", "email", "phone", "address", "dob"],
     "transaction_events": ["account", "device_id", "ip_address"],
     "data_lifecycle": ["data_deleted", "data_retained"],
-    "governance_config": [],
-    "policies": ["policy_value_text"]
+    "governance_config": []
 }
 
 def validate_csv_directory(csv_dir: Path) -> Dict[str, Any]:

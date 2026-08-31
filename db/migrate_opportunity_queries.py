@@ -22,7 +22,7 @@ def migrate():
     port = os.getenv("DB_PORT", "5432")
     dbname = os.getenv("DB_NAME", "compliance_db")
     user = os.getenv("DB_USER", "postgres")
-    password = os.getenv("DB_PASSWORD", "mysql@1703")
+    password = os.getenv("DB_PASSWORD")
 
     with psycopg.connect(
         host=host,

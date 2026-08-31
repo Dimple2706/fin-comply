@@ -15,12 +15,18 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import Response
 
 from src.governance.audit_logger import log_event, RULE_APPROVED, RULE_REJECTED
-from src.api.auth import require_admin, require_reviewer, require_authenticated, AuthUser, verify_tenant_access, authenticate_user
+from src.api.auth import (
+    require_admin, require_reviewer, require_authenticated,
+    AuthUser, verify_tenant_access, authenticate_user,
+    create_user_in_db, get_user_by_username, verify_password, create_access_token,
+)
 
 from src.api.schemas import (
     AnalyzeRequest, AnalyzeResponse, ViolationItem,
     FullExplanation, SignalDetail, AgentBreakdown, RemediationItem,
+    UserRegisterRequest, UserLoginRequest, TokenResponse, UserPublic,
 )
+from src.legal_context import build_regulatory_context
 from src.anonymization.csv_loader import load_tenant_csvs, TenantValidationError, MissingColumnError
 from src.anonymization.field_mapper import (
     anonymize_dataframe,
@@ -44,7 +50,7 @@ DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_PORT = os.getenv('DB_PORT', '5432')
 DB_NAME = os.getenv('DB_NAME', 'tenant_db')
 DB_USER = os.getenv('DB_USER', 'postgres')
-DB_PASSWORD = os.getenv('DB_PASSWORD')   # Must be set in .env Ã¢â‚¬â€ no hardcoded fallback
+DB_PASSWORD = os.getenv('DB_PASSWORD')   # Must be set in .env - no hardcoded fallback
 
 router = APIRouter()
 
@@ -219,9 +225,9 @@ def resolve_audit_run_id(tenant_id: str, audit_run_id: Optional[str], conn) -> s
             return resolved_id
 
 
-# ─────────────────────────────────────────────────────────────
-# SHARED HELPERS — used by both /analyze and /analyze/upload
-# ─────────────────────────────────────────────────────────────
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+# SHARED HELPERS ΓÇö used by both /analyze and /analyze/upload
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 
 def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run_id: str = None, run_status: str = "completed") -> dict:
@@ -236,7 +242,7 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run
 
     display_name = tenant_name or tenant_id
 
-    # ── Executive Summary (fail-safe) ──
+    # ΓöÇΓöÇ Executive Summary (fail-safe) ΓöÇΓöÇ
     try:
         executive_summary = generate_executive_summary(
             tenant_id=tenant_id,
@@ -257,7 +263,7 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run
         e for e in enriched if e.outcome == "VIOLATION"
     ]
 
-    # ── Group violations by rule_id ──
+    # ΓöÇΓöÇ Group violations by rule_id ΓöÇΓöÇ
     raw_violations = analysis_result.get("violations", [])
     # Build a lookup: rule_id -> list of raw violation dicts
     raw_by_rule: dict[str, list] = {}
@@ -330,7 +336,7 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run
                 description=sig_def.get("description", s.get("description", "")),
                 weight=s.get("weight", 0.0),
                 fired=s.get("fired", False),
-                reason=s.get("reason", "—"),
+                reason=s.get("reason", "ΓÇö"),
                 signal_contribution=round(contrib, 4),
                 phi=round(contrib, 4),
             ))
@@ -428,7 +434,9 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run
     comp_score = analysis_result.get("compliance_score") or {}
     violated = comp_score.get("violated_obligations", 0)
     failed = comp_score.get("failed_obligations", 0)
-    failed_rules_count = violated + failed
+    # Execution failures are not compliance violations. Keep them separate so
+    # callers can distinguish a proven violation from a rule that did not run.
+    failed_rules_count = failed
     not_assessable = comp_score.get("not_assessable_obligations", 0)
     
     outcome_count_by_state = {
@@ -443,6 +451,8 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run
     return {
         "tenant_id": tenant_id,
         "total_obligations": int(analysis_result.get("total_obligations", 0)),
+        "internal_control_count": int(analysis_result.get("internal_control_count", 0)),
+        "internal_controls": analysis_result.get("internal_controls"),
         "unique_rules_violated": len(violation_items),
         "total_violation_occurrences": sum(
             v.occurrence_count for v in violation_items
@@ -466,7 +476,12 @@ def _build_full_response(analysis_result: dict, tenant_name: str = "", audit_run
         "failed_rules_count": failed_rules_count,
         "not_assessable_rules_count": not_assessable,
         "outcome_count_by_state": outcome_count_by_state,
-        "disclaimer": "Maximum statutory exposure estimate — not an actual or certain fine.",
+        "regulatory_context": build_regulatory_context(),
+        "disclaimer": (
+            "Maximum statutory exposure estimate, not an actual or certain fine. "
+            "Automated evidence-based decision support only; not legal advice, "
+            "regulatory certification, or a Board determination."
+        ),
     }
 
 def validate_dataset_hash_version(mapped_data: dict):
@@ -491,16 +506,90 @@ def validate_dataset_hash_version(mapped_data: dict):
         )
 
 
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼
 # ENDPOINTS
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼├—┬ó├óΓé¼┬¥├óΓÇÜ┬¼
 
 @router.get("/health")
 def health_check():
     return {
         "status": "running",
-        "service": "Fin-Comply Ã¢â‚¬â€ DPDP Compliance Engine"
+        "service": "Fin-Comply ├—┬ó├óΓÇÜ┬¼├óΓé¼┬¥ DPDP Compliance Engine"
     }
+
+
+
+# -- Auth Endpoints -----------------------------------------------------------
+
+@router.post("/auth/register", response_model=UserPublic, status_code=201)
+def register_user(body: UserRegisterRequest):
+    """
+    Register a new user account linked to their company's tenant.
+    Returns the created user's public profile (no password hash).
+    """
+    row = create_user_in_db(
+        name=body.name,
+        email=body.email,
+        username=body.username,
+        password=body.password,
+        tenant_id=body.tenant_id,
+        tenant_name=body.tenant_name,
+    )
+    tenants = list(row.get("authorized_tenants") or [])
+    return UserPublic(
+        id=row["id"],
+        name=row["name"],
+        email=row["email"],
+        username=row["username"],
+        role=row["role"],
+        tenant_id=tenants[0] if tenants else None,
+        created_at=str(row.get("created_at", "")),
+    )
+
+
+@router.post("/auth/login", response_model=TokenResponse)
+def login_user(body: UserLoginRequest):
+    """
+    Authenticate with username + password, receive a signed JWT.
+    """
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Incorrect username or password.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    user_row = get_user_by_username(body.username)
+    if not user_row:
+        raise credentials_exception
+    if not verify_password(body.password, user_row["password_hash"]):
+        raise credentials_exception
+
+    token = create_access_token(data={"sub": user_row["username"]})
+    tenants = list(user_row.get("authorized_tenants") or [])
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        username=user_row["username"],
+        name=user_row["name"],
+        role=user_row["role"],
+        tenant_id=tenants[0] if tenants else None,
+    )
+
+
+@router.get("/auth/me", response_model=UserPublic)
+def get_current_user(current_user: AuthUser = Depends(authenticate_user)):
+    """
+    Returns the authenticated user's public profile.
+    """
+    tenants = list(current_user.authorized_tenants or [])
+    return UserPublic(
+        id=current_user.id,
+        name=current_user.name,
+        email=current_user.email,
+        username=current_user.username,
+        role=current_user.role,
+        tenant_id=tenants[0] if tenants else None,
+    )
+
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 def analyze_tenant(
@@ -607,6 +696,8 @@ def analyze_tenant(
                     "tenant_id": response["tenant_id"],
                     "tenant_name": tenant_name or response["tenant_id"],
                     "total_obligations": response["total_obligations"],
+                    "internal_control_count": response.get("internal_control_count"),
+                    "internal_controls": response.get("internal_controls"),
                     "unique_rules_violated": response["unique_rules_violated"],
                     "total_violation_occurrences": response["total_violation_occurrences"],
                     "risk_score": response["risk_score"],
@@ -678,7 +769,7 @@ async def analyze_upload(
 ):
     verify_tenant_access(tenant_id, current_user)
     
-    # ── Upload requests size limits ───────────────────────
+    # ΓöÇΓöÇ Upload requests size limits ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB per file
     uploaded_file_map = {
         "governance_config.csv": governance_config,
@@ -765,7 +856,7 @@ async def analyze_upload(
 
     except Exception as validation_err:
         # Determine status: Validation errors make the run NOT_ASSESSABLE or FAILED
-        status = "not_assessable" if isinstance(validation_err, (TenantValidationError, MissingColumnError, DsarValidationError, EnumValidationError, GovernanceValidationError, TransactionValidationError, ConsentValidationError, SecurityEventValidationError, SystemInventoryValidationError, LifecycleValidationError, CrossFileValidationError)) else "failed"
+        run_status_val = "not_assessable" if isinstance(validation_err, (TenantValidationError, MissingColumnError, DsarValidationError, EnumValidationError, GovernanceValidationError, TransactionValidationError, ConsentValidationError, SecurityEventValidationError, SystemInventoryValidationError, LifecycleValidationError, CrossFileValidationError)) else "failed"
         
         # Save error info
         validation_summary = {"error": str(validation_err)}
@@ -788,7 +879,7 @@ async def analyze_upload(
                     cur_err.execute(
                         "INSERT INTO audit_runs (audit_run_id, tenant_id, input_snapshot_hash, rule_set_hash, clause_set_hash, engine_version, model_hash, source_data_row_counts, validation_summary, status, parent_audit_run_id) "
                         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                        (audit_run_id, tenant_id, "", rule_set_hash, clause_set_hash, engine_version, model_hash, "{}", json.dumps(validation_summary), status, parent_audit_run_id)
+                        (audit_run_id, tenant_id, "", rule_set_hash, clause_set_hash, engine_version, model_hash, "{}", json.dumps(validation_summary), run_status_val, parent_audit_run_id)
                     )
                 conn_err.commit()
         except Exception:
@@ -865,6 +956,8 @@ async def analyze_upload(
             "tenant_id": response["tenant_id"],
             "tenant_name": tenant_name,
             "total_obligations": response["total_obligations"],
+            "internal_control_count": response.get("internal_control_count"),
+            "internal_controls": response.get("internal_controls"),
             "unique_rules_violated": response["unique_rules_violated"],
             "total_violation_occurrences": response["total_violation_occurrences"],
             "risk_score": response["risk_score"],
@@ -938,9 +1031,9 @@ def download_pdf(
         raise HTTPException(status_code=500, detail="Failed to generate PDF report")
 
 
-# ─────────────────────────────────────────────────────────────
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 # RULES MANAGEMENT ENDPOINTS (SECURED WITH RBAC - Issue E-05)
-# ─────────────────────────────────────────────────────────────
+# ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 @router.get("/rules")
 def list_rules(
@@ -1245,4 +1338,3 @@ def get_report_history(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-

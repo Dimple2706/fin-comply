@@ -3,8 +3,8 @@
     "rule_id": "POLICY-001",
     "clause_id": "POLICY-001",
     "rule_name": "Retention Policy Compliance",
-    "dpdp_section": "Section 8(7)",
-    "description": "Validates that a tenant has an active retention policy and that the declared retention period does not exceed the 730-day limit permitted under DPDP.",
+    "dpdp_section": "Internal control aligned with Section 8(7)",
+    "description": "Internal readiness check that validates whether the tenant maintains an active retention policy. It does not impose a universal statutory retention duration.",
     "severity": "MEDIUM",
     "risk_weight": 0.55,
     "check_type": "weighted_evidence",
@@ -15,42 +15,26 @@
     "evidence_signals": [
       {
         "signal_id": "S1",
-        "field": "policy_type",
-        "operator": "equals",
-        "value": "retention",
-        "weight": 0.20,
-        "description": "No retention policy type exists for this tenant"
-      },
-      {
-        "signal_id": "S2",
         "field": "is_active",
         "operator": "equals",
         "value": false,
-        "weight": 0.40,
-        "description": "Retention policy exists but is marked inactive — data is unprotected by any active policy"
-      },
-      {
-        "signal_id": "S3",
-        "field": "policy_value_numeric",
-        "operator": "greater_than",
-        "value": 730,
-        "weight": 0.40,
-        "description": "Declared retention period exceeds 730 days — beyond the maximum window permitted under DPDP Section 8(7)"
+        "weight": 1.0,
+        "description": "The tenant's retention policy is inactive"
       }
     ],
-    "violation_threshold": 0.55,
-    "risk_threshold": 0.30,
-    "recurrence_bonus": 0.10,
+    "violation_threshold": 1.0,
+    "risk_threshold": 0.5,
+    "recurrence_bonus": 0.1,
     "enabled": true
   },
   {
     "rule_id": "POLICY-002",
     "clause_id": "POLICY-002",
     "rule_name": "Encryption Policy Compliance",
-    "dpdp_section": "Section 8(5)",
-    "description": "Validates that an active encryption policy exists and that the declared encryption standard meets minimum DPDP security requirements — weak or deprecated algorithms are a direct violation.",
+    "dpdp_section": "Internal control aligned with Section 8(5)",
+    "description": "Internal readiness check for an active encryption policy and the policy's declared algorithm. This is reported separately from statutory DPDP findings.",
     "severity": "HIGH",
-    "risk_weight": 0.80,
+    "risk_weight": 0.8,
     "check_type": "weighted_evidence",
     "assigned_agent": "policy_agent",
     "primary_table": "policies",
@@ -62,20 +46,26 @@
         "field": "is_active",
         "operator": "equals",
         "value": false,
-        "weight": 0.40,
-        "description": "Encryption policy is inactive — personal data may be stored or transmitted without encryption"
+        "weight": 0.4,
+        "description": "Encryption policy is inactive \u2014 personal data may be stored or transmitted without encryption"
       },
       {
         "signal_id": "S2",
         "field": "policy_value_text",
         "operator": "in",
-        "value": ["none", "md5", "sha1", "des", "rc4"],
-        "weight": 0.60,
-        "description": "Declared encryption standard is weak or deprecated — does not meet DPDP Section 8(5) security obligations"
+        "value": [
+          "none",
+          "md5",
+          "sha1",
+          "des",
+          "rc4"
+        ],
+        "weight": 0.6,
+        "description": "The internal encryption policy declares a weak or non-encryption algorithm"
       }
     ],
-    "violation_threshold": 0.50,
-    "risk_threshold": 0.30,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.3,
     "recurrence_bonus": 0.15,
     "enabled": true
   },
@@ -83,8 +73,8 @@
     "rule_id": "POLICY-003",
     "clause_id": "POLICY-003",
     "rule_name": "Consent Mechanism Policy",
-    "dpdp_section": "Section 6",
-    "description": "Validates that an active consent mechanism policy exists and that the declared consent channel is compliant — implicit, pre-ticked, inferred or bundled channels are prohibited under Section 6.",
+    "dpdp_section": "Internal control aligned with Section 6",
+    "description": "Internal readiness check for an active consent mechanism policy and a clear affirmative consent channel. This is reported separately from statutory DPDP findings.",
     "severity": "HIGH",
     "risk_weight": 0.75,
     "check_type": "weighted_evidence",
@@ -98,21 +88,26 @@
         "field": "is_active",
         "operator": "equals",
         "value": false,
-        "weight": 0.40,
-        "description": "Consent mechanism policy is inactive — no governing policy controls how consent is collected"
+        "weight": 0.4,
+        "description": "Consent mechanism policy is inactive \u2014 no governing policy controls how consent is collected"
       },
       {
         "signal_id": "S2",
         "field": "policy_value_text",
         "operator": "in",
-        "value": ["implicit", "pre_ticked", "inferred", "bundled"],
-        "weight": 0.60,
-        "description": "Declared consent channel is non-compliant — implicit, pre-ticked, inferred and bundled consent are void under DPDP Section 6"
+        "value": [
+          "implicit",
+          "pre_ticked",
+          "inferred",
+          "bundled"
+        ],
+        "weight": 0.6,
+        "description": "The internal policy permits a channel that does not demonstrate clear affirmative consent"
       }
     ],
-    "violation_threshold": 0.50,
-    "risk_threshold": 0.30,
-    "recurrence_bonus": 0.10,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.3,
+    "recurrence_bonus": 0.1,
     "enabled": true
   }
 ]

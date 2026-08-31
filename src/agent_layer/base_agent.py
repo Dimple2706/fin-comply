@@ -156,18 +156,27 @@ class BaseAgent(abc.ABC):
             signals = rule.get('evidence_signals', [])
             
             if not rows:
-                # A rule must never use "zero findings" to mean NOT_APPLICABLE or PASS.
-                # If there are no rows, it is NOT_APPLICABLE due to no matching data.
+                missing_required_policy = rule['rule_id'] in {
+                    'POLICY-001', 'POLICY-002', 'POLICY-003'
+                }
                 record = self._make_record(
                     rule_id=rule['rule_id'],
                     rule_name=rule['rule_name'],
                     dpdp_section=rule['dpdp_section'],
                     tenant_id=tenant_id,
                     record_id="None",
-                    outcome=RuleOutcome.NOT_APPLICABLE,
+                    outcome=(
+                        RuleOutcome.VIOLATION
+                        if missing_required_policy
+                        else RuleOutcome.NOT_APPLICABLE
+                    ),
                     rule_score=0.0,
                     signals_fired=[],
-                    signal_reasons=["No matching data/records found to evaluate this rule."],
+                    signal_reasons=[
+                        "Required internal policy is missing."
+                        if missing_required_policy
+                        else "No matching data/records found to evaluate this rule."
+                    ],
                     severity=rule['severity'],
                     risk_weight=rule['risk_weight'],
                     penalty_crore=rule.get('max_penalty_crore', 100),

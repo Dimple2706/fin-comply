@@ -161,7 +161,7 @@ def test_report_and_dashboard_parity(run_auth_mock):
         assert "Compliance Score Percentage" in page_text, "Compliance score label must be visible on page 1."
         assert f"{run_1_full['compliance_score']['score_percentage']:.1f}%" in page_text, "Compliance score value must be visible on page 1."
         assert "Disclaimer:" in page_text, "Disclaimer label must be visible on page 1."
-        assert run_1_full["disclaimer"] in page_text, "Disclaimer text must be visible on page 1."
+        assert " ".join(run_1_full["disclaimer"].split()) in " ".join(page_text.split()), "Disclaimer text must be visible on page 1."
         
     # 6. Explicit negative assertion (verify no newer run values leak into older run outputs)
     assert run_id_2 not in run_1_full["audit_run_id"]

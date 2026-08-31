@@ -24,7 +24,7 @@ END $$;
 
 -- Penalty tier enum
 DO $$ BEGIN
-    CREATE TYPE penalty_tier AS ENUM ('TIER_1', 'TIER_2', 'TIER_3');
+    CREATE TYPE penalty_tier AS ENUM ('TIER_1', 'TIER_2', 'TIER_3', 'INTERNAL_CONTROL');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 

@@ -65,7 +65,7 @@ class ReportingAgent:
         try:
             rule_stats = conn.execute(
                 "SELECT COUNT(*) AS cnt, COALESCE(SUM(risk_weight), 0) AS total_weight "
-                "FROM rules WHERE enabled = TRUE"
+                "FROM rules WHERE enabled = TRUE AND rule_id NOT LIKE 'POLICY-%'"
             ).fetchone()
             total_obligations = rule_stats["cnt"] if rule_stats else 16
             max_possible_score = float(rule_stats["total_weight"]) if rule_stats else 14.45
@@ -94,7 +94,10 @@ class ReportingAgent:
 
         # Dynamically compute states for active rules to ensure 100% score alignment
         try:
-            db_rules = conn.execute("SELECT rule_id FROM rules WHERE enabled = TRUE").fetchall()
+            db_rules = conn.execute(
+                "SELECT rule_id FROM rules "
+                "WHERE enabled = TRUE AND rule_id NOT LIKE 'POLICY-%'"
+            ).fetchall()
             active_rule_ids = [r["rule_id"] for r in db_rules]
         except Exception:
             active_rule_ids = list(set(v.rule_id for v in all_violations))

@@ -40,6 +40,8 @@ def test_ml_layer_inference():
     print(f"  [OK] QUICKLOAN-001 Probabilities: {res_ql.get('probabilities')}")
     print(f"  [OK] QUICKLOAN-001 SHAP Top Drivers: {res_ql.get('shap_explanation', {}).get('top_positive_features')}")
     assert res_ql.get("predicted_tier") in ["MEDIUM", "HIGH", "CRITICAL"], f"Expected MEDIUM/HIGH/CRITICAL for QUICKLOAN-001, got {res_ql.get('predicted_tier')}"
+    assert len(res_ql["shap_explanation"]["feature_contributions"]) == 13
+    assert len(res_ql["lime_explanation"]["feature_contributions"]) == 10
 
     print("\n==================================================")
     print("PHASE 6 ML LAYER RUNTIME INFERENCE FULLY VERIFIED!")

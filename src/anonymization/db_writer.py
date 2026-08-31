@@ -301,11 +301,13 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                     if gc:
                         cur.execute("""
                             INSERT INTO governance_config 
-                            (tenant_id, tenant_name, grievance_endpoint_available, dpo_assigned, dpo_contact_masked,
+                            (tenant_id, tenant_name, is_significant_data_fiduciary,
+                             grievance_endpoint_available, dpo_assigned, dpo_contact_masked,
                              audit_frequency_days, last_audit_date, risk_level) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """, (
-                            gc["tenant_id"], gc["tenant_name"], gc["grievance_endpoint_available"], 
+                            gc["tenant_id"], gc["tenant_name"], gc.get("is_significant_data_fiduciary"),
+                            gc["grievance_endpoint_available"],
                             gc["dpo_assigned"], gc.get("dpo_contact_masked"), gc["audit_frequency_days"],
                             gc["last_audit_date"], gc["risk_level"]
                         ))
@@ -344,12 +346,12 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                         cur.execute("""
                             INSERT INTO policies 
                             (policy_hash, tenant_id, policy_type, policy_name, policy_value_numeric, 
-                             policy_value_unit, effective_date, last_updated, is_active) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             policy_value_unit, policy_value_text, effective_date, last_updated, is_active)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """, (
                             pol["policy_hash"], pol["tenant_id"], pol["policy_type"], pol["policy_name"], 
-                            pol["policy_value_numeric"], pol["policy_value_unit"], pol["effective_date"], 
-                            pol["last_updated"], pol["is_active"]
+                            pol["policy_value_numeric"], pol["policy_value_unit"], pol.get("policy_value_text"),
+                            pol["effective_date"], pol["last_updated"], pol["is_active"]
                         ))
                         rows_written["policies"] += cur.rowcount
                 except Exception as e:
@@ -405,13 +407,16 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                             INSERT INTO transaction_events 
                             (event_hash, customer_hash, tenant_id, consent_hash, event_type, 
                              processing_purpose, event_date, shared_with_third_party, 
-                             third_party_hash, is_cross_border, transfer_country) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             third_party_hash, is_cross_border, transfer_country,
+                             transfer_restriction_compliant, transfer_assessment_reference)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """, (
                             event_hash, tx["customer_hash"], tenant_for_tx, tx["consent_hash"],
                             tx["event_type"], tx["processing_purpose"], tx["event_date"],
                             tx["shared_with_third_party"], tx["third_party_hash"],
-                            tx["is_cross_border"], tx["transfer_country"]
+                            tx["is_cross_border"], tx["transfer_country"],
+                            tx.get("transfer_restriction_compliant"),
+                            tx.get("transfer_assessment_reference")
                         ))
                         rows_written["transaction_events"] += cur.rowcount
                 except Exception as e:
@@ -424,13 +429,15 @@ def write_tenant_data(tenant_id: str, data: Dict[str, Any]) -> Dict[str, int]:
                             INSERT INTO access_logs 
                             (access_hash, customer_hash, tenant_id, employee_hash, employee_role, 
                              accessed_pii, pii_fields_accessed, access_reason, access_outcome, 
-                             data_volume_accessed, access_date, system_hash, pii_fields_justified) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                             data_volume_accessed, access_date, system_hash, pii_fields_justified,
+                             access_authorized)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """, (
                             al["access_hash"], al["customer_hash"], al["tenant_id"], al["employee_hash"], 
                             al["employee_role"], al["accessed_pii"], al["pii_fields_accessed"], 
                             al["access_reason"], al["access_outcome"], al["data_volume_accessed"], 
-                            al["access_date"], al.get("system_hash"), al.get("pii_fields_justified")
+                            al["access_date"], al.get("system_hash"), al.get("pii_fields_justified"),
+                            al.get("access_authorized")
                         ))
                         rows_written["access_logs"] += cur.rowcount
                 except Exception as e:

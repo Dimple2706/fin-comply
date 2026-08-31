@@ -1,15 +1,111 @@
 # src/api/schemas.py
 
-from pydantic import BaseModel
+import re
+
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict, Any
 
 
-class UserRegisterRequest(BaseModel):
-    username: str
-    password: str
-    full_name: Optional[str] = None
-    role: Optional[str] = "admin"
+# ── Auth Schemas ─────────────────────────────────────────
 
+class UserRegisterRequest(BaseModel):
+    name: str = Field(min_length=2, max_length=128)
+    email: str = Field(min_length=3, max_length=254)
+    username: str = Field(min_length=3, max_length=64)
+    password: str = Field(min_length=8)
+    tenant_id: str = Field(min_length=1, max_length=64)
+    tenant_name: str = Field(min_length=2, max_length=128)
+
+    @field_validator("name", "tenant_name")
+    @classmethod
+    def validate_display_text(cls, value: str) -> str:
+        clean = value.strip()
+        if len(clean) < 2 or any(ord(char) < 32 for char in clean):
+            raise ValueError("must contain at least two printable characters")
+        return clean
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        clean = value.strip().lower()
+        if not re.fullmatch(r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+", clean):
+            raise ValueError("must be a valid email address")
+        return clean
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        clean = value.strip()
+        if not re.fullmatch(r"[A-Za-z0-9_-]{3,64}", clean):
+            raise ValueError("must use 3-64 letters, numbers, underscores, or hyphens")
+        return clean
+
+    @field_validator("password")
+    @classmethod
+    def validate_password_strength(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > 72:
+            raise ValueError("must be at most 72 UTF-8 bytes for bcrypt")
+        checks = (
+            any(char.islower() for char in value),
+            any(char.isupper() for char in value),
+            any(char.isdigit() for char in value),
+            any(not char.isalnum() for char in value),
+        )
+        if not all(checks):
+            raise ValueError(
+                "must include uppercase, lowercase, number, and special character"
+            )
+        return value
+
+    @field_validator("tenant_id")
+    @classmethod
+    def validate_tenant_id(cls, value: str) -> str:
+        clean = value.strip().upper()
+        if not re.fullmatch(r"[A-Z0-9_-]{1,64}", clean):
+            raise ValueError("must use only letters, numbers, underscores, or hyphens")
+        return clean
+
+
+class UserLoginRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1)
+
+    @field_validator("username")
+    @classmethod
+    def normalize_login_username(cls, value: str) -> str:
+        clean = value.strip()
+        if not clean or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", clean):
+            raise ValueError("invalid username format")
+        return clean
+
+    @field_validator("password")
+    @classmethod
+    def validate_login_password_size(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > 72:
+            raise ValueError("password is too long")
+        return value
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    username: str
+    name: str
+    role: str
+    tenant_id: Optional[str] = None   # First authorized tenant (for auto-fill)
+
+
+class UserPublic(BaseModel):
+    id: int
+    name: str
+    email: str
+    username: str
+    role: str
+    tenant_id: Optional[str] = None   # First authorized tenant
+    created_at: Optional[str] = None
+
+
+# ── Analyze Request ──────────────────────────────────────
 
 class AnalyzeRequest(BaseModel):
     """
@@ -53,7 +149,6 @@ class FullExplanation(BaseModel):
     root_cause: str                              # PROCESS_GAP / TECHNICAL_GAP / etc.
     penalty_exposure_crore: int                  # Financial exposure under DPDP Act
     penalty_exposure_message: Optional[str] = "Maximum statutory exposure estimate — not an actual or certain fine."
-
 
 
 # ── Violation ────────────────────────────────────────────
@@ -101,12 +196,14 @@ class RemediationItem(BaseModel):
 # ── Run Metadata & Governance Versioning ─────────────────
 
 class RunMetadata(BaseModel):
-    engine_version:     str = "1.0.0"
-    schema_version:     str = "2026.1"
-    active_rule_count:  int
-    model_version:      str = "1.0"
-    model_sha256:       Optional[str] = None
-    evaluated_at:       str
+    engine_version:         str = "1.0.0"
+    schema_version:         str = "2026.1"
+    active_rule_count:      int
+    model_version:          str = "1.0"
+    model_sha256:           Optional[str] = None
+    evaluated_at:           str
+    statutory_rule_count:   Optional[int] = None
+    internal_control_count: Optional[int] = None
 
 
 class FindingItem(BaseModel):
@@ -151,5 +248,6 @@ class AnalyzeResponse(BaseModel):
     not_assessable_rules_count:   Optional[int] = None
     outcome_count_by_state:       Optional[Dict[str, int]] = None
     disclaimer:                   Optional[str] = "Maximum statutory exposure estimate — not an actual or certain fine."
-
-
+    internal_control_count:       Optional[int] = None
+    internal_controls:            Optional[Dict[str, Any]] = None
+    regulatory_context:           Optional[Dict[str, Any]] = None

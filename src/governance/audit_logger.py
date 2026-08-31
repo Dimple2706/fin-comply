@@ -32,7 +32,9 @@ _ensure_log_file()
 def log_event(event_type: str, details: Dict[str, Any], user: Optional[str] = None, tenant_id: Optional[str] = None):
     try:
         event = {
-            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.datetime.now(datetime.timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z"),
             "event_type": event_type,
             "user": user if user is not None else "system",
             "tenant_id": tenant_id,

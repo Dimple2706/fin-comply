@@ -1,6 +1,5 @@
 import os
-import psycopg2
-from psycopg2.extras import DictCursor
+import psycopg
 
 COLUMNS_TO_MIGRATE = [
     ("access_logs", ["access_hash", "customer_hash", "employee_hash", "system_hash"]),
@@ -20,17 +19,17 @@ def get_connection():
         # Fallback to defaults
         db_name = os.getenv("DB_NAME", "dpdp_compliance")
         db_user = os.getenv("DB_USER", "postgres")
-        db_password = os.getenv("DB_PASSWORD", "rasika23")
+        db_password = os.getenv("DB_PASSWORD")
         db_host = os.getenv("DB_HOST", "localhost")
         db_port = os.getenv("DB_PORT", "5432")
-        return psycopg2.connect(
+        return psycopg.connect(
             dbname=db_name,
             user=db_user,
             password=db_password,
             host=db_host,
             port=db_port
         )
-    return psycopg2.connect(db_url)
+    return psycopg.connect(db_url)
 
 def run_ddl_migration():
     conn = get_connection()

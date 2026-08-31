@@ -1,848 +1,36 @@
 {
   "t_clean": {
+    "compliance_score": {
+      "applicable_obligations": 9,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 7,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 9,
+      "score_percentage": 100.0,
+      "total_obligations": 16,
+      "violated_obligations": 0,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "no_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None"
+    ],
+    "failed_rules_count": 0,
     "input_file_hashes": {
-      "access_logs.csv": "475ad76471c67dc7d15f7725e748fc2864445132d30383226ca67f10ed2be439",
+      "access_logs.csv": "c541ae3f381a4102874466236000139bcf4982689a75db2db0b2494a2c3d09a3",
       "consent_records.csv": "245d622d3497c72a5d91b24fec79a7a0985be66d8d52a21d25b3431e58e1dede",
       "customer_master.csv": "abcd06479c61e82340af9ad164c7692696505580c4de24c9f1d68e879bab1ae5",
       "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
       "dsar_requests.csv": "9a93fd70aeadbb15d0ab81d77df046edff8c2dd60cf4a9bc75f4fa04e6c2b9fb",
-      "governance_config.csv": "37fc6344be33e996018b9394e15a7f506ebcfe043bebff2857615e7c166aa17e",
+      "governance_config.csv": "7bffb3ba06adf707f7f07b547c53144413096887ff179d912b5f22dfdc8d8050",
       "policies.csv": "d303a7d86fdbfe8b57ba8432c366d202cb610c0b100db16b7893380b867d4cbe",
       "security_events.csv": "2516e91120b638abeeef9f7a296a84346bd1a19bdb175be27c2f1215c36dc15e",
       "system_inventory.csv": "707231140dd5f64d2927560ff232782f82c7f034577e01a988089aa6f63590dc",
       "transaction_events.csv": "8808ba48cdb30205933755ab2ef50753f7dc011e16e5244a4633790b83d1c6b6"
     },
-    "expected_record_hashes_identities": [],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 0,
-      "WARNING": 0,
-      "PASS": 10,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 0,
-    "compliance_score": {
-      "score_percentage": 100.0,
-      "satisfied_obligations": 10,
-      "violated_obligations": 0,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 0.0,
     "maximum_statutory_exposure_crore": 0,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "no_parent"
-  },
-  "t_dpdp001": {
-    "input_file_hashes": {
-      "access_logs.csv": "06cb47680af05b54932278b380d50b3f5730083475130f53703efde99a3ad0cc",
-      "consent_records.csv": "3fd43094d25a8ce853a35b9fa878f6c6cf0349a4282abb56fe40c98a7cbc5322",
-      "customer_master.csv": "d6e8b1f48c784ad3b5bf97171e4bb34b2e4a57c77ee930f07b847ceb1ec1e024",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "a5ecdcb1665b9314d7f924fef3d2ae6a12c101b271ecf8949587199b34ed0b6c",
-      "governance_config.csv": "82bef04d39e2add19de1c334273523b48ef62447b01b445e89033be074f9ef1b",
-      "policies.csv": "312491674aa590d3c94f3d75b71661743707218b21111179ba924b9e165e3365",
-      "security_events.csv": "bea2b1a4bbf97936a4ff745e43f298aead342c5372d48817f340b36940cd5662",
-      "system_inventory.csv": "975aad5567e591297cb84a9e11891a5bf5f8f8d76bdb59c8cf385e379d582d3e",
-      "transaction_events.csv": "3a8272c2a4ab3b8a4665dee56fc37a4d0a511fc85c94b470a0684bf56376c869"
-    },
-    "expected_record_hashes_identities": [
-      "v2:ee0922098b95f5cadc47e47919f84ea4378c35c18f17bcd610bd1e96924e48f8"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "VIOLATION",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 9,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.0,
-      "satisfied_obligations": 9,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 9.0,
-    "maximum_statutory_exposure_crore": 250,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp002": {
-    "input_file_hashes": {
-      "access_logs.csv": "1a9b90deeae22eb9ecf69b4087b876bdb722147b0247903a9c4df4794ab19d3f",
-      "consent_records.csv": "ebe74e8ffba4961c6f04d940cb8ef2a37aa9c7840c83e4b8db4bf629d0da4f88",
-      "customer_master.csv": "6a6df3ffae3067bb867cd5ba038c1cbe83be190a0bfddd8ce607d4e07835622e",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "d46a3c122e65a6b1042db322411a0e7b85f09556364656cd0f1140cf5adcd0a9",
-      "governance_config.csv": "bf93ed5bde115fd725d5998e9ed70d1b43c74cb83f30c40aeeeeac1aa2839231",
-      "policies.csv": "ec983da401affae318fbc22e3086b1ae410d6ac303890f50e0ccb041270d3498",
-      "security_events.csv": "94ca7e1b2fb8ef98b3c008d0a23a66607781832243cfeb716168b7a95d029125",
-      "system_inventory.csv": "d91bd8fd9941d1b4839c824663dd3c5bf042cb4850cf1ae4ff98561b80237789",
-      "transaction_events.csv": "e8a198c7eb32a36d74571cc8215cc70fbeacbb3cc8d5d6ebc8197bffab641cfa"
-    },
-    "expected_record_hashes_identities": [
-      "v2:711699f19cf9ce51a761fd49b55a76fee46f8ab3f9348fad7997c70057d4a9fa"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "VIOLATION",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 9,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.0,
-      "satisfied_obligations": 9,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 8.9,
-    "maximum_statutory_exposure_crore": 250,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp003": {
-    "input_file_hashes": {
-      "access_logs.csv": "46f23056f6c1cfd8d8a61bef65e7d0de29f91ec7bf15f370a200534f1b3c35b4",
-      "consent_records.csv": "ecb674fbd0d6261c74a6febbc9da89341449f7ec5a1dfa706fdd6c7242667a8a",
-      "customer_master.csv": "6f4219d4223ec82ce2319136d9e622e16a6a0b8df71240b3398adc562150d1ac",
-      "data_lifecycle.csv": "f762af04bd8a915932ee5a55ae6478101dc79454f4729dcc63cc9ba4515433da",
-      "dsar_requests.csv": "6979ba076ebb03fc905466e5c706b82189ff39ab2cab1ed4cfaceca2fc5775cd",
-      "governance_config.csv": "1e1ce7773be37edf94f387f3f925410e7818bb30c3185edabf94c728d7a4d39e",
-      "policies.csv": "a913afe8676dbcf2842363b1c64223c32df73aae1640f5506dfe48e6fe4cda03",
-      "security_events.csv": "1a5020ce77ea9c078a977c7ae628688412cc0280694079067592c04c7ed7af55",
-      "system_inventory.csv": "4fb52b2fdab0b484d229b18ab64d5c3060c616e8146e6e6e63467cf670a12629",
-      "transaction_events.csv": "1c12bae94b33ab50098b66057c8eda5e54f78135040e0dde081c6196baa9a159"
-    },
-    "expected_record_hashes_identities": [
-      "v2:15373da8e133855a4165f024b76f4f7fe17ab90c7a820c64f9e7800a118a2069",
-      "v2:15373da8e133855a4165f024b76f4f7fe17ab90c7a820c64f9e7800a118a2069"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "VIOLATION",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "VIOLATION",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 2,
-      "WARNING": 0,
-      "PASS": 10,
-      "NOT_APPLICABLE": 4,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 2,
-    "compliance_score": {
-      "score_percentage": 83.3,
-      "satisfied_obligations": 10,
-      "violated_obligations": 2,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 4,
-      "total_obligations": 16,
-      "applicable_obligations": 12
-    },
-    "risk_score": 11.3,
-    "maximum_statutory_exposure_crore": 400,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp004": {
-    "input_file_hashes": {
-      "access_logs.csv": "5f2d560c4c0c5ba390e9f8de13e5673ff3c4737b53c02c80d7a2187707e43d6d",
-      "consent_records.csv": "75a103e3e484d01602474f89772d6abd7f9cff60958a0000e147dca2647d6113",
-      "customer_master.csv": "3660ae1e6d2b2e239ecb39e39aa85ba813ac180d51084ea827dbb26537c4268b",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "4f14a6b62d0f5601c51bc505522caa0754705ef21a6b02a5debbe9cdfd5ac87d",
-      "governance_config.csv": "977c338b224408a18e3df6412425737c461a535b97b77cd367ae136309341300",
-      "policies.csv": "23645ae45266f58a443cddf3c4f28571f8f44d3ce167c65b633512fc29d9d1bc",
-      "security_events.csv": "4abb829ece6abfc6bdd003e55b25c9882c9e2091e10bc175c5267941e4dec7a3",
-      "system_inventory.csv": "e27eba90c0c61628f791c0a1c4d8934651bd7f8fe9fa0d8411d9fbea33ef4f86",
-      "transaction_events.csv": "2b77c2858eb49c8e6d17658f0362b2dc2230ea4fcd5adc713762009aa99bd04e"
-    },
-    "expected_record_hashes_identities": [
-      "v2:4d05600306370abd10ba50ed90d4b9ee4c501795687fb74390aeb0dd25712d06"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "VIOLATION",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 9,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.0,
-      "satisfied_obligations": 9,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 4.7,
-    "maximum_statutory_exposure_crore": 50,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp005": {
-    "input_file_hashes": {
-      "access_logs.csv": "70867ba539e18fd6a65ebbfac937da0f30563bdd0e12997d77e4e67536fa9329",
-      "consent_records.csv": "2d7c2f9911629c7eaf0a6e5b98b2f1533bac28ec245e5798dbb3d10448ddf24f",
-      "customer_master.csv": "19833a8b3482bf9a31004ffd13e47e3f7a3216d3025363a0eac367936f0bb911",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "be9901b8718a7dd49aa37911fe09ac77f55a4724592555a75abbb4f236e5c01e",
-      "governance_config.csv": "32ce04b9d61f694ae0188f4c4887676be31cf6395621c6fb377b6a02a549d5b4",
-      "policies.csv": "cf815f50b6a270280ce3124b9f22a049ae374c24b6467322534dca21fd0a0316",
-      "security_events.csv": "a7d7a20a38c8c9780f9c3de77535e06f03104bd0fe7a31ffa2d376cf5f61e6af",
-      "system_inventory.csv": "9a92b645981197706c27772aae15585ab064fa463b684eb3fe44cfb5f8f9e138",
-      "transaction_events.csv": "4e0996e23b1ae1c02e4000a0773962177cd1719e79bf403fa402170f35a16373"
-    },
-    "expected_record_hashes_identities": [
-      "v2:4fa89a21de36cc7204d83d146cb266738be643445c45c3d2e419fc139457a037"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "VIOLATION",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 10,
-      "NOT_APPLICABLE": 5,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.9,
-      "satisfied_obligations": 10,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 5,
-      "total_obligations": 16,
-      "applicable_obligations": 11
-    },
-    "risk_score": 65.0,
-    "maximum_statutory_exposure_crore": 250,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp006": {
-    "input_file_hashes": {
-      "access_logs.csv": "22102c79d54a59dfc6a761924a9cd365fc6d161caa960b33eeb9a78d79b53650",
-      "consent_records.csv": "3c4dbc7f6be73b2d75044d84d9fb035d96af8c21a4715b1b6aec467cbb6126da",
-      "customer_master.csv": "2a60268bc1b02b964477ac5eed83e8d22410dbc31136a46f8aee5d9f0d3e99a7",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "ff09aa75fdb5201c8f0e38066a388fcd7ce978d33a4549ddcc16df3b845ec4ed",
-      "governance_config.csv": "bfdc59d9b996534549c0c30bf03b43041e5ff7cb47e327894dbdd12f6ce64e26",
-      "policies.csv": "3715229513e1d1f68354452e7e4f0bae03aa610ec6b02b51d74e5ae558c81900",
-      "security_events.csv": "4387057a80451fd6e8c6d806973dc0e303132cb610c6f426df17f49ed5fac305",
-      "system_inventory.csv": "bba9c5522c4060b9406dc5a022ca6b58f789433f25d2fb0bc5438e64dcedcb61",
-      "transaction_events.csv": "6337038add75165cf4a208f6f033fc8eedd010ccd180bd7772444b0520a2a23c"
-    },
-    "expected_record_hashes_identities": [
-      "v2:512354bef70572d59d67fc93c621ccbee856f4041eb15e0b065c2b758bacf9f1",
-      "v2:24019434c53f3582e879727a6a95872b5e76874115027bf4df1e30f4b62cd4ab"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "VIOLATION",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "VIOLATION"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 2,
-      "WARNING": 0,
-      "PASS": 8,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 2,
-    "compliance_score": {
-      "score_percentage": 80.0,
-      "satisfied_obligations": 8,
-      "violated_obligations": 2,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 18.9,
-    "maximum_statutory_exposure_crore": 500,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp007": {
-    "input_file_hashes": {
-      "access_logs.csv": "84d249f8e55c26e56cbb26b4db138bdf43db020e36dc4ce83d3dce13ebadb955",
-      "consent_records.csv": "a77122e1447765300c26fbc6a96d2b4bc5cd52219c607ba84d5d131b8daef222",
-      "customer_master.csv": "1dd0b73cc9e9d273ad033d763f28108364c1ca32d21a0822c1128d19db13a39f",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "63cd7d5d7ce3f460bf7e0cc126f677c60ad46e9ab97d7b8d7dea2c05ae300f2b",
-      "governance_config.csv": "bed755e67359e1ef786244eb01982cb4e00861041c3850aad904805ca3118f16",
-      "policies.csv": "29a473ac620b1631fb2ea2c48ddb3f40d49cf99b8050bd139b5aeeb13649dc42",
-      "security_events.csv": "54da2e8569d8f3687d2b8da182ced6786cf15b5a132e905c8ec3b8e4e5af8a0f",
-      "system_inventory.csv": "bf036f544b4203bfa66fbda439f17f35a942a5b7581298c72798b025e480fff7",
-      "transaction_events.csv": "889e544c1e4143c150da585ed50e9488ee007d7147a5dfbe9d82d1d45ea6b201"
-    },
-    "expected_record_hashes_identities": [
-      "v2:9ce9992e1ecf06ba8d374306435f82eb711c1673ec6150efd6aa867198f6840b",
-      "v2:9ce9992e1ecf06ba8d374306435f82eb711c1673ec6150efd6aa867198f6840b"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "VIOLATION",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "VIOLATION",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 2,
-      "WARNING": 0,
-      "PASS": 8,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 2,
-    "compliance_score": {
-      "score_percentage": 80.0,
-      "satisfied_obligations": 8,
-      "violated_obligations": 2,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 14.0,
-    "maximum_statutory_exposure_crore": 300,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp008": {
-    "input_file_hashes": {
-      "access_logs.csv": "ae46445bb4e00b277c3e8c80cf8845bb3f782ccd25d87ae4939f4605f9a752f0",
-      "consent_records.csv": "d6f946e7a80465d60d43352a62eeb3c09765c04c9c97003551f4875ad203ce69",
-      "customer_master.csv": "ff786dcfa7da150b40403bd1e6b99ed6e7063f7d596655b99cfcceb0049e019b",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "f2cedb7083e08e12959f8b70d087ac7efce9a7525a32d4ca095ca1be612f15f2",
-      "governance_config.csv": "89c43d7ed764b1546cec1df64c86fad1291106dc422f1380f8faa9ed6526195d",
-      "policies.csv": "c087b5b24ba4c0687342f229e76b60ddc862829a4e1c3bb6c26c990ad44c64b6",
-      "security_events.csv": "e67ac850d47611cb1f445936333a971d54ad6b51b7d5365fdc887a9d0e8eead2",
-      "system_inventory.csv": "a0db623ba3596db79b1f588a676e2b2641516197e0795b35670d9d8f13ba6ac3",
-      "transaction_events.csv": "d640d5a822060a43e516f30d4a010e017343e13af5d50d1d0bb0698921385663"
-    },
-    "expected_record_hashes_identities": [
-      "v2:3681d01446daced0e9dbf55f83f0b340cfecca1f30902800281fea1df7832fce"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "VIOLATION",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "PASS",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 11,
-      "NOT_APPLICABLE": 4,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 91.7,
-      "satisfied_obligations": 11,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 4,
-      "total_obligations": 16,
-      "applicable_obligations": 12
-    },
-    "risk_score": 65.0,
-    "maximum_statutory_exposure_crore": 250,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp009": {
-    "input_file_hashes": {
-      "access_logs.csv": "142078a3bd5ddda27ecd8e55d1eb3de366a255aa607477993b400477a340ce33",
-      "consent_records.csv": "358660634095902cd0fd567050a3625858855ad31876037d3545f5030f9016a9",
-      "customer_master.csv": "c217fc42b763ad4aad14e73495f36bb7c75847a743e0ae277c87aa964d5e118a",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "83d775520a0eff1bc1a1883163e0c5f5386c5294395a1cc57ce7b067f7084cd7",
-      "governance_config.csv": "463f6bb1897b61b2fa77009f993c1c5bb6a13268226bb639095520575ee51489",
-      "policies.csv": "fbd9506029b57466b117a3ed56659ef66d117fec2463de2192522093c01c97b8",
-      "security_events.csv": "f359e3de5526c835a86da4e8c645d766f904dc74ca79c55b4b8b1c6b4fed6b0c",
-      "system_inventory.csv": "412138e91bec868b3a861d9f19ffe1a36ba7644d6ac9dc48675a84b255c24d89",
-      "transaction_events.csv": "4c8b3186bc7031cc8abe160c6347e89b5df142640e8786b11a72036a7bcde71b"
-    },
-    "expected_record_hashes_identities": [
-      "t_dpdp009"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "VIOLATION",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 9,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.0,
-      "satisfied_obligations": 9,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 1.0,
-    "maximum_statutory_exposure_crore": 10,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp010": {
-    "input_file_hashes": {
-      "access_logs.csv": "f0e1eaf8d5ade69c62d6caa0c5515e3bc8d00d585bc12f09613e3ede2be90cd5",
-      "consent_records.csv": "5780b61c7d6f7423c85c04fce8101089249b0e2cc5c36b1e5f169beaf31d8a15",
-      "customer_master.csv": "f9b34d333809c4b06cb91411e5db768070c32795e9e98a07c0dfc747331b248a",
-      "data_lifecycle.csv": "fce0eac1994340a1ee6af790655f132f2c17c5aef9d6b357ab03fce8fffcf3e6",
-      "dsar_requests.csv": "7e4cb0e47e21580015ab24d870b3199fd41279a2b29cbd042cdea68881c59edf",
-      "governance_config.csv": "b824443a2374b2949e80e1a061dc3ffecae38a9c8c1aed9295715587cc0ae4fb",
-      "policies.csv": "d0148d769b1d24c55dfa4fb96d4e108f175051bea40423ffa6b24cec00745858",
-      "security_events.csv": "c9172b66fb65d54c254400ee444cc91da6f6e851abcc4be67bc3f2fa65fbaa28",
-      "system_inventory.csv": "949f406b161c2d180226dc8990a098cc8161b3f9d0044e8383c6281b23a9d99c",
-      "transaction_events.csv": "326bc177a0852af09c9d3942afbfeb735ad6ff5eaf54294ee6956c00fd3feb44"
-    },
-    "expected_record_hashes_identities": [
-      "v2:28b11165547608007bbbd6ec8778b40a321546ec7a5b09c479cb2562fa4e50c2",
-      "v2:99383b39f0aad9b92d040e2ef0203f87f403584613717339a3e0bfa67518dc08"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "PASS",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "VIOLATION",
-      "DPDP-011": "VIOLATION",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 2,
-      "WARNING": 0,
-      "PASS": 10,
-      "NOT_APPLICABLE": 4,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 2,
-    "compliance_score": {
-      "score_percentage": 83.3,
-      "satisfied_obligations": 10,
-      "violated_obligations": 2,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 4,
-      "total_obligations": 16,
-      "applicable_obligations": 12
-    },
-    "risk_score": 12.5,
-    "maximum_statutory_exposure_crore": 450,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp011": {
-    "input_file_hashes": {
-      "access_logs.csv": "aff6498696f1451e5229de11015f70548a7ad898f1edde988947ee6e0d7296bf",
-      "consent_records.csv": "e7c8282ad06ea671cd19cad838add0a162ed928fdee0453b4c245c756ea153cf",
-      "customer_master.csv": "b8b76fc75a9a88491e42c2890c470521b55ebe01531ec6f4a7bcadc00aa3a420",
-      "data_lifecycle.csv": "81f975b479365a4098ff7f13ad2775e0eec2026aad931a138198e8c07f36a35a",
-      "dsar_requests.csv": "7c766029c95a544055672dbb490bec80cda6ecaaa049722b234c57b0f8cd8047",
-      "governance_config.csv": "174257fd4147991e7a04d37af0e42b86a91cb7604653628c6dd0fb4b5a8e7762",
-      "policies.csv": "86b2729b1fd6f0935f5fb8b34e4d23dd0ed45a694e4fa69903d3a364a4d3d114",
-      "security_events.csv": "bda4e9c2b51c1069cbfe6cee6b115996da6e017eacae8deff2f360516dc8e388",
-      "system_inventory.csv": "d75fed16196b3f8f04f0d80af9c4ff064c8ff624e43c507580e49304c9ab9c4f",
-      "transaction_events.csv": "da4349a4c3fdfc3b35cc24fd92edc78e792c6fd6245e6e154bab6d6bc6b07d85"
-    },
-    "expected_record_hashes_identities": [
-      "v2:c5278dbe90afec4fedd9437426e34bf6a763884db834925ef4ebcd15d02f2ac1"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "PASS",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "VIOLATION",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 11,
-      "NOT_APPLICABLE": 4,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 91.7,
-      "satisfied_obligations": 11,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 4,
-      "total_obligations": 16,
-      "applicable_obligations": 12
-    },
-    "risk_score": 5.2,
-    "maximum_statutory_exposure_crore": 200,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp012": {
-    "input_file_hashes": {
-      "access_logs.csv": "72287cb44f7b403e77679dd09b22d1e22a13711a4042d2b477ead51644c6e239",
-      "consent_records.csv": "a91deb11b649eebb766c43a626795e806b5873af026cd73829023667fed6d3fe",
-      "customer_master.csv": "c6bb4b098c6d2bca56296bfbe9ae642c5c2adf374cf5748f4bbcab3efefc73e1",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "481778790256ee6a24d1d69de45bd821b6684b2f074cd6039fb2479257ff50f4",
-      "governance_config.csv": "a3c8e6080ae82ecf0defb228a8c47dbc58601d8aa7c9f5d8d908fd43cc591b39",
-      "policies.csv": "85355e574508506e1bc3104c1c566c9d55475f052ae082710e70e3826ddbc541",
-      "security_events.csv": "41b76d77c41f3e2760675297c3843978d4f84b781ec3d2ef6a9445f8c5c52d4f",
-      "system_inventory.csv": "b12bb1cf8fbb61cd00d7d651df742016004f9032bdf1235d95d3c8677e2638cd",
-      "transaction_events.csv": "65dc7a94cad5289ed535a92ace7ebb536118930341b2c87d94f5b865a105d5fa"
-    },
-    "expected_record_hashes_identities": [
-      "t_dpdp012"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "VIOLATION",
-      "DPDP-013": "PASS",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 9,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.0,
-      "satisfied_obligations": 9,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 3.1,
-    "maximum_statutory_exposure_crore": 50,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp013": {
-    "input_file_hashes": {
-      "access_logs.csv": "97bd369d56cbd229e914b8498a107443a1d8bb1ec7f3f3408627c19f0f527662",
-      "consent_records.csv": "8e13f694f52fa9ef87f585d62be7cf0fed44645997fa072a9079bfb216b9c473",
-      "customer_master.csv": "e10969eda1a8e60087f0ac37c38331f1680f2f7f0b9e389db7824da6408ad263",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "e6c910bc3191ff625168586050af0ce0ca3708ae7a2e2f382091621caa7d6bb3",
-      "governance_config.csv": "8277941d16437d91a786c5081ab1695e8067f4a6ddaddb31227b62f2ad09e353",
-      "policies.csv": "65868d49926f00ee39b27bd1669e6f3b4586db3fe58c6aceaa0162f60b36edb6",
-      "security_events.csv": "82103bc4f8d017c27a5070605f2f02a1dedcf093e1a457d5d24c264cb2bb485d",
-      "system_inventory.csv": "d773b7316472f9484bcdf336cf5f47b6957429a5515b8f2345edd11d437c7caf",
-      "transaction_events.csv": "1e1b29b406db8805afd5e69c0f29898e537cb994165f69fa4053ba13b88bd40c"
-    },
-    "expected_record_hashes_identities": [
-      "v2:74c5682cd61c36b652c2f997fb40efc304469d4d79a6361ff83882b5022f9a1f"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "VIOLATION",
-      "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 9,
-      "NOT_APPLICABLE": 6,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.0,
-      "satisfied_obligations": 9,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 6,
-      "total_obligations": 16,
-      "applicable_obligations": 10
-    },
-    "risk_score": 10.1,
-    "maximum_statutory_exposure_crore": 250,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp014": {
-    "input_file_hashes": {
-      "access_logs.csv": "1a6a1d7f4783727255cd4afb5da5ffadc303d9b8196d95ea590dcf198f5ff412",
-      "consent_records.csv": "18f2a624bd8f6074888cdb59aee4822663e661228ab0eb624454ab29a86e3429",
-      "customer_master.csv": "e28efc69d8ed6b54ececd804896acba0f6f90df5281a7689f3b3ac0ad54b3473",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "7a0a95794eef46b5eae2647d7e25eaad0c86555093aacf13c5f49ec88d8bd341",
-      "governance_config.csv": "c13c2a51b17e888cacc3eff2a9a975424cd08f427baf40c979e540840b33c887",
-      "policies.csv": "33a5b9732067502bd43913b8dde1442895d01716a2994f80831f0a39463e678f",
-      "security_events.csv": "ca2ff8836dce096400daa95eca2709c76ae2e470ed4702665655de263d934884",
-      "system_inventory.csv": "78c67183bb37fc8064564eca1d3066506490577242ba1b886a1f13550490c15a",
-      "transaction_events.csv": "039f11f17866294ced86077a9cb9a06a22e4fd74a3b35c591addcd5de4b47af0"
-    },
-    "expected_record_hashes_identities": [
-      "v2:cf8c968a333032f0fee2fd8dcb70761260104c28ccf100395597d735866122b3"
-    ],
     "outcome_count_by_rule": {
       "DPDP-001": "PASS",
       "DPDP-002": "PASS",
@@ -853,125 +41,374 @@
       "DPDP-007": "PASS",
       "DPDP-008": "PASS",
       "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
-      "DPDP-011": "NOT_APPLICABLE",
-      "DPDP-012": "PASS",
-      "DPDP-013": "PASS",
-      "DPDP-014": "VIOLATION",
-      "DPDP-015": "NOT_APPLICABLE",
-      "DPDP-016": "PASS"
-    },
-    "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 11,
-      "NOT_APPLICABLE": 4,
-      "NOT_ASSESSABLE": 0,
-      "FAILED": 0
-    },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 91.7,
-      "satisfied_obligations": 11,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 4,
-      "total_obligations": 16,
-      "applicable_obligations": 12
-    },
-    "risk_score": 65.0,
-    "maximum_statutory_exposure_crore": 250,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
-  },
-  "t_dpdp015": {
-    "input_file_hashes": {
-      "access_logs.csv": "43487c077420243cfd8f77d87b44b086036a4c92a5ffb579d9019ebf2975f4ed",
-      "consent_records.csv": "d639bc50ac772239abcbc4dbfb406a84fcbe9c4beee427079173a3407271e65f",
-      "customer_master.csv": "bf600dfd7317fbca24b4925513df8ae92c8560f1780e11ac5832e25acaa7e0c7",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "e58468590deed160dca69aed4220fec722dee60ebf6f84a70e5abdb1517b0347",
-      "governance_config.csv": "16a9d12a8f57e15d7de37781a6036caffa1796c9b55b8e6672efe9a15d771145",
-      "policies.csv": "7f9bae813283197d9784129128b67a916e3473be404dea7a005473aa35004cc1",
-      "security_events.csv": "74dc0835a15eb4692878be7c4058487b15f20088470001089443afb064c421b4",
-      "system_inventory.csv": "73260afa3b1a6fbeac3b526b6ce900205932420dd830397c6f238969e6d2c2e9",
-      "transaction_events.csv": "a03c571324e768d43ee8144571469278510ea7ed39dc92f40df5f44c20c2abf8"
-    },
-    "expected_record_hashes_identities": [
-      "v2:f60b96472847822247a98f7f5b4e3dcbdbb8c908e66614708b7a4aacd6f9502b"
-    ],
-    "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
-      "DPDP-002": "PASS",
-      "DPDP-003": "NOT_APPLICABLE",
-      "DPDP-004": "PASS",
-      "DPDP-005": "NOT_APPLICABLE",
-      "DPDP-006": "PASS",
-      "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
-      "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
       "DPDP-011": "NOT_APPLICABLE",
       "DPDP-012": "PASS",
       "DPDP-013": "PASS",
       "DPDP-014": "NOT_APPLICABLE",
-      "DPDP-015": "VIOLATION",
-      "DPDP-016": "PASS"
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
     },
     "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 10,
-      "NOT_APPLICABLE": 5,
+      "FAILED": 0,
+      "NOT_APPLICABLE": 7,
       "NOT_ASSESSABLE": 0,
-      "FAILED": 0
+      "PASS": 9,
+      "VIOLATION": 0,
+      "WARNING": 0
     },
-    "failed_rules_count": 1,
-    "compliance_score": {
-      "score_percentage": 90.9,
-      "satisfied_obligations": 10,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
-      "not_assessable_obligations": 0,
-      "failed_obligations": 0,
-      "not_applicable_obligations": 5,
-      "total_obligations": 16,
-      "applicable_obligations": 11
-    },
-    "risk_score": 8.7,
-    "maximum_statutory_exposure_crore": 250,
-    "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
+    "risk_score": 0.0
   },
-  "t_dpdp016": {
-    "input_file_hashes": {
-      "access_logs.csv": "8b8d0e5f42308c6241d652dd015a0b532b1f9a777e2f183e5a776a828a0cdc8f",
-      "consent_records.csv": "9a4c1ea62d6d8cbac48ccf7d48d45ce6e05f2724a4c479ac5794f41a9cd6a857",
-      "customer_master.csv": "0f913729544f59a22e0e95455b45cd588fc6446bd507e8155ef3d21bccc1af2c",
-      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
-      "dsar_requests.csv": "f044ab22de47491a765dda71b9a61d09b26250f79616a745d80901a87a0bc968",
-      "governance_config.csv": "44e9d17236aa24e3f13c030c7638d5c5452a3bc8a70d5c8813ba695fce23b078",
-      "policies.csv": "5d72d2abad94fbe4f5dc48a5bdff9dd4fb193bfb5bc2e718efa10d9dc4b1a950",
-      "security_events.csv": "ea75edb3d88585cc76667c6e5520a7f732455a1adab2d6b713d0d64ddc8dfa17",
-      "system_inventory.csv": "1418f7cabbc008beda321fff8f2377ceae507ae113b7dffa990d9a05e886c427",
-      "transaction_events.csv": "14bda41a3e09dbfe7a3e158f880c456dff23337f262ddb92946a13a766be698d"
+  "t_dpdp001": {
+    "compliance_score": {
+      "applicable_obligations": 9,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 7,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 8,
+      "score_percentage": 88.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
     },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
     "expected_record_hashes_identities": [
-      "v2:12abd176c548500f8d3123f8976aa7bb834ebf778aae45f5914f2f509c9c97a0"
+      "None",
+      "None",
+      "v2:ea1d2a8cc613a01415f856e291af28be426983de24f16f586716a935d7ac0b18"
     ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "5260608ad8113c9f3a0a8a760bc14357e8f1bd9d52a327938e8a3b7f443eb7f0",
+      "consent_records.csv": "3fd43094d25a8ce853a35b9fa878f6c6cf0349a4282abb56fe40c98a7cbc5322",
+      "customer_master.csv": "d6e8b1f48c784ad3b5bf97171e4bb34b2e4a57c77ee930f07b847ceb1ec1e024",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "a5ecdcb1665b9314d7f924fef3d2ae6a12c101b271ecf8949587199b34ed0b6c",
+      "governance_config.csv": "426a95010e5419af9f02ae20f04e71e16d82743f795790005f0db7a0ec61c533",
+      "policies.csv": "312491674aa590d3c94f3d75b71661743707218b21111179ba924b9e165e3365",
+      "security_events.csv": "bea2b1a4bbf97936a4ff745e43f298aead342c5372d48817f340b36940cd5662",
+      "system_inventory.csv": "975aad5567e591297cb84a9e11891a5bf5f8f8d76bdb59c8cf385e379d582d3e",
+      "transaction_events.csv": "3a8272c2a4ab3b8a4665dee56fc37a4d0a511fc85c94b470a0684bf56376c869"
+    },
+    "maximum_statutory_exposure_crore": 50,
     "outcome_count_by_rule": {
-      "DPDP-001": "PASS",
+      "DPDP-001": "VIOLATION",
       "DPDP-002": "PASS",
       "DPDP-003": "NOT_APPLICABLE",
       "DPDP-004": "PASS",
       "DPDP-005": "NOT_APPLICABLE",
       "DPDP-006": "PASS",
       "DPDP-007": "PASS",
-      "DPDP-008": "NOT_APPLICABLE",
+      "DPDP-008": "PASS",
       "DPDP-009": "PASS",
-      "DPDP-010": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 7,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 8,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 7.1
+  },
+  "t_dpdp002": {
+    "compliance_score": {
+      "applicable_obligations": 9,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 7,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 8,
+      "score_percentage": 88.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:711699f19cf9ce51a761fd49b55a76fee46f8ab3f9348fad7997c70057d4a9fa"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "3e6839663b9de7a2cf6701097017f80f3de414659d98a8a945c457c3a9c82e41",
+      "consent_records.csv": "ebe74e8ffba4961c6f04d940cb8ef2a37aa9c7840c83e4b8db4bf629d0da4f88",
+      "customer_master.csv": "6a6df3ffae3067bb867cd5ba038c1cbe83be190a0bfddd8ce607d4e07835622e",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "d46a3c122e65a6b1042db322411a0e7b85f09556364656cd0f1140cf5adcd0a9",
+      "governance_config.csv": "9469f222dfbd3ac74d7747801c5f2402481c1ed737cd01fcc0139bea18c9bb38",
+      "policies.csv": "ec983da401affae318fbc22e3086b1ae410d6ac303890f50e0ccb041270d3498",
+      "security_events.csv": "94ca7e1b2fb8ef98b3c008d0a23a66607781832243cfeb716168b7a95d029125",
+      "system_inventory.csv": "d91bd8fd9941d1b4839c824663dd3c5bf042cb4850cf1ae4ff98561b80237789",
+      "transaction_events.csv": "e8a198c7eb32a36d74571cc8215cc70fbeacbb3cc8d5d6ebc8197bffab641cfa"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "VIOLATION",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 7,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 8,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 8.7
+  },
+  "t_dpdp003": {
+    "compliance_score": {
+      "applicable_obligations": 10,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 6,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 9,
+      "score_percentage": 90.0,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:15373da8e133855a4165f024b76f4f7fe17ab90c7a820c64f9e7800a118a2069"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "aaa3099274bf1fd0eaffc3b38e6927d96159af85a6300866e38aefa09c0ef2f2",
+      "consent_records.csv": "ecb674fbd0d6261c74a6febbc9da89341449f7ec5a1dfa706fdd6c7242667a8a",
+      "customer_master.csv": "6f4219d4223ec82ce2319136d9e622e16a6a0b8df71240b3398adc562150d1ac",
+      "data_lifecycle.csv": "f762af04bd8a915932ee5a55ae6478101dc79454f4729dcc63cc9ba4515433da",
+      "dsar_requests.csv": "6979ba076ebb03fc905466e5c706b82189ff39ab2cab1ed4cfaceca2fc5775cd",
+      "governance_config.csv": "eeee4a62fdbde02b4035189f7b966fc120655749d15f1c901627bf9b3fba3dc6",
+      "policies.csv": "a913afe8676dbcf2842363b1c64223c32df73aae1640f5506dfe48e6fe4cda03",
+      "security_events.csv": "1a5020ce77ea9c078a977c7ae628688412cc0280694079067592c04c7ed7af55",
+      "system_inventory.csv": "4fb52b2fdab0b484d229b18ab64d5c3060c616e8146e6e6e63467cf670a12629",
+      "transaction_events.csv": "1c12bae94b33ab50098b66057c8eda5e54f78135040e0dde081c6196baa9a159"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "VIOLATION",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 6,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 9,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 6.3
+  },
+  "t_dpdp004": {
+    "compliance_score": {
+      "applicable_obligations": 9,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 7,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 8,
+      "score_percentage": 88.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:4d05600306370abd10ba50ed90d4b9ee4c501795687fb74390aeb0dd25712d06"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "43a2d97fa190b3ef127bf3e5cbc8a4073832bd220f518e7d6b48577a5029991e",
+      "consent_records.csv": "75a103e3e484d01602474f89772d6abd7f9cff60958a0000e147dca2647d6113",
+      "customer_master.csv": "3660ae1e6d2b2e239ecb39e39aa85ba813ac180d51084ea827dbb26537c4268b",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "4f14a6b62d0f5601c51bc505522caa0754705ef21a6b02a5debbe9cdfd5ac87d",
+      "governance_config.csv": "28c5383dc5d78e9d15ac5ff7e8d0da86f916577407a2dea9683254423cc116e4",
+      "policies.csv": "23645ae45266f58a443cddf3c4f28571f8f44d3ce167c65b633512fc29d9d1bc",
+      "security_events.csv": "4abb829ece6abfc6bdd003e55b25c9882c9e2091e10bc175c5267941e4dec7a3",
+      "system_inventory.csv": "e27eba90c0c61628f791c0a1c4d8934651bd7f8fe9fa0d8411d9fbea33ef4f86",
+      "transaction_events.csv": "2b77c2858eb49c8e6d17658f0362b2dc2230ea4fcd5adc713762009aa99bd04e"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "VIOLATION",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 7,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 8,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 5.2
+  },
+  "t_dpdp005": {
+    "compliance_score": {
+      "applicable_obligations": 10,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 6,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 9,
+      "score_percentage": 90.0,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:4fa89a21de36cc7204d83d146cb266738be643445c45c3d2e419fc139457a037"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "2cee4128ccd243e32dc965955c44733b630491b3bbc278c3df5637f6e37af138",
+      "consent_records.csv": "2d7c2f9911629c7eaf0a6e5b98b2f1533bac28ec245e5798dbb3d10448ddf24f",
+      "customer_master.csv": "19833a8b3482bf9a31004ffd13e47e3f7a3216d3025363a0eac367936f0bb911",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "be9901b8718a7dd49aa37911fe09ac77f55a4724592555a75abbb4f236e5c01e",
+      "governance_config.csv": "29fddf421bb70d5ed948f83e9d436e139321697f77231da90a218c1878f09e2f",
+      "policies.csv": "cf815f50b6a270280ce3124b9f22a049ae374c24b6467322534dca21fd0a0316",
+      "security_events.csv": "a7d7a20a38c8c9780f9c3de77535e06f03104bd0fe7a31ffa2d376cf5f61e6af",
+      "system_inventory.csv": "9a92b645981197706c27772aae15585ab064fa463b684eb3fe44cfb5f8f9e138",
+      "transaction_events.csv": "4e0996e23b1ae1c02e4000a0773962177cd1719e79bf403fa402170f35a16373"
+    },
+    "maximum_statutory_exposure_crore": 200,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "VIOLATION",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 6,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 9,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 65.0
+  },
+  "t_dpdp006": {
+    "compliance_score": {
+      "applicable_obligations": 10,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 6,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 8,
+      "score_percentage": 80.0,
+      "total_obligations": 16,
+      "violated_obligations": 2,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:24019434c53f3582e879727a6a95872b5e76874115027bf4df1e30f4b62cd4ab",
+      "v2:512354bef70572d59d67fc93c621ccbee856f4041eb15e0b065c2b758bacf9f1"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "05e65c535d9f865e35a14ee26ca7c537dc7fb83b87ef533127db06a93be4a843",
+      "consent_records.csv": "3c4dbc7f6be73b2d75044d84d9fb035d96af8c21a4715b1b6aec467cbb6126da",
+      "customer_master.csv": "2a60268bc1b02b964477ac5eed83e8d22410dbc31136a46f8aee5d9f0d3e99a7",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "ff09aa75fdb5201c8f0e38066a388fcd7ce978d33a4549ddcc16df3b845ec4ed",
+      "governance_config.csv": "7761519c13551fb8aa0510217d758367161aaa4ba52318361326ee8ed4f20b9c",
+      "policies.csv": "3715229513e1d1f68354452e7e4f0bae03aa610ec6b02b51d74e5ae558c81900",
+      "security_events.csv": "4387057a80451fd6e8c6d806973dc0e303132cb610c6f426df17f49ed5fac305",
+      "system_inventory.csv": "bba9c5522c4060b9406dc5a022ca6b58f789433f25d2fb0bc5438e64dcedcb61",
+      "transaction_events.csv": "6337038add75165cf4a208f6f033fc8eedd010ccd180bd7772444b0520a2a23c"
+    },
+    "maximum_statutory_exposure_crore": 100,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "VIOLATION",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
       "DPDP-011": "NOT_APPLICABLE",
       "DPDP-012": "PASS",
       "DPDP-013": "PASS",
@@ -980,28 +417,622 @@
       "DPDP-016": "VIOLATION"
     },
     "outcome_count_by_state": {
-      "VIOLATION": 1,
-      "WARNING": 0,
-      "PASS": 9,
+      "FAILED": 0,
       "NOT_APPLICABLE": 6,
       "NOT_ASSESSABLE": 0,
-      "FAILED": 0
+      "PASS": 8,
+      "VIOLATION": 2,
+      "WARNING": 0
     },
-    "failed_rules_count": 1,
+    "risk_score": 12.4
+  },
+  "t_dpdp007": {
     "compliance_score": {
-      "score_percentage": 90.0,
-      "satisfied_obligations": 9,
-      "violated_obligations": 1,
-      "warning_obligations": 0,
+      "applicable_obligations": 9,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 7,
       "not_assessable_obligations": 0,
+      "satisfied_obligations": 8,
+      "score_percentage": 88.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:9ce9992e1ecf06ba8d374306435f82eb711c1673ec6150efd6aa867198f6840b"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "bcda81c4a6c7f2d0bed4e8ffcf727d30599529481dacea2ab815e189f0ad1989",
+      "consent_records.csv": "a77122e1447765300c26fbc6a96d2b4bc5cd52219c607ba84d5d131b8daef222",
+      "customer_master.csv": "1dd0b73cc9e9d273ad033d763f28108364c1ca32d21a0822c1128d19db13a39f",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "63cd7d5d7ce3f460bf7e0cc126f677c60ad46e9ab97d7b8d7dea2c05ae300f2b",
+      "governance_config.csv": "fc9c72f2ca06f8dc28cda4a09aa1f65e79d9db19710bec3eef567356bce8896d",
+      "policies.csv": "29a473ac620b1631fb2ea2c48ddb3f40d49cf99b8050bd139b5aeeb13649dc42",
+      "security_events.csv": "54da2e8569d8f3687d2b8da182ced6786cf15b5a132e905c8ec3b8e4e5af8a0f",
+      "system_inventory.csv": "bf036f544b4203bfa66fbda439f17f35a942a5b7581298c72798b025e480fff7",
+      "transaction_events.csv": "889e544c1e4143c150da585ed50e9488ee007d7147a5dfbe9d82d1d45ea6b201"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "VIOLATION",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 7,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 8,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 4.3
+  },
+  "t_dpdp008": {
+    "compliance_score": {
+      "applicable_obligations": 10,
       "failed_obligations": 0,
       "not_applicable_obligations": 6,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 9,
+      "score_percentage": 90.0,
       "total_obligations": 16,
-      "applicable_obligations": 10
+      "violated_obligations": 1,
+      "warning_obligations": 0
     },
-    "risk_score": 8.9,
-    "maximum_statutory_exposure_crore": 250,
     "expected_audit_run_status": "completed",
-    "expected_lineage_behaviour": "child_has_parent"
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:3681d01446daced0e9dbf55f83f0b340cfecca1f30902800281fea1df7832fce"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "86648b364d5565f60a3a7be25d2f31d66b451699d5d0e061edfe9f7153809d81",
+      "consent_records.csv": "d6f946e7a80465d60d43352a62eeb3c09765c04c9c97003551f4875ad203ce69",
+      "customer_master.csv": "ff786dcfa7da150b40403bd1e6b99ed6e7063f7d596655b99cfcceb0049e019b",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "f2cedb7083e08e12959f8b70d087ac7efce9a7525a32d4ca095ca1be612f15f2",
+      "governance_config.csv": "7300129796c49b56026167ea0b7af2bd5edd87ed9a467d2bfeee1846234dc9b1",
+      "policies.csv": "c087b5b24ba4c0687342f229e76b60ddc862829a4e1c3bb6c26c990ad44c64b6",
+      "security_events.csv": "e67ac850d47611cb1f445936333a971d54ad6b51b7d5365fdc887a9d0e8eead2",
+      "system_inventory.csv": "a0db623ba3596db79b1f588a676e2b2641516197e0795b35670d9d8f13ba6ac3",
+      "transaction_events.csv": "d640d5a822060a43e516f30d4a010e017343e13af5d50d1d0bb0698921385663"
+    },
+    "maximum_statutory_exposure_crore": 250,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "VIOLATION",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "PASS",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 6,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 9,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 65.0
+  },
+  "t_dpdp009": {
+    "compliance_score": {
+      "applicable_obligations": 8,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 8,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 7,
+      "score_percentage": 87.5,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "t_dpdp009"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "ce6eb30dbe77b625855179ce71fb9750fa99928c1110b16bb56caf65661fc3ef",
+      "consent_records.csv": "358660634095902cd0fd567050a3625858855ad31876037d3545f5030f9016a9",
+      "customer_master.csv": "c217fc42b763ad4aad14e73495f36bb7c75847a743e0ae277c87aa964d5e118a",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "83d775520a0eff1bc1a1883163e0c5f5386c5294395a1cc57ce7b067f7084cd7",
+      "governance_config.csv": "24affe8d1547a4e4661a99a2a090e68d461fe345209314aa8d8cea8b6b48761b",
+      "policies.csv": "fbd9506029b57466b117a3ed56659ef66d117fec2463de2192522093c01c97b8",
+      "security_events.csv": "f359e3de5526c835a86da4e8c645d766f904dc74ca79c55b4b8b1c6b4fed6b0c",
+      "system_inventory.csv": "412138e91bec868b3a861d9f19ffe1a36ba7644d6ac9dc48675a84b255c24d89",
+      "transaction_events.csv": "4c8b3186bc7031cc8abe160c6347e89b5df142640e8786b11a72036a7bcde71b"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "VIOLATION",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "NOT_APPLICABLE",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 8,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 7,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 2.3
+  },
+  "t_dpdp010": {
+    "compliance_score": {
+      "applicable_obligations": 11,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 5,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 10,
+      "score_percentage": 90.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:28b11165547608007bbbd6ec8778b40a321546ec7a5b09c479cb2562fa4e50c2"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "f4b301adc18b4523b3afe4f1ce6f2fdfae4c0fd381b8a5a6f1542affa4d59c5f",
+      "consent_records.csv": "5780b61c7d6f7423c85c04fce8101089249b0e2cc5c36b1e5f169beaf31d8a15",
+      "customer_master.csv": "f9b34d333809c4b06cb91411e5db768070c32795e9e98a07c0dfc747331b248a",
+      "data_lifecycle.csv": "fce0eac1994340a1ee6af790655f132f2c17c5aef9d6b357ab03fce8fffcf3e6",
+      "dsar_requests.csv": "7e4cb0e47e21580015ab24d870b3199fd41279a2b29cbd042cdea68881c59edf",
+      "governance_config.csv": "3d90e487b8a00a7b3d115d80a116c30a52defe1cad29f5f457692747fa01a5b8",
+      "policies.csv": "d0148d769b1d24c55dfa4fb96d4e108f175051bea40423ffa6b24cec00745858",
+      "security_events.csv": "c9172b66fb65d54c254400ee444cc91da6f6e851abcc4be67bc3f2fa65fbaa28",
+      "system_inventory.csv": "949f406b161c2d180226dc8990a098cc8161b3f9d0044e8383c6281b23a9d99c",
+      "transaction_events.csv": "326bc177a0852af09c9d3942afbfeb735ad6ff5eaf54294ee6956c00fd3feb44"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "PASS",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "VIOLATION",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 5,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 10,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 6.9
+  },
+  "t_dpdp011": {
+    "compliance_score": {
+      "applicable_obligations": 11,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 5,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 10,
+      "score_percentage": 90.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:c5278dbe90afec4fedd9437426e34bf6a763884db834925ef4ebcd15d02f2ac1"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "8e92f5526d597441200d7420d4a69ce5bbfa8899b96560f881f7c64ec8bce4b1",
+      "consent_records.csv": "e7c8282ad06ea671cd19cad838add0a162ed928fdee0453b4c245c756ea153cf",
+      "customer_master.csv": "b8b76fc75a9a88491e42c2890c470521b55ebe01531ec6f4a7bcadc00aa3a420",
+      "data_lifecycle.csv": "81f975b479365a4098ff7f13ad2775e0eec2026aad931a138198e8c07f36a35a",
+      "dsar_requests.csv": "7c766029c95a544055672dbb490bec80cda6ecaaa049722b234c57b0f8cd8047",
+      "governance_config.csv": "8cc8ab898c467e06aca24b68ad83e9513c3e67cc00a65a91be4b73434d90e5f4",
+      "policies.csv": "86b2729b1fd6f0935f5fb8b34e4d23dd0ed45a694e4fa69903d3a364a4d3d114",
+      "security_events.csv": "bda4e9c2b51c1069cbfe6cee6b115996da6e017eacae8deff2f360516dc8e388",
+      "system_inventory.csv": "d75fed16196b3f8f04f0d80af9c4ff064c8ff624e43c507580e49304c9ab9c4f",
+      "transaction_events.csv": "da4349a4c3fdfc3b35cc24fd92edc78e792c6fd6245e6e154bab6d6bc6b07d85"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "PASS",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "VIOLATION",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 5,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 10,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 4.3
+  },
+  "t_dpdp012": {
+    "compliance_score": {
+      "applicable_obligations": 9,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 7,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 9,
+      "score_percentage": 100.0,
+      "total_obligations": 16,
+      "violated_obligations": 0,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "7e69220b468b2be9679e630dabbeb68ed059a08199c90ed0f21712ebf5b4b448",
+      "consent_records.csv": "a91deb11b649eebb766c43a626795e806b5873af026cd73829023667fed6d3fe",
+      "customer_master.csv": "c6bb4b098c6d2bca56296bfbe9ae642c5c2adf374cf5748f4bbcab3efefc73e1",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "481778790256ee6a24d1d69de45bd821b6684b2f074cd6039fb2479257ff50f4",
+      "governance_config.csv": "bed794c18c120945fed5ec35e1d8c159dee75ad81e50b41771e2099e5fe11e3c",
+      "policies.csv": "85355e574508506e1bc3104c1c566c9d55475f052ae082710e70e3826ddbc541",
+      "security_events.csv": "41b76d77c41f3e2760675297c3843978d4f84b781ec3d2ef6a9445f8c5c52d4f",
+      "system_inventory.csv": "b12bb1cf8fbb61cd00d7d651df742016004f9032bdf1235d95d3c8677e2638cd",
+      "transaction_events.csv": "65dc7a94cad5289ed535a92ace7ebb536118930341b2c87d94f5b865a105d5fa"
+    },
+    "maximum_statutory_exposure_crore": 0,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 7,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 9,
+      "VIOLATION": 0,
+      "WARNING": 0
+    },
+    "risk_score": 0.0
+  },
+  "t_dpdp013": {
+    "compliance_score": {
+      "applicable_obligations": 9,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 7,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 8,
+      "score_percentage": 88.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:74c5682cd61c36b652c2f997fb40efc304469d4d79a6361ff83882b5022f9a1f"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "ee2bfea9b01cfd83d3a3fc809ad73239fb8440f8f104dc3798e2d1431f2c54d9",
+      "consent_records.csv": "8e13f694f52fa9ef87f585d62be7cf0fed44645997fa072a9079bfb216b9c473",
+      "customer_master.csv": "e10969eda1a8e60087f0ac37c38331f1680f2f7f0b9e389db7824da6408ad263",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "e6c910bc3191ff625168586050af0ce0ca3708ae7a2e2f382091621caa7d6bb3",
+      "governance_config.csv": "6ecdacf8dc656c3e46db2d712014cce7056cb0c152bbacbd34da950f2b437411",
+      "policies.csv": "65868d49926f00ee39b27bd1669e6f3b4586db3fe58c6aceaa0162f60b36edb6",
+      "security_events.csv": "82103bc4f8d017c27a5070605f2f02a1dedcf093e1a457d5d24c264cb2bb485d",
+      "system_inventory.csv": "d773b7316472f9484bcdf336cf5f47b6957429a5515b8f2345edd11d437c7caf",
+      "transaction_events.csv": "1e1b29b406db8805afd5e69c0f29898e537cb994165f69fa4053ba13b88bd40c"
+    },
+    "maximum_statutory_exposure_crore": 250,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "VIOLATION",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 7,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 8,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 12.6
+  },
+  "t_dpdp014": {
+    "compliance_score": {
+      "applicable_obligations": 10,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 6,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 9,
+      "score_percentage": 90.0,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:cf8c968a333032f0fee2fd8dcb70761260104c28ccf100395597d735866122b3"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "787cbd37f4c39505a0869f904ad3affc31b4d02ed694aef2a8300fc09125682f",
+      "consent_records.csv": "18f2a624bd8f6074888cdb59aee4822663e661228ab0eb624454ab29a86e3429",
+      "customer_master.csv": "e28efc69d8ed6b54ececd804896acba0f6f90df5281a7689f3b3ac0ad54b3473",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "7a0a95794eef46b5eae2647d7e25eaad0c86555093aacf13c5f49ec88d8bd341",
+      "governance_config.csv": "e5c159895ee22be2ee542c813a227bc21229d899dc173350c89f2f22919737d4",
+      "policies.csv": "33a5b9732067502bd43913b8dde1442895d01716a2994f80831f0a39463e678f",
+      "security_events.csv": "ca2ff8836dce096400daa95eca2709c76ae2e470ed4702665655de263d934884",
+      "system_inventory.csv": "78c67183bb37fc8064564eca1d3066506490577242ba1b886a1f13550490c15a",
+      "transaction_events.csv": "039f11f17866294ced86077a9cb9a06a22e4fd74a3b35c591addcd5de4b47af0"
+    },
+    "maximum_statutory_exposure_crore": 200,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "VIOLATION",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "NOT_APPLICABLE"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 6,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 9,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 65.0
+  },
+  "t_dpdp015": {
+    "compliance_score": {
+      "applicable_obligations": 11,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 5,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 10,
+      "score_percentage": 90.9,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:f60b96472847822247a98f7f5b4e3dcbdbb8c908e66614708b7a4aacd6f9502b"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "046e3a126f474970eea99084a7f63ce3585a42d4aa17b82c4c9a00ff2ae16ad7",
+      "consent_records.csv": "d639bc50ac772239abcbc4dbfb406a84fcbe9c4beee427079173a3407271e65f",
+      "customer_master.csv": "bf600dfd7317fbca24b4925513df8ae92c8560f1780e11ac5832e25acaa7e0c7",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "e58468590deed160dca69aed4220fec722dee60ebf6f84a70e5abdb1517b0347",
+      "governance_config.csv": "e12aedab9bcba2a0f434bb050deef8221cbf4683ad26a3511d7eb8b75f366e7d",
+      "policies.csv": "7f9bae813283197d9784129128b67a916e3473be404dea7a005473aa35004cc1",
+      "security_events.csv": "74dc0835a15eb4692878be7c4058487b15f20088470001089443afb064c421b4",
+      "system_inventory.csv": "73260afa3b1a6fbeac3b526b6ce900205932420dd830397c6f238969e6d2c2e9",
+      "transaction_events.csv": "99703643fddf547a8daf634f7addd944a6470563d7b05e9b3b1ffdb0466427f3"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "VIOLATION",
+      "DPDP-016": "PASS"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 5,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 10,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 6.1
+  },
+  "t_dpdp016": {
+    "compliance_score": {
+      "applicable_obligations": 10,
+      "failed_obligations": 0,
+      "not_applicable_obligations": 6,
+      "not_assessable_obligations": 0,
+      "satisfied_obligations": 9,
+      "score_percentage": 90.0,
+      "total_obligations": 16,
+      "violated_obligations": 1,
+      "warning_obligations": 0
+    },
+    "expected_audit_run_status": "completed",
+    "expected_lineage_behaviour": "child_has_parent",
+    "expected_record_hashes_identities": [
+      "None",
+      "None",
+      "v2:12abd176c548500f8d3123f8976aa7bb834ebf778aae45f5914f2f509c9c97a0"
+    ],
+    "failed_rules_count": 0,
+    "input_file_hashes": {
+      "access_logs.csv": "9f3a89e5f61d3621bde51df04fb71e58d277201c191f46c139f7c788eebc426e",
+      "consent_records.csv": "9a4c1ea62d6d8cbac48ccf7d48d45ce6e05f2724a4c479ac5794f41a9cd6a857",
+      "customer_master.csv": "0f913729544f59a22e0e95455b45cd588fc6446bd507e8155ef3d21bccc1af2c",
+      "data_lifecycle.csv": "4885ed76ec529da3c3bae9f464e614b104bc200994ae8250e31fa3f256ada5e4",
+      "dsar_requests.csv": "f044ab22de47491a765dda71b9a61d09b26250f79616a745d80901a87a0bc968",
+      "governance_config.csv": "42ceed6c3ec88348fde026d62b1105a7c732348d18041cb1c059b9ef38831542",
+      "policies.csv": "5d72d2abad94fbe4f5dc48a5bdff9dd4fb193bfb5bc2e718efa10d9dc4b1a950",
+      "security_events.csv": "ea75edb3d88585cc76667c6e5520a7f732455a1adab2d6b713d0d64ddc8dfa17",
+      "system_inventory.csv": "1418f7cabbc008beda321fff8f2377ceae507ae113b7dffa990d9a05e886c427",
+      "transaction_events.csv": "14bda41a3e09dbfe7a3e158f880c456dff23337f262ddb92946a13a766be698d"
+    },
+    "maximum_statutory_exposure_crore": 50,
+    "outcome_count_by_rule": {
+      "DPDP-001": "PASS",
+      "DPDP-002": "PASS",
+      "DPDP-003": "NOT_APPLICABLE",
+      "DPDP-004": "PASS",
+      "DPDP-005": "NOT_APPLICABLE",
+      "DPDP-006": "PASS",
+      "DPDP-007": "PASS",
+      "DPDP-008": "PASS",
+      "DPDP-009": "PASS",
+      "DPDP-010": "NOT_APPLICABLE",
+      "DPDP-011": "NOT_APPLICABLE",
+      "DPDP-012": "PASS",
+      "DPDP-013": "PASS",
+      "DPDP-014": "NOT_APPLICABLE",
+      "DPDP-015": "NOT_APPLICABLE",
+      "DPDP-016": "VIOLATION"
+    },
+    "outcome_count_by_state": {
+      "FAILED": 0,
+      "NOT_APPLICABLE": 6,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 9,
+      "VIOLATION": 1,
+      "WARNING": 0
+    },
+    "risk_score": 5.9
   }
 }

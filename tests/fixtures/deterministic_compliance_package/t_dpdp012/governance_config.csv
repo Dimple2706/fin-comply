@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact_masked,audit_frequency_days,last_audit_date,risk_level
-t_dpdp012,Violation Tenant 12,True,True,dpo@test.local,90,2025-08-01,MEDIUM
+tenant_id,tenant_name,is_significant_data_fiduciary,grievance_endpoint_available,dpo_assigned,dpo_contact_masked,audit_frequency_days,last_audit_date,risk_level
+t_dpdp012,Violation Tenant 12,True,True,True,dpo@test.local,90,2025-08-01,MEDIUM

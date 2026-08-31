@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
@@ -53,16 +53,16 @@ def test_4_invalid_fulfilled_date_rejected():
         _anonymize_dsar_requests(df, "T1")
     assert exc.value.error_code == "INVALID_DATE_FORMAT"
 
-def test_5_sla_due_date_30_days_accepted():
-    df = build_dsar_df(submitted_date="2024-01-01", sla_due_date="2024-01-31")
-    result = _anonymize_dsar_requests(df, "T1")
-    assert result[0]["sla_due_date"] == "2024-01-31"
-
-def test_6_inconsistent_sla_due_date_rejected():
+def test_5_evidenced_sla_due_date_is_preserved_without_a_30_day_rule():
     df = build_dsar_df(submitted_date="2024-01-01", sla_due_date="2024-02-15")
+    result = _anonymize_dsar_requests(df, "T1")
+    assert result[0]["sla_due_date"] == "2024-02-15"
+
+def test_6_sla_due_date_not_after_submission_is_rejected():
+    df = build_dsar_df(submitted_date="2024-01-01", sla_due_date="2024-01-01")
     with pytest.raises(DsarValidationError) as exc:
         _anonymize_dsar_requests(df, "T1")
-    assert exc.value.error_code == "INCONSISTENT_SLA_DATE"
+    assert exc.value.error_code == "INVALID_SLA_SEQUENCE"
 
 def test_rejected_without_reason_fails():
     df = build_dsar_df(fulfillment_status="rejected")

@@ -32,7 +32,10 @@ def test_startup_secret_checks():
         check_database_migration_complete()
 
     # Database schema check succeeds when correct DATABASE_URL of migrated DB is set
-    os.environ["DATABASE_URL"] = os.getenv("DPDP_TEST_DATABASE_URL") or "postgresql://postgres:rasika23@localhost:5432/dpdp_test_isolated"
+    test_database_url = os.getenv("DPDP_TEST_DATABASE_URL")
+    if not test_database_url:
+        pytest.skip("DPDP_TEST_DATABASE_URL is required for the database schema check")
+    os.environ["DATABASE_URL"] = test_database_url
     check_database_migration_complete()
 
     # Restore environment

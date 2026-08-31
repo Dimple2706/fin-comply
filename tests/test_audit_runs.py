@@ -118,7 +118,7 @@ def test_two_different_results_and_explicit_selection():
     # First run: dpo_assigned = True
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("UPDATE governance_config SET dpo_assigned = 'True' WHERE tenant_id = 'tenant_a';")
+            cur.execute("UPDATE governance_config SET is_significant_data_fiduciary = TRUE, dpo_assigned = TRUE, last_audit_date = CURRENT_DATE, audit_frequency_days = 90 WHERE tenant_id = 'tenant_a';")
         conn.commit()
     res1 = client.post("/analyze", json={"tenant_id": "tenant_a"}, headers={"Authorization": f"Bearer {admin_token}"})
     assert res1.status_code == 200
@@ -128,7 +128,7 @@ def test_two_different_results_and_explicit_selection():
     # Second run: dpo_assigned = False (different result)
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("UPDATE governance_config SET dpo_assigned = 'False' WHERE tenant_id = 'tenant_a';")
+            cur.execute("UPDATE governance_config SET dpo_assigned = FALSE WHERE tenant_id = 'tenant_a';")
         conn.commit()
     res2 = client.post("/analyze", json={"tenant_id": "tenant_a"}, headers={"Authorization": f"Bearer {admin_token}"})
     assert res2.status_code == 200

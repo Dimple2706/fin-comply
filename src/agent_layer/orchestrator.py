@@ -402,12 +402,21 @@ def run_compliance_analysis(
     # ── Load rules dynamically ───────────────────────────────
 
     all_rule_metadata = load_active_rule_metadata()
-    total_obligations = len(all_rule_metadata)
-    rule_metadata = {k: v for k, v in all_rule_metadata.items() if not k.startswith("POLICY-")}
+    rule_metadata = {
+        k: v for k, v in all_rule_metadata.items()
+        if not k.startswith("POLICY-")
+    }
+    internal_control_metadata = {
+        k: v for k, v in all_rule_metadata.items()
+        if k.startswith("POLICY-")
+    }
+    total_obligations = len(rule_metadata)
 
     print(
         f"[orchestrator] active rules from DB = "
-        f"{total_obligations}"
+        f"{len(all_rule_metadata)} "
+        f"({total_obligations} statutory, "
+        f"{len(internal_control_metadata)} internal)"
     )
 
 
@@ -453,11 +462,20 @@ def run_compliance_analysis(
 
     # ── Separate outcomes ────────────────────────────────────
 
+    statutory_findings = [
+        finding for finding in all_violations
+        if not finding.rule_id.startswith("POLICY-")
+    ]
+    internal_control_findings = [
+        finding for finding in all_violations
+        if finding.rule_id.startswith("POLICY-")
+    ]
+
     violations_only = [
 
         violation
 
-        for violation in all_violations
+        for violation in statutory_findings
 
         if violation.outcome == "VIOLATION"
     ]
@@ -467,7 +485,7 @@ def run_compliance_analysis(
 
         violation
 
-        for violation in all_violations
+        for violation in statutory_findings
 
         if violation.outcome == "WARNING"
     ]
@@ -476,7 +494,7 @@ def run_compliance_analysis(
     # ── Step 2: Dynamic risk scoring ─────────────────────────
     risk_score, tier, contributions = (
         compute_risk_score(
-            all_violations,
+            statutory_findings,
             tenant_id,
             rule_metadata
         )
@@ -486,7 +504,7 @@ def run_compliance_analysis(
     # Group all_violations by rule_id to determine rule-level states
     rule_states = {}
     for r_id in rule_metadata.keys():
-        records = [v for v in all_violations if v.rule_id == r_id]
+        records = [v for v in statutory_findings if v.rule_id == r_id]
         if any(r.outcome == "FAILED" for r in records):
             rule_states[r_id] = "FAILED"
         elif any(r.outcome == "VIOLATION" for r in records):
@@ -565,7 +583,7 @@ def run_compliance_analysis(
 
                 tenant_id=tenant_id,
 
-                all_violations=all_violations,
+                all_violations=statutory_findings,
 
                 risk_score=risk_score,
 
@@ -581,6 +599,30 @@ def run_compliance_analysis(
 
         report_conn.close()
 
+
+    internal_control_states = {}
+    for rule_id in internal_control_metadata:
+        records = [
+            finding for finding in internal_control_findings
+            if finding.rule_id == rule_id
+        ]
+        if any(record.outcome == "FAILED" for record in records):
+            internal_control_states[rule_id] = "FAILED"
+        elif any(record.outcome == "VIOLATION" for record in records):
+            internal_control_states[rule_id] = "VIOLATION"
+        elif any(record.outcome == "NOT_ASSESSABLE" for record in records):
+            internal_control_states[rule_id] = "NOT_ASSESSABLE"
+        elif any(record.outcome == "PASS" for record in records):
+            internal_control_states[rule_id] = "PASS"
+        else:
+            internal_control_states[rule_id] = "NOT_APPLICABLE"
+
+    report["internal_controls"] = {
+        "classification": "INTERNAL_CONTROL",
+        "statutory_penalty_exposure_crore": 0.0,
+        "summary_by_rule": internal_control_states,
+        "findings": [finding.to_dict() for finding in internal_control_findings],
+    }
 
     # ── Step 6: ML layer ─────────────────────────────────────
 
@@ -628,9 +670,9 @@ def run_compliance_analysis(
 
 
         "run_timestamp":
-            _dt.datetime.utcnow()
+            _dt.datetime.now(_dt.timezone.utc)
             .isoformat()
-            + "Z",
+            .replace("+00:00", "Z"),
 
 
         "status":
@@ -640,6 +682,12 @@ def run_compliance_analysis(
         # Dynamic active rule count
         "total_obligations":
             total_obligations,
+
+        "internal_control_count":
+            len(internal_control_metadata),
+
+        "internal_controls":
+            report.get("internal_controls"),
 
 
         # Summary
@@ -732,7 +780,9 @@ def run_compliance_analysis(
         "run_metadata": {
             "engine_version": "1.0.0",
             "schema_version": "2026.1",
-            "active_rule_count": total_obligations,
+            "active_rule_count": len(all_rule_metadata),
+            "statutory_rule_count": total_obligations,
+            "internal_control_count": len(internal_control_metadata),
             "model_version": "1.0",
             "model_sha256": _get_model_sha256(),
             "evaluated_at": datetime.now(timezone.utc).isoformat(),

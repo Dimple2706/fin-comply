@@ -38,7 +38,7 @@ DB_HOST     = os.getenv("DB_HOST", "localhost")
 DB_PORT     = os.getenv("DB_PORT", "5432")
 DB_NAME     = os.getenv("DB_NAME", "tenant_db")
 DB_USER     = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "rasika23")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -57,7 +57,7 @@ def get_connection() -> psycopg.Connection:
 
 def load_json(path: Path) -> list[dict]:
     """Load JSON — handles both a single object {} and an array [{}]."""
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
     return data if isinstance(data, list) else [data]
 

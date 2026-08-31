@@ -172,6 +172,8 @@ def train_pipeline():
     # Save fitted XGBoost classifier
     model_path = "src/modeling/risk_model.pkl"
     joblib.dump(fitted_xgb, model_path)
+    native_model_path = "src/modeling/risk_model.json"
+    fitted_xgb.save_model(native_model_path)
 
     # Save training numpy data for LIME / explainability background
     data_path = "data/training/training_data.npy"
@@ -209,6 +211,7 @@ def train_pipeline():
         json.dump(shap_output, f, indent=2)
 
     print(f"  [OK] Saved {model_path} ({os.path.getsize(model_path)} bytes)")
+    print(f"  [OK] Saved {native_model_path} ({os.path.getsize(native_model_path)} bytes)")
     print(f"  [OK] Saved {data_path} ({X_train.shape})")
     print(f"  [OK] Saved {feat_path}")
     print(f"  [OK] Saved {label_map_path}")

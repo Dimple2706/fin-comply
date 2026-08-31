@@ -152,14 +152,14 @@ This document specifies the rule contracts for all active compliance rules in th
   - `security_events`: `security_hash`, `tenant_id`, `pii_encrypted`, `encryption_type`, `breach_detected`
 * **Join Keys**: None (single table).
 * **Evaluation Cases**:
-  - **PASS**: PII is encrypted standard.
-    - *Concrete Example*: `breach_detected = True`, `pii_encrypted = True`.
-  - **VIOLATION**: Unencrypted sensitive data store or weak encryption.
-    - *Concrete Example*: `breach_detected = True`, `pii_encrypted = False`.
-  - **NOT_APPLICABLE**: No security breach detected.
-    - *Concrete Example*: `breach_detected = False`.
-  - **NOT_ASSESSABLE**: `pii_encrypted` is `NULL`.
+  - **PASS**: PII is recorded as encrypted with an accepted algorithm.
+    - *Concrete Example*: `pii_encrypted = True`, `encryption_type = 'AES-256'`.
+  - **VIOLATION**: PII is recorded as unencrypted, or a weak/non-encryption algorithm is recorded.
+    - *Concrete Example*: `pii_encrypted = False`, or `encryption_type = 'none'`.
+  - **NOT_APPLICABLE**: No security-event records exist for the tenant.
+  - **NOT_ASSESSABLE**: `pii_encrypted` or required `encryption_type` evidence is `NULL`.
     - *Concrete Example*: `pii_encrypted = NULL`.
+* **Applicability Note**: Encryption safeguards are evaluated independently of whether a breach has occurred.
 * **Finding Identity / Record ID**: `security_hash`.
 
 ---
@@ -167,16 +167,16 @@ This document specifies the rule contracts for all active compliance rules in th
 ### DPDP-009: Missing Grievance Redressal Mechanism
 * **Rule ID**: DPDP-009
 * **Required Tables & Fields**:
-  - `governance_config`: `tenant_id`, `grievance_endpoint_available`, `dpo_assigned`, `dpo_contact_masked`
+  - `governance_config`: `tenant_id`, `grievance_endpoint_available`
 * **Join Keys**: None (single table).
 * **Evaluation Cases**:
-  - **PASS**: Grievance endpoint is available, DPO is assigned, and DPO contact is present.
-    - *Concrete Example*: `grievance_endpoint_available = True`, `dpo_assigned = True`, `dpo_contact_masked = 'd***@company.com'`.
-  - **VIOLATION**: Missing endpoint, missing DPO, or missing contact masked.
-    - *Concrete Example*: `dpo_assigned = False` or `grievance_endpoint_available = False`.
-  - **NOT_APPLICABLE**: *State cannot occur*. DPO and grievance redressal mechanisms are universal statutory requirements under Section 9 of the DPDP Act and must apply to all registered compliance profiles.
-  - **NOT_ASSESSABLE**: `dpo_assigned` is `NULL`.
-    - *Concrete Example*: `dpo_assigned = NULL`.
+  - **PASS**: A readily available grievance endpoint is recorded.
+    - *Concrete Example*: `grievance_endpoint_available = True` (a DPO is not universally mandatory).
+  - **VIOLATION**: The grievance endpoint is explicitly unavailable.
+    - *Concrete Example*: `grievance_endpoint_available = False`.
+  - **NOT_APPLICABLE**: *State cannot occur*. Grievance redressal applies to every Data Fiduciary.
+  - **NOT_ASSESSABLE**: The grievance evidence is missing.
+    - *Concrete Example*: `grievance_endpoint_available = NULL`.
 * **Finding Identity / Record ID**: `tenant_id`.
 
 ---
@@ -221,18 +221,19 @@ This document specifies the rule contracts for all active compliance rules in th
 ### DPDP-012: Missing or Overdue Audit Logs
 * **Rule ID**: DPDP-012
 * **Required Tables & Fields**:
-  - `governance_config`: `tenant_id`, `last_audit_date`, `audit_frequency_days`, `dpo_assigned`
+  - `governance_config`: `tenant_id`, `is_significant_data_fiduciary`, `last_audit_date`, `audit_frequency_days`, `dpo_assigned`
   - `access_logs` (aggregated): `tenant_id`, `access_outcome`
 * **Join Keys**:
   - Subquery aggregates `access_logs` grouped by `tenant_id` to join on `governance_config.tenant_id`
 * **Evaluation Cases**:
-  - **PASS**: Audit date is within threshold days, access outcomes are log-complete, and DPO is assigned.
+  - **PASS**: For a designated SDF, the audit date is within threshold days, access outcomes are log-complete, and a DPO is assigned.
     - *Concrete Example*: `last_audit_date = '2026-08-01'`, `audit_frequency_days = 90`.
-  - **VIOLATION**: Overdue audit, incomplete outcomes, or no DPO.
+  - **VIOLATION**: A designated SDF has an overdue audit, incomplete outcomes, or no DPO.
     - *Concrete Example*: `last_audit_date = '2025-08-01'` (overdue).
-  - **NOT_APPLICABLE**: *State cannot occur*. Regular audits are a mandatory obligation for all registered compliance tenants.
-  - **NOT_ASSESSABLE**: `last_audit_date` is `NULL`.
-    - *Concrete Example*: `last_audit_date = NULL`.
+  - **NOT_APPLICABLE**: The tenant is explicitly recorded as not being a designated SDF.
+    - *Concrete Example*: `is_significant_data_fiduciary = False`.
+  - **NOT_ASSESSABLE**: SDF designation or required SDF audit evidence is missing.
+    - *Concrete Example*: `is_significant_data_fiduciary = NULL`.
 * **Finding Identity / Record ID**: `tenant_id`.
 
 ---
@@ -240,17 +241,17 @@ This document specifies the rule contracts for all active compliance rules in th
 ### DPDP-013: Unauthorised Employee Access to PII
 * **Rule ID**: DPDP-013
 * **Required Tables & Fields**:
-  - `access_logs`: `access_hash`, `tenant_id`, `employee_role`, `accessed_pii`, `access_outcome`, `data_volume_accessed`
+  - `access_logs`: `access_hash`, `tenant_id`, `accessed_pii`, `access_authorized`
 * **Join Keys**: None.
 * **Evaluation Cases**:
-  - **PASS**: Authorized roles or no PII accessed.
-    - *Concrete Example*: `accessed_pii = True`, `employee_role = 'dpo'`.
-  - **VIOLATION**: Unauthorized employee accessing PII.
-    - *Concrete Example*: `accessed_pii = True`, `employee_role = 'marketing'`.
+  - **PASS**: PII access has an explicit positive authorization decision.
+    - *Concrete Example*: `accessed_pii = True`, `access_authorized = True`.
+  - **VIOLATION**: Completed PII access is explicitly recorded as unauthorized.
+    - *Concrete Example*: `accessed_pii = True`, `access_authorized = False`.
   - **NOT_APPLICABLE**: Access did not touch PII.
     - *Concrete Example*: `accessed_pii = False`.
-  - **NOT_ASSESSABLE**: `accessed_pii` is `NULL`.
-    - *Concrete Example*: `accessed_pii = NULL`.
+  - **NOT_ASSESSABLE**: `accessed_pii` or `access_authorized` is `NULL`.
+    - *Concrete Example*: `accessed_pii = True`, `access_authorized = NULL`.
 * **Finding Identity / Record ID**: `access_hash`.
 
 ---
@@ -258,37 +259,35 @@ This document specifies the rule contracts for all active compliance rules in th
 ### DPDP-014: Delayed Breach Notification
 * **Rule ID**: DPDP-014
 * **Required Tables & Fields**:
-  - `security_events`: `security_hash`, `tenant_id`, `breach_detected`, `notification_delay_hours`, `breach_confirmed_date`, `affected_user_count`
+  - `security_events`: `security_hash`, `tenant_id`, `breach_detected`, `notification_delay_hours`, `breach_confirmed_date`
 * **Join Keys**: None.
 * **Evaluation Cases**:
   - **PASS**: Breach detected and delay <= 72 hours, with confirmed date available.
     - *Concrete Example*: `breach_detected = True`, `notification_delay_hours = 24`, `breach_confirmed_date = '2026-08-23'`.
-  - **VIOLATION**: Delay > 72 hours, or missing breach confirmed date, or critical breach count.
+  - **VIOLATION**: Detailed notification to the Board exceeded 72 hours.
     - *Concrete Example*: `breach_detected = True`, `notification_delay_hours = 80` (exceeds 72 hours).
   - **NOT_APPLICABLE**: No security breach detected.
     - *Concrete Example*: `breach_detected = False`.
-  - **NOT_ASSESSABLE**: `breach_confirmed_date` is `NULL`.
+  - **NOT_ASSESSABLE**: The awareness/confirmation date or notification-delay evidence is missing.
     - *Concrete Example*: `breach_confirmed_date = NULL`.
 * **Finding Identity / Record ID**: `security_hash`.
 
 ---
 
-### DPDP-015: Cross-Border Transfer Without Authorisation
+### DPDP-015: Cross-Border Transfer Restriction Assessment
 * **Rule ID**: DPDP-015
 * **Required Tables & Fields**:
-  - `transaction_events`: `event_hash`, `tenant_id`, `third_party_hash`, `is_cross_border`, `transfer_country`
-  - `system_inventory`: `system_hash`, `tenant_id`, `dpa_signed`
-* **Join Keys**:
-  - `system_inventory.system_hash = transaction_events.third_party_hash` AND `system_inventory.tenant_id = transaction_events.tenant_id`
+  - `transaction_events`: `event_hash`, `tenant_id`, `is_cross_border`, `transfer_country`, `transfer_restriction_compliant`, `transfer_assessment_reference`
+* **Join Keys**: None. Processor-contract evidence is evaluated separately by DPDP-016.
 * **Evaluation Cases**:
-  - **PASS**: Cross-border, country is approved, and DPA is signed.
-    - *Concrete Example*: `is_cross_border = True`, `transfer_country = 'SG'`, `dpa_signed = True`.
-  - **VIOLATION**: Destination country is not on approved list or DPA is missing.
-    - *Concrete Example*: `is_cross_border = True`, `transfer_country = 'CN'` (unapproved), or `dpa_signed = False`.
+  - **PASS**: Cross-border transfer has a recorded compliant restriction assessment and an evidence reference.
+    - *Concrete Example*: `is_cross_border = True`, `transfer_country = 'SG'`, `transfer_restriction_compliant = True`, `transfer_assessment_reference = 'LEGAL-TR-2026-041'`.
+  - **VIOLATION**: The recorded assessment explicitly says an applicable restriction is not satisfied.
+    - *Concrete Example*: `transfer_restriction_compliant = False` with a supporting assessment reference.
   - **NOT_APPLICABLE**: Transaction is not cross-border.
     - *Concrete Example*: `is_cross_border = False`.
-  - **NOT_ASSESSABLE**: Missing destination country or DPA safeguards.
-    - *Concrete Example*: `is_cross_border = NULL` or `transfer_country = NULL` or `dpa_signed = NULL`.
+  - **NOT_ASSESSABLE**: Missing destination, assessment result, or evidence reference.
+    - *Concrete Example*: `transfer_restriction_compliant = NULL` or `transfer_assessment_reference = NULL`.
 * **Finding Identity / Record ID**: `event_hash`.
 
 ---
@@ -316,34 +315,41 @@ This document specifies the rule contracts for all active compliance rules in th
 
 ### POLICY-001: Retention Policy Compliance
 * **Rule ID**: POLICY-001
+* **Classification**: Internal readiness control; it does not carry statutory penalty exposure.
 * **Required Tables & Fields**:
-  - `policies`: `policy_id`, `tenant_id`, `policy_type` ('retention'), `is_active`, `policy_value_numeric`
+  - `policies`: `policy_id`, `tenant_id`, `policy_type` ('retention'), `is_active`
 * **Join Keys**: None.
 * **Evaluation Cases**:
-  - **PASS**: Policy is active and value <= 730 days.
-  - **VIOLATION**: Policy inactive or value > 730 days.
+  - **PASS**: A retention policy is present and active.
+  - **VIOLATION**: The required internal policy is missing or inactive.
+  - **NOT_ASSESSABLE**: Policy activity evidence is missing.
+* **Legal Limit Note**: No universal 730-day statutory limit is applied. Actual retention must be assessed against purpose and applicable law.
 * **Finding Identity / Record ID**: `policy_id`.
 
 ---
 
 ### POLICY-002: Encryption Policy Compliance
 * **Rule ID**: POLICY-002
+* **Classification**: Internal readiness control; it does not carry statutory penalty exposure.
 * **Required Tables & Fields**:
   - `policies`: `policy_id`, `tenant_id`, `policy_type` ('encryption'), `is_active`, `policy_value_text`
 * **Join Keys**: None.
 * **Evaluation Cases**:
   - **PASS**: Policy is active and value standard.
   - **VIOLATION**: Inactive or weak standard (e.g. 'none', 'md5', 'sha1', 'des', 'rc4').
+  - **NOT_ASSESSABLE**: Required policy text is missing.
 * **Finding Identity / Record ID**: `policy_id`.
 
 ---
 
 ### POLICY-003: Consent Mechanism Policy
 * **Rule ID**: POLICY-003
+* **Classification**: Internal readiness control; it does not carry statutory penalty exposure.
 * **Required Tables & Fields**:
   - `policies`: `policy_id`, `tenant_id`, `policy_type` ('consent'), `is_active`, `policy_value_text`
 * **Join Keys**: None.
 * **Evaluation Cases**:
   - **PASS**: Policy active and channel compliant.
   - **VIOLATION**: Inactive or non-compliant channel (e.g. 'implicit', 'pre_ticked', 'inferred', 'bundled').
+  - **NOT_ASSESSABLE**: Required policy text is missing.
 * **Finding Identity / Record ID**: `policy_id`.

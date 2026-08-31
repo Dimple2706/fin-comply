@@ -150,6 +150,9 @@ def test_deterministic_compliance_fixtures():
         if tenant_id == "t_clean":
             assert len(res_data_1.get("violations", [])) == 0
             assert expected["failed_rules_count"] == 0
+
+        assert res_data_1["failed_rules_count"] == 0
+        assert res_data_1["outcome_count_by_state"]["FAILED"] == 0
             
         # 5. Repeat-run lineage semantics & stability
         # A. Second run analysis

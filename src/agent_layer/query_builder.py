@@ -5,6 +5,14 @@ logger = logging.getLogger(__name__)
 # DPDP-006 requires custom multi-join logic because it joins consent_records on consent_id
 # and system_inventory on third_party_id, but rules table only holds one join_key ("consent_id").
 NATIVE_QUERIES = {
+    "DPDP-001": """
+        SELECT p.event_hash AS primary_hash, p.*, cr.*
+        FROM transaction_events p
+        LEFT JOIN consent_records cr
+          ON p.consent_hash = cr.consent_hash
+         AND p.tenant_id = cr.tenant_id
+        WHERE p.tenant_id = %s
+    """,
     "DPDP-005": """
         SELECT 
             COALESCE(cr.consent_hash, c.customer_hash) AS primary_hash,
@@ -72,10 +80,21 @@ NATIVE_QUERIES = {
         WHERE g.tenant_id = %s
     """,
     "DPDP-015": """
-        SELECT p.*, si.*
+        SELECT p.*
         FROM transaction_events p
-        LEFT JOIN system_inventory si ON p.third_party_hash = si.system_hash AND p.tenant_id = si.tenant_id
         WHERE p.tenant_id = %s
+    """,
+    "POLICY-001": """
+        SELECT p.* FROM policies p
+        WHERE p.tenant_id = %s AND p.policy_type = 'retention'
+    """,
+    "POLICY-002": """
+        SELECT p.* FROM policies p
+        WHERE p.tenant_id = %s AND p.policy_type = 'encryption'
+    """,
+    "POLICY-003": """
+        SELECT p.* FROM policies p
+        WHERE p.tenant_id = %s AND p.policy_type = 'consent'
     """
 }
 

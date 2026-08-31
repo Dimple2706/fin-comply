@@ -24,10 +24,19 @@ dotenv.load_dotenv()
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-DB_DSN = "dbname=compliance_db user=postgres password=mysql@1703"
+DB_DSN = os.getenv("DATABASE_URL")
 
 def _get_conn():
-    return psycopg.connect(DB_DSN, row_factory=dict_row)
+    if DB_DSN:
+        return psycopg.connect(DB_DSN, row_factory=dict_row)
+    return psycopg.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        dbname=os.getenv("DB_NAME", "compliance_db"),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASSWORD"),
+        row_factory=dict_row,
+    )
 
 def test_phase1_ingestion_integrity():
     print("\n[PHASE 1] Checking Ingestion Integrity (E-04, E-08, E-10)...")

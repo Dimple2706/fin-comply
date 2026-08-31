@@ -97,14 +97,17 @@ def test_fresh_migrated_db_joins_v2():
 
 def test_production_startup_validation_check():
     os.environ["ENV"] = "production"
-    os.environ["DATABASE_URL"] = os.getenv("DPDP_TEST_DATABASE_URL") or "postgresql://postgres:rasika23@localhost:5432/dpdp_test_isolated"
+    test_database_url = os.getenv("DPDP_TEST_DATABASE_URL")
+    if not test_database_url:
+        pytest.skip("DPDP_TEST_DATABASE_URL is required for migration validation")
+    os.environ["DATABASE_URL"] = test_database_url
     
     try:
         check_database_migration_complete()
     except Exception as e:
         pytest.fail(f"Production startup check should succeed on migrated DB: {e}")
         
-    os.environ["DATABASE_URL"] = "postgresql://postgres:rasika23@localhost:5432/non_existent_db_fake"
+    os.environ["DATABASE_URL"] = "postgresql://invalid:invalid@127.0.0.1:1/non_existent_db_fake"
     with pytest.raises(RuntimeError, match="Database validation check failed at startup"):
         check_database_migration_complete()
 

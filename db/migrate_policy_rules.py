@@ -36,7 +36,7 @@ DB_HOST     = os.getenv("DB_HOST", "localhost")
 DB_PORT     = os.getenv("DB_PORT", "5432")
 DB_NAME     = os.getenv("DB_NAME", "compliance_db")
 DB_USER     = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "mysql@1703")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -55,7 +55,7 @@ def get_connection() -> psycopg.Connection:
 
 def load_json(path: Path) -> list[dict]:
     """Load JSON — handles both a single object {} and an array [{}]."""
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
     return data if isinstance(data, list) else [data]
 
@@ -87,47 +87,37 @@ def validate_thresholds(rule: dict) -> None:
 POLICY_CLAUSES = {
     "POLICY-001": {
         "clause_id":                 "POLICY-001",
-        "legal_title":               "Retention Policy Compliance — Section 8(7)",
-        "dpdp_section":              ["Section 8(7)"],
+        "legal_title":               "Internal Retention Policy Control",
+        "dpdp_section":              ["Internal control aligned with Section 8(7)"],
         "legal_text":                (
-            "Under Section 8(7) of the Digital Personal Data Protection Act 2023, "
-            "a Data Fiduciary must erase personal data upon the lapse of the purpose "
-            "for which it was collected, or upon withdrawal of consent, unless retention "
-            "is required under any law. Retention beyond the prescribed period without "
-            "a valid legal basis constitutes a violation."
+            "This internal control checks that a documented retention policy is active. "
+            "The DPDP framework ties erasure and retention to purpose and applicable law; "
+            "this control does not create a universal statutory day limit."
         ),
         "plain_english_obligation":  (
-            "You must have an active, compliant retention policy. Personal data must not "
-            "be held for longer than 730 days without a documented legal basis. "
-            "An inactive or excessively long retention policy is a direct DPDP violation."
+            "Maintain an active retention policy and assess actual retention periods against "
+            "the processing purpose and any applicable legal requirement."
         ),
         "severity_weight":           0.55,
-        "evidence_required":         ["active retention policy", "policy_value_numeric <= 730"],
-        "signal_mapping":            {
-            "S1": "policy_type equals retention",
-            "S2": "is_active equals false",
-            "S3": "policy_value_numeric greater_than 730"
-        },
-        "penalty_tier":              "TIER_3",
-        "max_penalty_crore":         50,
+        "evidence_required":         ["active retention policy"],
+        "signal_mapping":            {"S1": "is_active equals false"},
+        "penalty_tier":              "INTERNAL_CONTROL",
+        "max_penalty_crore":         0,
         "keywords":                  ["retention", "data erasure", "storage limitation", "section 8(7)"],
     },
     "POLICY-002": {
         "clause_id":                 "POLICY-002",
-        "legal_title":               "Encryption Policy Compliance — Section 8(5)",
-        "dpdp_section":              ["Section 8(5)"],
+        "legal_title":               "Internal Encryption Policy Control",
+        "dpdp_section":              ["Internal control aligned with Section 8(5)"],
         "legal_text":                (
-            "Under Section 8(5) of the Digital Personal Data Protection Act 2023, "
-            "a Data Fiduciary must protect personal data in its possession or under its control "
-            "by taking reasonable security safeguards to prevent a personal data breach. "
-            "Use of deprecated or weak encryption standards (none, MD5, SHA-1, DES, RC4) "
-            "fails this obligation and constitutes a critical security violation."
+            "This internal control checks whether an active encryption policy names a modern "
+            "protection algorithm. It is supporting security-readiness evidence and is not, by "
+            "itself, a determination of statutory liability."
         ),
         "plain_english_obligation":  (
             "You must maintain an active encryption policy that mandates a strong, "
             "modern encryption standard. Weak or deprecated algorithms (none, MD5, SHA-1, DES, RC4) "
-            "are prohibited. An inactive or weak encryption policy is a direct DPDP violation "
-            "exposing the organisation to maximum penalties."
+            "are flagged as internal security-control gaps requiring remediation."
         ),
         "severity_weight":           0.80,
         "evidence_required":         ["active encryption policy", "strong encryption standard"],
@@ -135,26 +125,23 @@ POLICY_CLAUSES = {
             "S1": "is_active equals false",
             "S2": "policy_value_text in [none, md5, sha1, des, rc4]"
         },
-        "penalty_tier":              "TIER_1",
-        "max_penalty_crore":         250,
+        "penalty_tier":              "INTERNAL_CONTROL",
+        "max_penalty_crore":         0,
         "keywords":                  ["encryption", "security safeguards", "data protection", "section 8(5)", "weak algorithm"],
     },
     "POLICY-003": {
         "clause_id":                 "POLICY-003",
-        "legal_title":               "Consent Mechanism Policy — Section 6",
-        "dpdp_section":              ["Section 6"],
+        "legal_title":               "Internal Consent Mechanism Control",
+        "dpdp_section":              ["Internal control aligned with Section 6"],
         "legal_text":                (
-            "Under Section 6 of the Digital Personal Data Protection Act 2023, "
-            "consent must be free, specific, informed, unconditional and unambiguous, "
-            "and must be signified by a clear affirmative action. Bundled consent, "
-            "pre-ticked boxes, implicit consent and inferred consent are explicitly void "
-            "under Section 6(2)-(3). A policy mandating non-compliant consent channels "
-            "is itself a regulatory violation."
+            "This internal control checks whether the organisation's consent policy requires "
+            "a clear affirmative action. It is supporting readiness evidence and is reported "
+            "separately from statutory findings."
         ),
         "plain_english_obligation":  (
             "You must have an active consent mechanism policy that mandates only "
             "compliant, explicit consent channels. Policies permitting implicit, pre-ticked, "
-            "inferred or bundled consent are void and constitute a direct DPDP Section 6 violation."
+            "inferred or bundled collection are flagged for review."
         ),
         "severity_weight":           0.75,
         "evidence_required":         ["active consent policy", "compliant consent channel"],
@@ -162,8 +149,8 @@ POLICY_CLAUSES = {
             "S1": "is_active equals false",
             "S2": "policy_value_text in [implicit, pre_ticked, inferred, bundled]"
         },
-        "penalty_tier":              "TIER_1",
-        "max_penalty_crore":         250,
+        "penalty_tier":              "INTERNAL_CONTROL",
+        "max_penalty_crore":         0,
         "keywords":                  ["consent", "consent mechanism", "bundled consent", "implicit consent", "section 6"],
     },
 }
@@ -183,7 +170,17 @@ def insert_clause(cur, clause: dict, dry_run: bool) -> None:
             %(evidence_required)s, %(signal_mapping)s,
             %(penalty_tier)s, %(max_penalty_crore)s, %(keywords)s
         )
-        ON CONFLICT (clause_id) DO NOTHING;
+        ON CONFLICT (clause_id) DO UPDATE SET
+            legal_title = EXCLUDED.legal_title,
+            dpdp_section = EXCLUDED.dpdp_section,
+            legal_text = EXCLUDED.legal_text,
+            plain_english_obligation = EXCLUDED.plain_english_obligation,
+            severity_weight = EXCLUDED.severity_weight,
+            evidence_required = EXCLUDED.evidence_required,
+            signal_mapping = EXCLUDED.signal_mapping,
+            penalty_tier = EXCLUDED.penalty_tier,
+            max_penalty_crore = EXCLUDED.max_penalty_crore,
+            keywords = EXCLUDED.keywords;
     """
     params = {
         "clause_id":               clause["clause_id"],
@@ -220,7 +217,24 @@ def insert_rule(cur, rule: dict, dry_run: bool) -> None:
             %(evidence_signals)s, %(violation_threshold)s, %(risk_threshold)s,
             %(recurrence_bonus)s, %(enabled)s, %(version)s, CURRENT_DATE, %(approved_by)s
         )
-        ON CONFLICT (rule_id) DO NOTHING;
+        ON CONFLICT (rule_id) DO UPDATE SET
+            rule_name = EXCLUDED.rule_name,
+            dpdp_section = EXCLUDED.dpdp_section,
+            description = EXCLUDED.description,
+            severity = EXCLUDED.severity,
+            risk_weight = EXCLUDED.risk_weight,
+            check_type = EXCLUDED.check_type,
+            assigned_agent = EXCLUDED.assigned_agent,
+            primary_table = EXCLUDED.primary_table,
+            join_tables = EXCLUDED.join_tables,
+            join_key = EXCLUDED.join_key,
+            evidence_signals = EXCLUDED.evidence_signals,
+            violation_threshold = EXCLUDED.violation_threshold,
+            risk_threshold = EXCLUDED.risk_threshold,
+            recurrence_bonus = EXCLUDED.recurrence_bonus,
+            enabled = EXCLUDED.enabled,
+            version = rules.version + 1,
+            updated_at = NOW();
     """
     params = {
         "rule_id":             rule["rule_id"],

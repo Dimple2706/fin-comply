@@ -4,6 +4,8 @@ annotated-types==0.7.0
 anyio==4.12.1
 attrs==25.4.0
 blinker==1.9.0
+# passlib 1.7.4 relies on bcrypt's pre-4.1 compatibility interface.
+bcrypt==4.0.1
 cachetools==7.0.5
 certifi==2026.2.25
 charset-normalizer==3.4.6
@@ -23,6 +25,7 @@ httpcore==1.0.9
 httpx==0.28.1
 huggingface_hub==1.7.1
 idna==3.11
+imbalanced-learn==0.14.2
 iniconfig==2.3.0
 Jinja2==3.1.6
 jiter==0.13.0
@@ -30,6 +33,7 @@ joblib==1.5.3
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
 llvmlite==0.46.0
+lime==0.2.0.1
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
@@ -43,7 +47,12 @@ packaging==26.0
 pandas==2.3.3
 pillow==12.1.1
 pluggy==1.6.0
-protobuf==6.33.6
+# Required by PDF report parity tests (`import fitz`).
+PyMuPDF==1.26.4
+pypdf==6.1.1
+# google-ai-generativelanguage 0.6.x requires protobuf < 6.
+# Keep this pinned so a clean installation is reproducible.
+protobuf==5.29.5
 pyarrow==23.0.1
 pydantic==2.12.5
 pydantic_core==2.41.5
@@ -90,10 +99,9 @@ uvicorn==0.42.0
 watchdog==6.0.0
 xgboost==3.2.0
 psycopg[binary]==3.2.13
-psycopg==3.2.13
 reportlab==4.4.5
 google-generativeai>=0.8.0
 python-multipart>=0.0.9
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
-fairlearn
+fairlearn

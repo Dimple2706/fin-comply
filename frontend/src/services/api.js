@@ -1,15 +1,79 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
 });
 
-// Configure simple token-based headers
+const TOKEN_STORAGE_KEY = 'fincomply_api_token';
+export const USER_STORAGE_KEY = 'fincomply_user';
+
+export const getApiToken = () => {
+  if (typeof window === 'undefined') return '';
+  return window.sessionStorage.getItem(TOKEN_STORAGE_KEY) || '';
+};
+
+export const setApiToken = (token) => {
+  if (typeof window === 'undefined') return;
+  const cleanToken = token.trim();
+  if (cleanToken) {
+    window.sessionStorage.setItem(TOKEN_STORAGE_KEY, cleanToken);
+  } else {
+    window.sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
+};
+
+export const getStoredUser = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(USER_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+};
+
+export const clearAuth = () => {
+  window.sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+  window.sessionStorage.removeItem(USER_STORAGE_KEY);
+};
+
+// Attach JWT from session storage to every request automatically.
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token') || 'secure_test_admin_token_2026';
-  config.headers.Authorization = `Bearer ${token}`;
+  const token = getApiToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
+
+// ── Auth API ──────────────────────────────────────────────────────────────────
+
+export const loginUser = async (username, password) => {
+  try {
+    const response = await api.post('/auth/login', { username, password });
+    const data = response.data;
+    // Persist token + user profile (including tenant_id for auto-fill)
+    setApiToken(data.access_token);
+    window.sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify({
+      username: data.username,
+      name: data.name,
+      role: data.role,
+      tenant_id: data.tenant_id || '',
+    }));
+    return data;
+  } catch (error) {
+    const detail = error.response?.data?.detail;
+    throw new Error(typeof detail === 'string' ? detail : 'Login failed. Check your credentials.');
+  }
+};
+
+export const registerUser = async ({ name, email, username, password, tenant_id, tenant_name }) => {
+  try {
+    const response = await api.post('/auth/register', { name, email, username, password, tenant_id, tenant_name });
+    return response.data;
+  } catch (error) {
+    const detail = error.response?.data?.detail;
+    throw new Error(typeof detail === 'string' ? detail : 'Registration failed. Please try again.');
+  }
+};
 
 const formatDetailError = (detail) => {
   if (!detail) return null;

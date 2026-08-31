@@ -40,10 +40,19 @@ from psycopg.rows import dict_row
 
 
 # ── DB connection ─────────────────────────────────────────────────────────────
-DB_DSN = "dbname=compliance_db user=postgres password=mysql@1703"
+DB_DSN = os.getenv("DATABASE_URL")
 
 def _conn():
-    return psycopg.connect(DB_DSN, row_factory=dict_row)
+    if DB_DSN:
+        return psycopg.connect(DB_DSN, row_factory=dict_row)
+    return psycopg.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        dbname=os.getenv("DB_NAME", "compliance_db"),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASSWORD"),
+        row_factory=dict_row,
+    )
 
 
 # ── Label thresholds (penalty exposure in crore) ──────────────────────────────
@@ -209,7 +218,9 @@ def generate_synthetic_profiles(n_profiles: int = 350) -> tuple[list, list]:
             n_w = random.randint(50, 250)
             n_crit = 0
             n_high = random.randint(1, 3)
-            breach = random.choice([0, 1])
+            # A DPDP-014 breach-notification violation is CRITICAL and is
+            # therefore represented only in HIGH/CRITICAL training profiles.
+            breach = 0
             minor = 0
             max_score = round(random.uniform(0.50, 0.80), 4)
             max_prev = round(random.uniform(0.05, 0.25), 4)
@@ -222,9 +233,11 @@ def generate_synthetic_profiles(n_profiles: int = 350) -> tuple[list, list]:
             tot_crore = random.randint(310, 740)
             risk_tier = "MEDIUM"
         elif label == 3:  # HIGH
-            n_v = random.randint(60, 200)
+            # The deterministic engine floors any CRITICAL finding at HIGH,
+            # even when the total number of findings is small.
+            n_v = random.randint(1, 200)
             n_w = random.randint(150, 600)
-            n_crit = random.choice([0, 1])
+            n_crit = random.choice([0, 1, 1, 1])
             n_high = random.randint(3, 5)
             breach = random.choice([0, 1])
             minor = 1 if n_crit > 0 else 0

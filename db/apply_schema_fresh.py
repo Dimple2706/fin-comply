@@ -1,6 +1,34 @@
 import os
-import psycopg2
+import psycopg
 import sys
+from pathlib import Path
+from urllib.parse import unquote, urlparse
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+
+def connection_env_from_url(db_url: str) -> dict[str, str]:
+    """Return seed-script DB settings for the exact database in ``db_url``."""
+    parsed = urlparse(db_url)
+    if parsed.scheme not in {"postgres", "postgresql"}:
+        raise ValueError("DPDP_TEST_DATABASE_URL must be a PostgreSQL URL.")
+
+    db_name = unquote(parsed.path.lstrip("/"))
+    if not db_name:
+        raise ValueError("DPDP_TEST_DATABASE_URL must include a database name.")
+
+    return {
+        "DB_HOST": parsed.hostname or "localhost",
+        "DB_PORT": str(parsed.port or 5432),
+        "DB_NAME": db_name,
+        "DB_USER": unquote(parsed.username or "postgres"),
+        "DB_PASSWORD": unquote(parsed.password or ""),
+        "DATABASE_URL": db_url,
+        "DPDP_TEST_DATABASE_URL": db_url,
+    }
 
 def apply_sql_file(cur, filepath):
     print(f"Applying SQL file: {filepath}")
@@ -25,7 +53,7 @@ def main():
         print("Error: DPDP_TEST_DATABASE_URL is not set.")
         sys.exit(1)
         
-    conn = psycopg2.connect(db_url)
+    conn = psycopg.connect(db_url)
     try:
         with conn.cursor() as cur:
             # 1. Clean existing tables/schema by dropping them
@@ -64,6 +92,7 @@ def main():
             # 2. Run base schema and initial rules/clauses tables
             apply_sql_file(cur, "db/schema.sql")
             apply_sql_file(cur, "db/create_tables (1).sql")
+            apply_sql_file(cur, "db/create_users_table.sql")
             conn.commit()
 
             # 3. Apply versioned migration DDLs in order (except fix_join_keys which requires seeded data)
@@ -73,7 +102,12 @@ def main():
                 "db/issue_4_evidence_preservation_migration.sql",
                 "db/issue_5_access_logs_system_relation.sql",
                 "db/issue_6_consent_sharing_permitted.sql",
-                "db/issue_8_audit_run_migration.sql"
+                "db/issue_8_audit_run_migration.sql",
+                "db/issue_9_internal_control_classification.sql",
+                "db/issue_10_transfer_assessment_evidence.sql",
+                "db/issue_11_sdf_applicability.sql",
+                "db/issue_12_access_authorization_evidence.sql",
+                "db/issue_13_authentication_constraints.sql"
             ]
             for mig in migrations:
                 apply_sql_file(cur, mig)
@@ -101,12 +135,11 @@ def main():
         "db/migrate_rules_to_db.py",
         "db/migrate_policy_rules.py",
         "db/sync_dpdp_015_rules.py",
-        "db/migrate_opportunity_queries.py",
-        "db/seed_users.py"
+        "db/migrate_opportunity_queries.py"
     ]
     # Set env vars for seeds
     env = os.environ.copy()
-    env["DB_NAME"] = "dpdp_test_isolated" # ensure they connect to test DB
+    env.update(connection_env_from_url(db_url))
 
     for seed in seeds:
         print(f"Running seed: {seed}")
@@ -114,7 +147,7 @@ def main():
 
     # 6. Apply fix_join_keys.sql to update seeded rules
     print("Applying fix_join_keys.sql updates...")
-    conn = psycopg2.connect(db_url)
+    conn = psycopg.connect(db_url)
     try:
         with conn.cursor() as cur:
             apply_sql_file(cur, "db/fix_join_keys.sql")

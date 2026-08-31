@@ -1,6 +1,6 @@
 import json
 import io
-from datetime import datetime
+from datetime import datetime, timezone
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -150,7 +150,7 @@ def generate_pdf_report(tenant_id: str, db_conn, audit_run_id: str) -> io.BytesI
         try:
             eval_date = datetime.fromisoformat(eval_date.replace("Z", "+00:00"))
         except Exception:
-            eval_date = datetime.utcnow()
+            eval_date = datetime.now(timezone.utc)
 
     data = result_json if isinstance(result_json, dict) else json.loads(result_json)
 
@@ -190,6 +190,20 @@ def generate_pdf_report(tenant_id: str, db_conn, audit_run_id: str) -> io.BytesI
         "Digital Personal Data Protection Act, 2023 — Automated Compliance Assessment",
         styles['ReportSubtitle']
     ))
+
+    regulatory_context = data.get("regulatory_context") or {}
+    if regulatory_context:
+        assessment_label = regulatory_context.get("assessment_type", "EVIDENCE_ASSESSMENT").replace("_", " ")
+        elements.append(Paragraph(
+            f"<b>Assessment basis:</b> {assessment_label} | "
+            f"<b>Assessment date:</b> {regulatory_context.get('assessment_date', 'N/A')} | "
+            f"<b>Substantive effective date:</b> {regulatory_context.get('substantive_effective_date', 'N/A')}",
+            styles['ReportSubtitle']
+        ))
+        elements.append(Paragraph(
+            regulatory_context.get("disclaimer", ""),
+            styles['ReportSubtitle']
+        ))
 
     # Audit Run Metadata if present
     run_meta = data.get("run_metadata")
@@ -495,7 +509,7 @@ def generate_pdf_report(tenant_id: str, db_conn, audit_run_id: str) -> io.BytesI
     ))
     elements.append(Paragraph(
         f"Report ID: RPT-{tenant_id}-{eval_date.strftime('%Y%m%d%H%M') if eval_date else 'NA'} "
-        f"| Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
+        f"| Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
         styles['FooterText']
     ))
 

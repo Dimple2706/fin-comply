@@ -282,8 +282,8 @@ def test_dpdp_007_008_additional_and_regression_guard(db_conn):
         {"access_hash": "al_unjust", "customer_hash": "c_adult_2", "employee_hash": "emp1", "employee_role": "customer_support", "accessed_pii": "True", "pii_fields_accessed": "email", "access_reason": "support_query", "access_outcome": "granted", "data_volume_accessed": "low", "access_date": "2026-08-23", "system_hash": None, "pii_fields_justified": "False"}
     ])
 
-    # DPDP-008:
-    # - breach_detected = False -> NOT_APPLICABLE
+    # DPDP-008 safeguards apply continuously, not only after a breach:
+    # - unencrypted data with no breach -> VIOLATION
     # - breach_detected = True, pii_encrypted = None -> NOT_ASSESSABLE
     # - breach_detected = True, pii_encrypted = False -> VIOLATION
     # - breach_detected = True, pii_encrypted = True -> PASS
@@ -339,7 +339,7 @@ def test_dpdp_007_008_additional_and_regression_guard(db_conn):
     mapped_se_unenc = anonymize_dataframe_wrapper(pd.DataFrame([{"security_hash": "se_unenc"}]), "security_events", tenant_id)[0]["security_hash"]
     mapped_se_enc = anonymize_dataframe_wrapper(pd.DataFrame([{"security_hash": "se_enc"}]), "security_events", tenant_id)[0]["security_hash"]
 
-    assert next(f for f in findings_008 if f.record_id == mapped_se_non_brch).outcome == RuleOutcome.NOT_APPLICABLE
+    assert next(f for f in findings_008 if f.record_id == mapped_se_non_brch).outcome == RuleOutcome.VIOLATION
     assert next(f for f in findings_008 if f.record_id == mapped_se_miss_enc).outcome == RuleOutcome.NOT_ASSESSABLE
     assert next(f for f in findings_008 if f.record_id == mapped_se_unenc).outcome == RuleOutcome.VIOLATION
     assert next(f for f in findings_008 if f.record_id == mapped_se_enc).outcome == RuleOutcome.PASS
@@ -361,7 +361,11 @@ def test_dpdp_007_008_additional_and_regression_guard(db_conn):
         violations_list = response["violations"]
         findings = response["findings"]
         
-        violation_findings_count = sum(1 for f in findings if f["outcome"] == "VIOLATION")
+        violation_findings_count = sum(
+            1 for f in findings
+            if f["outcome"] == "VIOLATION"
+            and not f.get("rule_id", "").startswith("POLICY-")
+        )
         assert total_violations_reported == violation_findings_count, f"Expected {violation_findings_count} violations, but got {total_violations_reported}"
         
         # Verify findings list contains all outcome states but does not inflate the count of response["violations"]

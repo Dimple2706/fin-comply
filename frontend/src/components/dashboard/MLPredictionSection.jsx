@@ -55,12 +55,24 @@ export default function MLPredictionSection({ mlData, deterministicTier, determi
     );
   }
 
-  const { predicted_tier, probabilities = {}, shap_explanation = {}, model_metadata = {} } = mlData;
+  const {
+    predicted_tier,
+    probabilities = {},
+    shap_explanation = {},
+    lime_explanation = {},
+    model_metadata = {},
+  } = mlData;
   const predStyle = TIER_COLORS[predicted_tier] || TIER_COLORS.MEDIUM;
   const detStyle = TIER_COLORS[deterministicTier] || TIER_COLORS.MEDIUM;
 
-  const topPositive = shap_explanation.top_positive_features || [];
-  const topNegative = shap_explanation.top_negative_features || [];
+  const shapContributions = shap_explanation.feature_contributions || [];
+  const topPositive = shapContributions
+    .filter((item) => item.direction === 'positive')
+    .slice(0, 3);
+  const topNegative = shapContributions
+    .filter((item) => item.direction === 'negative')
+    .slice(0, 3);
+  const limeContributions = (lime_explanation.feature_contributions || []).slice(0, 10);
 
   const rawConf = probabilities[predicted_tier] || 0;
   const confPct = rawConf > 1 ? rawConf : rawConf * 100;
@@ -82,7 +94,7 @@ export default function MLPredictionSection({ mlData, deterministicTier, determi
             <h3 className="text-h3 text-primary flex items-center gap-2">
               Explainable AI Risk Model
               <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-                XGBoost + TreeSHAP
+                XGBoost + SHAP + LIME
               </span>
             </h3>
             <p className="text-caption text-secondary">
@@ -249,6 +261,51 @@ export default function MLPredictionSection({ mlData, deterministicTier, determi
           </div>
         </Card>
       </div>
+
+      <Card className="mt-6 p-6 bg-surface border border-subtle">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div>
+            <h4 className="text-h4 text-primary flex items-center gap-2">
+              <HiOutlineChartBar className="text-brand-primary" />
+              LIME Local Explanation
+            </h4>
+            <p className="text-caption text-secondary mt-0.5">
+              A local surrogate explanation showing which feature ranges pushed this individual prediction up or down.
+            </p>
+          </div>
+          <span className="px-2.5 py-1 rounded-md text-xs font-mono bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+            {lime_explanation.num_samples || 0} samples
+          </span>
+        </div>
+
+        {limeContributions.length === 0 ? (
+          <p className="text-caption text-muted italic">LIME explanation is unavailable for this prediction.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {limeContributions.map((item, idx) => {
+              const positive = item.direction === 'positive';
+              return (
+                <div key={`${item.feature}-${idx}`} className="p-3 rounded-lg bg-base/60 border border-subtle flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-primary block break-words">
+                      {item.feature}
+                    </span>
+                    <span className="text-caption text-muted">
+                      {positive ? 'Raises predicted risk' : 'Lowers predicted risk'}
+                    </span>
+                  </div>
+                  <span className={`shrink-0 px-2.5 py-1 rounded-md text-xs font-mono font-bold border ${positive
+                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                    : 'bg-green-500/10 text-green-400 border-green-500/20'
+                  }`}>
+                    {Number(item.coefficient).toFixed(4)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Card>
     </motion.section>
   );
 }

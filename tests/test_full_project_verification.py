@@ -111,6 +111,7 @@ def run_full_project_verification():
         assert ml["predicted_tier"] in ["COMPLIANT", "LOW", "MEDIUM", "HIGH", "CRITICAL"]
         assert len(ml["probabilities"]) == 5
         assert len(ml["shap_explanation"]["feature_contributions"]) == 13
+        assert len(ml["lime_explanation"]["feature_contributions"]) == 10
 
         # 4. Check Run Metadata
         meta = parsed.run_metadata

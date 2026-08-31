@@ -4,14 +4,14 @@
     "clause_id": "DPDP-001",
     "rule_name": "Invalid or Missing Consent Before Processing",
     "dpdp_section": "Section 6(1)",
-    "description": "Personal data processed without valid, unexpired, purpose-matched consent.",
+    "description": "A processing event relied on consent that was not active or had expired before the event.",
     "severity": "HIGH",
     "risk_weight": 0.9,
     "check_type": "weighted_evidence",
     "assigned_agent": "regulation_agent",
-    "primary_table": "consent_records",
+    "primary_table": "transaction_events",
     "join_tables": [
-      "transaction_events"
+      "consent_records"
     ],
     "join_key": "consent_id",
     "evidence_signals": [
@@ -24,36 +24,20 @@
           "revoked",
           "withdrawn"
         ],
-        "weight": 0.4,
-        "description": "Consent not in a valid active state at time of processing"
+        "weight": 0.5,
+        "description": "Consent was not active at the time of processing"
       },
       {
         "signal_id": "S2",
-        "field": "expiry_timestamp",
+        "field": "expiry_date",
         "operator": "less_than",
-        "value": "timestamp",
-        "weight": 0.3,
-        "description": "Consent expiry date is before the processing event timestamp"
-      },
-      {
-        "signal_id": "S3",
-        "field": "consented_purpose",
-        "operator": "not_matches",
-        "value": "processing_purpose",
-        "weight": 0.2,
-        "description": "Processing purpose does not match the purpose for which consent was obtained"
-      },
-      {
-        "signal_id": "S4",
-        "field": "is_bundled",
-        "operator": "equals",
-        "value": true,
-        "weight": 0.1,
-        "description": "Consent was bundled with T&Cs \u00e2\u20ac\u201d void under Section 6(2)"
+        "value": "event_date",
+        "weight": 0.5,
+        "description": "Consent expired before the processing event date"
       }
     ],
-    "violation_threshold": 0.6,
-    "risk_threshold": 0.35,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.2,
     "enabled": true
   },
@@ -78,28 +62,12 @@
         "field": "consented_purpose",
         "operator": "not_matches",
         "value": "processing_purpose",
-        "weight": 0.5,
-        "description": "Processing purpose directly contradicts the consented purpose"
-      },
-      {
-        "signal_id": "S2",
-        "field": "consent_version",
-        "operator": "is_outdated",
-        "value": "current_policy_version",
-        "weight": 0.3,
-        "description": "Consent was given against an outdated policy version \u00e2\u20ac\u201d purpose scope may have changed"
-      },
-      {
-        "signal_id": "S3",
-        "field": "notice_provided",
-        "operator": "equals",
-        "value": false,
-        "weight": 0.2,
-        "description": "No notice was provided specifying the processing purpose before consent"
+        "weight": 1.0,
+        "description": "Processing purpose differs from the consented purpose"
       }
     ],
-    "violation_threshold": 0.6,
-    "risk_threshold": 0.3,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.2,
     "enabled": true
   },
@@ -280,47 +248,26 @@
     "clause_id": "DPDP-007",
     "rule_name": "Data Minimisation Violation",
     "dpdp_section": "Section 4",
-    "description": "More personal data categories collected or accessed than necessary for the stated purpose.",
+    "description": "PII access is recorded as containing fields not justified as necessary for the stated purpose.",
     "severity": "MEDIUM",
     "risk_weight": 0.5,
     "check_type": "weighted_evidence",
     "assigned_agent": "regulation_agent",
     "primary_table": "access_logs",
-    "join_tables": [
-      "system_inventory"
-    ],
-    "join_key": "system_id",
+    "join_tables": [],
+    "join_key": null,
     "evidence_signals": [
       {
         "signal_id": "S1",
-        "field": "data_volume_accessed",
-        "operator": "in",
-        "value": [
-          "high",
-          "bulk"
-        ],
-        "weight": 0.45,
-        "description": "Data volume accessed is disproportionately large relative to stated purpose"
-      },
-      {
-        "signal_id": "S2",
-        "field": "pii_stored",
+        "field": "pii_fields_justified",
         "operator": "equals",
-        "value": true,
-        "weight": 0.3,
-        "description": "System stores PII categories beyond what the declared processing purpose requires"
-      },
-      {
-        "signal_id": "S3",
-        "field": "access_reason",
-        "operator": "not_matches",
-        "value": "processing_purpose",
-        "weight": 0.25,
-        "description": "Stated access reason does not align with the processing purpose for this data category"
+        "value": false,
+        "weight": 1.0,
+        "description": "The tenant records that the PII fields accessed were not necessary for the stated purpose"
       }
     ],
-    "violation_threshold": 0.55,
-    "risk_threshold": 0.3,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.1,
     "enabled": true
   },
@@ -329,49 +276,40 @@
     "clause_id": "DPDP-008",
     "rule_name": "Sensitive Data Stored Without Encryption",
     "dpdp_section": "Section 8(5)",
-    "description": "PII-containing system lacks adequate encryption safeguards.",
+    "description": "A security record shows personal data without encryption or with an evidently weak protection algorithm.",
     "severity": "CRITICAL",
     "risk_weight": 0.95,
     "check_type": "weighted_evidence",
     "assigned_agent": "risk_agent",
     "primary_table": "security_events",
-    "join_tables": [
-      "system_inventory"
-    ],
-    "join_key": "system_id",
+    "join_tables": [],
+    "join_key": null,
     "evidence_signals": [
       {
         "signal_id": "S1",
         "field": "pii_encrypted",
         "operator": "equals",
         "value": false,
-        "weight": 0.5,
-        "description": "PII is stored without any encryption"
+        "weight": 0.6,
+        "description": "Personal data is recorded as not encrypted"
       },
       {
         "signal_id": "S2",
-        "field": "encryption_enabled",
-        "operator": "equals",
-        "value": false,
-        "weight": 0.3,
-        "description": "System-level encryption is disabled for a PII-storing system"
-      },
-      {
-        "signal_id": "S3",
         "field": "encryption_type",
         "operator": "in",
         "value": [
           "none",
           "md5",
           "sha1",
-          "des"
+          "des",
+          "rc4"
         ],
-        "weight": 0.2,
-        "description": "Encryption algorithm used is below the minimum acceptable standard (AES-256)"
+        "weight": 0.4,
+        "description": "The recorded protection type is absent, obsolete, or not encryption"
       }
     ],
     "violation_threshold": 0.5,
-    "risk_threshold": 0.3,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.2,
     "enabled": true
   },
@@ -380,7 +318,7 @@
     "clause_id": "DPDP-009",
     "rule_name": "Missing Grievance Redressal Mechanism",
     "dpdp_section": "Section 13",
-    "description": "No grievance endpoint or DPO contact available for the tenant.",
+    "description": "No readily available grievance redressal mechanism is recorded for Data Principals.",
     "severity": "LOW",
     "risk_weight": 0.3,
     "check_type": "weighted_evidence",
@@ -394,28 +332,12 @@
         "field": "grievance_endpoint_available",
         "operator": "equals",
         "value": false,
-        "weight": 0.55,
+        "weight": 1.0,
         "description": "No grievance endpoint is published or available for Data Principals"
-      },
-      {
-        "signal_id": "S2",
-        "field": "dpo_assigned",
-        "operator": "equals",
-        "value": false,
-        "weight": 0.3,
-        "description": "No Data Protection Officer has been assigned to receive escalations"
-      },
-      {
-        "signal_id": "S3",
-        "field": "dpo_contact_email",
-        "operator": "is_null",
-        "value": null,
-        "weight": 0.15,
-        "description": "DPO contact email is missing \u00e2\u20ac\u201d grievance mechanism is unreachable"
       }
     ],
-    "violation_threshold": 0.55,
-    "risk_threshold": 0.3,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.1,
     "enabled": true
   },
@@ -424,7 +346,7 @@
     "clause_id": "DPDP-010",
     "rule_name": "Failure to Honour Data Erasure Request",
     "dpdp_section": "Section 12(1)(b)",
-    "description": "Data erasure request received but data not deleted within the prescribed window.",
+    "description": "An erasure request remains incomplete after the organisation's evidenced service deadline without a legal hold.",
     "severity": "HIGH",
     "risk_weight": 0.85,
     "check_type": "weighted_evidence",
@@ -437,41 +359,25 @@
     "evidence_signals": [
       {
         "signal_id": "S1",
-        "field": "erasure_requested",
-        "operator": "equals",
-        "value": true,
-        "weight": 0.25,
-        "description": "An erasure request has been submitted by the Data Principal"
-      },
-      {
-        "signal_id": "S2",
         "field": "sla_breached",
         "operator": "equals",
         "value": true,
-        "weight": 0.4,
-        "description": "SLA deadline for fulfilling the erasure request has been exceeded"
+        "weight": 0.5,
+        "description": "The organisation's evidenced service deadline was exceeded"
       },
       {
-        "signal_id": "S3",
+        "signal_id": "S2",
         "field": "retention_status",
         "operator": "not_in",
         "value": [
           "deleted"
         ],
-        "weight": 0.25,
-        "description": "Data lifecycle record shows data has not been deleted despite request"
-      },
-      {
-        "signal_id": "S4",
-        "field": "legal_hold_flag",
-        "operator": "equals",
-        "value": false,
-        "weight": 0.1,
-        "description": "No legal hold exists to justify withholding deletion"
+        "weight": 0.5,
+        "description": "Data remains retained"
       }
     ],
-    "violation_threshold": 0.6,
-    "risk_threshold": 0.35,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.2,
     "enabled": true
   },
@@ -525,45 +431,35 @@
   {
     "rule_id": "DPDP-012",
     "clause_id": "DPDP-012",
-    "rule_name": "Missing or Overdue Audit Logs",
+    "rule_name": "SDF Audit and Accountability Gap",
     "dpdp_section": "Section 10",
-    "description": "Audit logs unavailable or the scheduled audit is overdue.",
+    "description": "For a designated Significant Data Fiduciary, audit evidence is overdue or accountability controls are incomplete.",
     "severity": "MEDIUM",
     "risk_weight": 0.55,
     "check_type": "weighted_evidence",
     "assigned_agent": "audit_agent",
     "primary_table": "governance_config",
-    "join_tables": [
-      "access_logs"
-    ],
-    "join_key": "tenant_id",
+    "join_tables": [],
+    "join_key": null,
     "evidence_signals": [
       {
         "signal_id": "S1",
-        "field": "last_audit_date",
-        "operator": "exceeds_threshold_days",
-        "value": "audit_frequency_days",
+        "field": "audit_frequency_days",
+        "operator": "greater_than",
+        "value": 365,
         "weight": 0.5,
-        "description": "Days since last audit exceeds the configured audit frequency \u00e2\u20ac\u201d audit is overdue"
+        "description": "Recorded SDF audit cadence exceeds once every twelve months"
       },
       {
         "signal_id": "S2",
-        "field": "access_outcome",
-        "operator": "is_null",
-        "value": null,
-        "weight": 0.3,
-        "description": "Access log records are missing outcome fields \u00e2\u20ac\u201d log completeness is insufficient"
-      },
-      {
-        "signal_id": "S3",
         "field": "dpo_assigned",
         "operator": "equals",
         "value": false,
-        "weight": 0.2,
-        "description": "No DPO assigned \u00e2\u20ac\u201d accountability mechanism for audit oversight is absent"
+        "weight": 0.5,
+        "description": "Designated SDF has no DPO assigned"
       }
     ],
-    "violation_threshold": 0.55,
+    "violation_threshold": 0.5,
     "risk_threshold": 0.25,
     "recurrence_bonus": 0.15,
     "enabled": true
@@ -573,7 +469,7 @@
     "clause_id": "DPDP-013",
     "rule_name": "Unauthorised Employee Access to PII",
     "dpdp_section": "Section 8(5)",
-    "description": "Employee accessed PII without an authorised role or a valid business reason.",
+    "description": "PII was accessed without an explicit authorization decision recorded by the tenant's access-control process.",
     "severity": "HIGH",
     "risk_weight": 0.9,
     "check_type": "weighted_evidence",
@@ -584,47 +480,15 @@
     "evidence_signals": [
       {
         "signal_id": "S1",
-        "field": "employee_role",
-        "operator": "not_in",
-        "value": [
-          "compliance_officer",
-          "underwriter",
-          "data_analyst",
-          "manager"
-        ],
-        "weight": 0.4,
-        "description": "Accessing employee's role is not in the authorised roles list for PII access"
-      },
-      {
-        "signal_id": "S2",
-        "field": "accessed_pii",
+        "field": "access_authorized",
         "operator": "equals",
-        "value": true,
-        "weight": 0.3,
-        "description": "PII fields were accessed during this event"
-      },
-      {
-        "signal_id": "S3",
-        "field": "access_outcome",
-        "operator": "equals",
-        "value": "denied",
-        "weight": 0.15,
-        "description": "Access was denied \u00e2\u20ac\u201d repeated denied attempts indicate probing behaviour"
-      },
-      {
-        "signal_id": "S4",
-        "field": "data_volume_accessed",
-        "operator": "in",
-        "value": [
-          "high",
-          "bulk"
-        ],
-        "weight": 0.15,
-        "description": "Large volume of data accessed \u00e2\u20ac\u201d potential bulk extraction by unauthorised actor"
+        "value": false,
+        "weight": 1.0,
+        "description": "Tenant access-control evidence records the PII access as unauthorised"
       }
     ],
-    "violation_threshold": 0.55,
-    "risk_threshold": 0.3,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.2,
     "enabled": true
   },
@@ -633,7 +497,7 @@
     "clause_id": "DPDP-014",
     "rule_name": "Delayed Breach Notification",
     "dpdp_section": "Section 8(6)",
-    "description": "Personal data breach confirmed but notification to Board or Data Principals delayed beyond threshold.",
+    "description": "Detailed personal-data-breach information was furnished to the Board more than 72 hours after awareness of the breach.",
     "severity": "CRITICAL",
     "risk_weight": 0.95,
     "check_type": "weighted_evidence",
@@ -644,103 +508,51 @@
     "evidence_signals": [
       {
         "signal_id": "S1",
-        "field": "breach_detected",
-        "operator": "equals",
-        "value": true,
-        "weight": 0.2,
-        "description": "A personal data breach has been detected for this tenant"
-      },
-      {
-        "signal_id": "S2",
         "field": "notification_delay_hours",
         "operator": "greater_than",
         "value": 72,
-        "weight": 0.4,
-        "description": "Notification delay exceeds 72-hour threshold \u00e2\u20ac\u201d CERT-In and DPDP S.8(6) violation"
-      },
-      {
-        "signal_id": "S3",
-        "field": "breach_confirmed_at",
-        "operator": "is_null",
-        "value": null,
-        "weight": 0.25,
-        "description": "Breach confirmation timestamp is missing \u00e2\u20ac\u201d notification clock cannot be verified"
-      },
-      {
-        "signal_id": "S4",
-        "field": "affected_user_count",
-        "operator": "in",
-        "value": [
-          "large",
-          "critical"
-        ],
-        "weight": 0.15,
-        "description": "Large number of Data Principals affected \u00e2\u20ac\u201d elevated regulatory scrutiny expected"
+        "weight": 1.0,
+        "description": "Detailed notification to the Board exceeded the 72-hour limit under DPDP Rules 2025 Rule 7"
       }
     ],
-    "violation_threshold": 0.55,
-    "risk_threshold": 0.3,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.25,
     "enabled": true
   },
   {
     "rule_id": "DPDP-015",
     "clause_id": "DPDP-015",
-    "rule_name": "Cross-Border Transfer Without Authorisation",
+    "rule_name": "Cross-Border Transfer Restriction Assessment",
     "dpdp_section": "Section 16",
-    "description": "Personal data transferred outside India without meeting Chapter V requirements.",
+    "description": "Cross-border transfer lacks evidence that applicable Central Government restrictions under Section 16 were assessed and followed.",
     "severity": "HIGH",
     "risk_weight": 0.85,
     "check_type": "weighted_evidence",
     "assigned_agent": "risk_agent",
     "primary_table": "transaction_events",
-    "join_tables": [
-      "system_inventory"
-    ],
-    "join_key": "third_party_id",
+    "join_tables": [],
+    "join_key": null,
     "evidence_signals": [
       {
         "signal_id": "S1",
-        "field": "is_cross_border",
+        "field": "transfer_restriction_compliant",
         "operator": "equals",
-        "value": true,
-        "weight": 0.35,
-        "description": "Transfer is flagged as cross-border \u00e2\u20ac\u201d Chapter V obligations triggered"
+        "value": false,
+        "weight": 0.75,
+        "description": "The organisation's recorded Section 16 assessment says the transfer does not comply with an applicable restriction"
       },
       {
         "signal_id": "S2",
-        "field": "transfer_country",
-        "operator": "not_in",
-        "value": [
-          "IN",
-          "SG",
-          "UK",
-          "JP",
-          "DE",
-          "FR",
-          "AU",
-          "CA",
-          "NL",
-          "SE",
-          "CH",
-          "NZ",
-          "KR",
-          "IE"
-        ],
-        "weight": 0.4,
-        "description": "Destination country is not on India's approved transfer list under Section 16"
-      },
-      {
-        "signal_id": "S3",
-        "field": "dpa_signed",
-        "operator": "equals",
-        "value": false,
+        "field": "transfer_assessment_reference",
+        "operator": "is_null",
+        "value": null,
         "weight": 0.25,
-        "description": "No Data Processing Agreement covers this cross-border transfer"
+        "description": "No evidence reference is supplied for the Section 16 restriction assessment"
       }
     ],
-    "violation_threshold": 0.55,
-    "risk_threshold": 0.35,
+    "violation_threshold": 0.7,
+    "risk_threshold": 0.2,
     "recurrence_bonus": 0.2,
     "enabled": true
   },
@@ -749,7 +561,7 @@
     "clause_id": "DPDP-016",
     "rule_name": "Processor Accountability Failure",
     "dpdp_section": "Section 8(2)",
-    "description": "Third-party data processor lacks a valid DPA or has an expired agreement.",
+    "description": "An external processor handling personal data lacks a current recorded contract under Section 8(2).",
     "severity": "HIGH",
     "risk_weight": 0.85,
     "check_type": "weighted_evidence",
@@ -764,27 +576,19 @@
         "operator": "equals",
         "value": false,
         "weight": 0.5,
-        "description": "No Data Processing Agreement signed with this processor \u00e2\u20ac\u201d S.8(2) direct violation"
+        "description": "No current processor contract is recorded"
       },
       {
         "signal_id": "S2",
         "field": "dpa_expiry_date",
         "operator": "less_than_today",
         "value": null,
-        "weight": 0.35,
-        "description": "DPA has expired \u00e2\u20ac\u201d processor relationship is no longer legally governed"
-      },
-      {
-        "signal_id": "S3",
-        "field": "pii_stored",
-        "operator": "equals",
-        "value": true,
-        "weight": 0.15,
-        "description": "Processor stores PII \u00e2\u20ac\u201d the absence of a DPA creates direct fiduciary liability"
+        "weight": 0.5,
+        "description": "The recorded processor contract has expired"
       }
     ],
-    "violation_threshold": 0.55,
-    "risk_threshold": 0.3,
+    "violation_threshold": 0.5,
+    "risk_threshold": 0.25,
     "recurrence_bonus": 0.15,
     "enabled": true
   }

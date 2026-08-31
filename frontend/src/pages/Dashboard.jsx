@@ -102,6 +102,17 @@ export default function Dashboard({ data, onReset }) {
 
       {/* Main Content */}
       <main className="container-center py-8">
+        {data.regulatory_context && (
+          <section className="mb-6 rounded-lg border border-amber-400/40 bg-amber-400/10 px-5 py-4 text-sm">
+            <p className="font-semibold text-primary">
+              {data.regulatory_context.assessment_type === 'FUTURE_READINESS'
+                ? 'DPDP future-readiness assessment'
+                : 'DPDP operational compliance assessment'}
+            </p>
+            <p className="mt-1 text-secondary">{data.regulatory_context.basis}</p>
+            <p className="mt-1 text-muted">{data.regulatory_context.disclaimer}</p>
+          </section>
+        )}
         <ExecutiveSummary summary={data.executive_summary} tenantId={data.tenant_id} />
         
         <MetricsSection data={data} />

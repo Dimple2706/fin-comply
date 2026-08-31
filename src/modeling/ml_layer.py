@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import numpy as np
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -16,15 +17,22 @@ _LIME_EXPLAINER = None
 try:
     import joblib
     import shap
+    from xgboost import XGBClassifier
     from lime.lime_tabular import LimeTabularExplainer
 
-    _MODEL = joblib.load('src/modeling/risk_model.pkl')
-    _TRAINING_DATA = np.load('data/training/training_data.npy')
+    _PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    _NATIVE_MODEL_PATH = Path(__file__).with_name("risk_model.json")
+    if _NATIVE_MODEL_PATH.exists():
+        _MODEL = XGBClassifier()
+        _MODEL.load_model(_NATIVE_MODEL_PATH)
+    else:
+        _MODEL = joblib.load(Path(__file__).with_name("risk_model.pkl"))
+    _TRAINING_DATA = np.load(_PROJECT_ROOT / 'data/training/training_data.npy')
     
-    with open('data/training/feature_names.json', 'r') as f:
+    with open(_PROJECT_ROOT / 'data/training/feature_names.json', 'r', encoding='utf-8') as f:
         _FEATURE_NAMES = json.load(f)
         
-    with open('src/modeling/label_map.json', 'r') as f:
+    with open(Path(__file__).with_name('label_map.json'), 'r', encoding='utf-8') as f:
         _LABEL_MAP = json.load(f)
 
     _SHAP_EXPLAINER = shap.TreeExplainer(_MODEL)
@@ -86,8 +94,13 @@ def extract_features(report: dict) -> np.ndarray:
     encryption_violation_count = sum(1 for v in violations_only if v.get("rule_id") == 'DPDP-008')
     access_violation_count = sum(1 for v in violations_only if v.get("rule_id") == 'DPDP-013')
     
-    policy_rules = {'POLICY-001', 'POLICY-002', 'POLICY-003'}
-    policy_violation_count = sum(1 for v in violations_only if v.get("rule_id") in policy_rules)
+    internal_control_findings = (
+        report.get("internal_controls", {}).get("findings", [])
+    )
+    policy_violation_count = sum(
+        1 for finding in internal_control_findings
+        if finding.get("outcome") == "VIOLATION"
+    )
     
     # Must follow exact order:
     # ['n_violations', 'n_warnings', 'n_critical_rules_fired', 'n_high_rules_fired', 'breach_rule_fired', 
@@ -205,7 +218,7 @@ def run_ml_layer(report: dict) -> dict:
                 "confidence": float(probabilities[prediction_int]),
                 "class_probabilities": {k: float(v)/100.0 for k, v in prob_dict.items()}
             },
-            "model": "xgboost_v1",
+            "model": "xgboost_severity_aligned_v3",
             "num_samples": 500,
             "feature_contributions": feature_contributions_lime,
             "explanation": f"Key factors driving {prediction_label} prediction. To improve tier, focus on reducing: {lime_list[0][0] if lime_list else 'N/A'}",
@@ -225,15 +238,18 @@ def run_ml_layer(report: dict) -> dict:
     else:
         lime_explanation = {'error': 'LIME unavailable'}
         
-    # Save outputs to files
-    os.makedirs('outputs/explanations', exist_ok=True)
-    if 'error' not in shap_local:
-        with open('outputs/explanations/shap_local.json', 'w') as f:
-            json.dump(shap_local, f, indent=2)
-            
-    if 'error' not in lime_explanation:
-        with open('outputs/explanations/lime_explanation.json', 'w') as f:
-            json.dump(lime_explanation, f, indent=2)
+    # API inference is side-effect free by default. Optional diagnostic exports
+    # must be explicitly enabled and directed to an operator-controlled path.
+    output_dir = os.getenv("ML_EXPLANATION_OUTPUT_DIR")
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        if 'error' not in shap_local:
+            with open(os.path.join(output_dir, 'shap_local.json'), 'w', encoding='utf-8') as f:
+                json.dump(shap_local, f, indent=2)
+
+        if 'error' not in lime_explanation:
+            with open(os.path.join(output_dir, 'lime_explanation.json'), 'w', encoding='utf-8') as f:
+                json.dump(lime_explanation, f, indent=2)
             
     return {
         'ml_available': True,
@@ -245,7 +261,7 @@ def run_ml_layer(report: dict) -> dict:
         },
         'shap_explanation': shap_local,
         'lime_explanation': lime_explanation,
-        'model_version': 'xgboost_v1',
+        'model_version': 'xgboost_severity_aligned_v3',
         'agrees_with_deterministic': (
             prediction_label == report.get('risk_tier')
         )

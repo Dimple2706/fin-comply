@@ -12,14 +12,14 @@ def sync_dpdp_015():
         port = os.getenv("DB_PORT", "5432")
         dbname = os.getenv("DB_NAME", "tenant_db")
         user = os.getenv("DB_USER", "postgres")
-        password = os.getenv("DB_PASSWORD", "rasika23")
+        password = os.getenv("DB_PASSWORD")
         conn = psycopg.connect(host=host, port=port, dbname=dbname, user=user, password=password)
         
     try:
-        # Load approved country list from data/dpdp_kb/dpdp_rules.json
+        # Load the Section 16 evidence contract. No private country allowlist is used.
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         rules_path = os.path.join(base_dir, "data", "dpdp_kb", "dpdp_rules.json")
-        with open(rules_path, "r") as f:
+        with open(rules_path, "r", encoding="utf-8") as f:
             rules = json.load(f)
             
         dpdp_015_rule = next(r for r in rules if r["rule_id"] == "DPDP-015")

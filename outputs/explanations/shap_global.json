@@ -15,27 +15,27 @@
     "policy_violation_count"
   ],
   "mean_abs_shap_values": {
-    "n_violations": 1.71146559715271,
-    "n_warnings": 0.03792376071214676,
+    "n_violations": 1.0923272371292114,
+    "n_warnings": 0.0562237873673439,
     "n_critical_rules_fired": 0.0,
-    "n_high_rules_fired": 0.029435520991683006,
-    "breach_rule_fired": 0.004313464276492596,
+    "n_high_rules_fired": 0.19990509748458862,
+    "breach_rule_fired": 0.0,
     "minor_data_rule_fired": 0.0,
-    "max_rule_score": 0.7920408248901367,
-    "max_prevalence_ratio": 0.14910168945789337,
-    "consent_violation_count": 0.004368357360363007,
-    "retention_violation_count": 0.02443128637969494,
-    "encryption_violation_count": 0.09126175940036774,
-    "access_violation_count": 0.3242160379886627,
+    "max_rule_score": 0.9808387160301208,
+    "max_prevalence_ratio": 0.32773855328559875,
+    "consent_violation_count": 0.24669072031974792,
+    "retention_violation_count": 0.1264902949333191,
+    "encryption_violation_count": 0.1383296549320221,
+    "access_violation_count": 0.19992300868034363,
     "policy_violation_count": 0.0
   },
   "top_3_features": [
     "n_violations",
     "max_rule_score",
-    "access_violation_count"
+    "max_prevalence_ratio"
   ],
   "model_version": "xgboost_leakage_free_v2",
   "trained_on_samples": 280,
-  "test_holdout_macro_f1": 1.0,
-  "test_holdout_mcc": 1.0
+  "test_holdout_macro_f1": 0.984,
+  "test_holdout_mcc": 0.9813
 }

@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date
 from typing import Dict, List, Union, Any
 import os
 from .hasher import hash_id, validate_hash_string
@@ -228,6 +228,19 @@ def _first_present(row: pd.Series, *keys: str) -> Any:
 def _anonymize_governance_config(df: pd.DataFrame, tenant_id: str) -> dict:
     row = df.iloc[0]
     dpo_assigned = _safe_bool(row.get("dpo_assigned"))
+
+    sdf_value = row.get("is_significant_data_fiduciary")
+    if pd.isna(sdf_value) or str(sdf_value).strip() == "":
+        is_significant_data_fiduciary = None
+    else:
+        normalized_sdf = str(sdf_value).strip().lower()
+        if normalized_sdf not in {"true", "false", "1", "0", "yes", "no", "y", "n", "t", "f"}:
+            raise GovernanceValidationError(
+                "governance_config.csv", 2, "is_significant_data_fiduciary",
+                "INVALID_BOOLEAN_VALUE",
+                "SDF applicability must be an explicit true/false value when supplied."
+            )
+        is_significant_data_fiduciary = normalized_sdf in {"true", "1", "yes", "y", "t"}
     
     dpo_contact = _first_present(row, "dpo_contact_masked", "dpo_contact")
     if dpo_assigned:
@@ -245,6 +258,7 @@ def _anonymize_governance_config(df: pd.DataFrame, tenant_id: str) -> dict:
     return {
         "tenant_id": tenant_id, # Gate 1
         "tenant_name": tenant_name, # Gate 1
+        "is_significant_data_fiduciary": is_significant_data_fiduciary,
         "grievance_endpoint_available": _safe_bool(row.get("grievance_endpoint_available")), # Gate 2
         "dpo_assigned": dpo_assigned, # Gate 2
         "dpo_contact_masked": dpo_contact_masked,
@@ -339,6 +353,18 @@ def _anonymize_transaction_events(df: pd.DataFrame, tenant_id: str) -> List[dict
             if not transfer_country:
                 raise TransactionValidationError("transaction_events.csv", row_num, "transfer_country", "MISSING_TRANSFER_COUNTRY", "Transfer country is required for cross-border transactions.")
 
+        restriction_value = row.get("transfer_restriction_compliant")
+        if pd.isna(restriction_value) or restriction_value is None or str(restriction_value).strip().lower() in ("", "none", "nan"):
+            transfer_restriction_compliant = None
+        else:
+            transfer_restriction_compliant = _safe_bool(restriction_value)
+
+        reference_value = row.get("transfer_assessment_reference")
+        if pd.isna(reference_value) or reference_value is None or str(reference_value).strip().lower() in ("", "none", "nan"):
+            transfer_assessment_reference = None
+        else:
+            transfer_assessment_reference = str(reference_value).strip()
+
         results.append({
             "event_hash": _extract_hash(row, "event_hash", "event_id", tenant_id), # Gate 1, Technique 1
             "customer_hash": _extract_hash(row, "customer_hash", "customer_id", tenant_id), # Gate 1, Technique 1
@@ -350,7 +376,9 @@ def _anonymize_transaction_events(df: pd.DataFrame, tenant_id: str) -> List[dict
             "shared_with_third_party": _safe_bool(row.get("shared_with_third_party")), # Gate 2
             "third_party_hash": tp_hash, # Gate 2, Technique 1
             "is_cross_border": is_cross_border, # Gate 2
-            "transfer_country": transfer_country
+            "transfer_country": transfer_country,
+            "transfer_restriction_compliant": transfer_restriction_compliant,
+            "transfer_assessment_reference": transfer_assessment_reference
         })
     return results
 
@@ -364,6 +392,19 @@ def _anonymize_access_logs(df: pd.DataFrame, tenant_id: str) -> List[dict]:
             pii_fields_justified = None
         else:
             pii_fields_justified = _safe_bool(pii_fields_justified_val)
+
+        access_authorized_val = row.get("access_authorized")
+        if pd.isna(access_authorized_val) or access_authorized_val is None or str(access_authorized_val).strip().lower() in ("", "none", "nan"):
+            access_authorized = None
+        else:
+            normalized_authorized = str(access_authorized_val).strip().lower()
+            if normalized_authorized not in {"true", "false", "1", "0", "yes", "no", "y", "n", "t", "f"}:
+                raise EnumValidationError(
+                    "access_logs.csv", row_num, "access_authorized",
+                    "INVALID_BOOLEAN_VALUE",
+                    "access_authorized must be an explicit true/false value when supplied."
+                )
+            access_authorized = normalized_authorized in {"true", "1", "yes", "y", "t"}
 
         records.append({
             "access_hash": _extract_hash(row, "access_hash", "access_id", tenant_id), # Gate 1, Technique 1
@@ -383,6 +424,7 @@ def _anonymize_access_logs(df: pd.DataFrame, tenant_id: str) -> List[dict]:
             "access_date": _truncate_to_date(_first_present(row, "access_date", "timestamp")), # Gate 2, Technique 2
             "system_hash": _extract_hash(row, "system_hash", "system_id", tenant_id),
             "pii_fields_justified": pii_fields_justified,
+            "access_authorized": access_authorized,
             "additional_attributes": (
                 str(row["additional_attributes"])
                 if pd.notna(row.get("additional_attributes"))
@@ -510,8 +552,15 @@ def _anonymize_dsar_requests(df: pd.DataFrame, tenant_id: str) -> List[dict]:
         if not sla_due_dt:
             raise DsarValidationError("dsar_requests.csv", row_num, "sla_due_date", "INVALID_DATE_FORMAT", "Must be a valid ISO YYYY-MM-DD date.")
             
-        if sla_due_dt != submitted_dt + timedelta(days=30):
-            raise DsarValidationError("dsar_requests.csv", row_num, "sla_due_date", "INCONSISTENT_SLA_DATE", "sla_due_date must be exactly 30 days after submitted_date.")
+        # The DPDP Act/Rules do not prescribe a universal 30-day deadline for
+        # access, correction, erasure, or nomination requests. Preserve the
+        # tenant's evidenced SLA, but reject a logically impossible deadline.
+        if sla_due_dt <= submitted_dt:
+            raise DsarValidationError(
+                "dsar_requests.csv", row_num, "sla_due_date",
+                "INVALID_SLA_SEQUENCE",
+                "sla_due_date must be later than submitted_date; no statutory 30-day deadline is fabricated."
+            )
  
         if fulfillment_status == "fulfilled":
             if not fulfilled_date:
@@ -608,6 +657,12 @@ def _anonymize_policies(df: pd.DataFrame, tenant_id: str) -> List[dict]:
             "policy_name": None if ("policy_name" not in row) else (str(row["policy_name"]).strip() if (pd.notna(row.get("policy_name")) and str(row["policy_name"]).strip() not in ("", "None")) else None), # Gate 1
             "policy_value_numeric": int(float(row["policy_value_numeric"])) if pd.notna(row.get("policy_value_numeric")) else None, # Gate 2
             "policy_value_unit": _validate_enum(row.get("policy_value_unit"), ["days", "months", "years", "hours", "count"], "policy_value_unit", "policies.csv", row_num, required=False), # Gate 2, Technique 5
+            "policy_value_text": (
+                str(row["policy_value_text"]).strip()
+                if pd.notna(row.get("policy_value_text"))
+                and str(row["policy_value_text"]).strip().lower() not in ("", "none", "nan")
+                else None
+            ), # Required evidence for POLICY-002 and POLICY-003
             "effective_date": _truncate_to_date(row.get("effective_date")), # Gate 2, Technique 2
             "last_updated": _truncate_to_date(row.get("last_updated")), # Gate 2, Technique 2
             "is_active": _safe_bool(row.get("is_active")), # Gate 2

@@ -192,12 +192,14 @@ def test_dpdp_009_evidence_contract(db_conn):
     # 1. Configs
     raw_gov_pass = pd.DataFrame([{
         "tenant_id": tenant_id, "tenant_name": "T1", "audit_frequency_days": 90,
-        "dpo_assigned": "True", "dpo_contact": "dpo@tenant.com", "risk_level": "MEDIUM",
+        "is_significant_data_fiduciary": "False",
+        "dpo_assigned": "False", "risk_level": "MEDIUM",
         "grievance_endpoint_available": "True"
     }])
     raw_gov_fail = pd.DataFrame([{
         "tenant_id": tenant_id, "tenant_name": "T1", "audit_frequency_days": 90,
-        "dpo_assigned": "True", "dpo_contact": "dpo@tenant.com", "risk_level": "MEDIUM",
+        "is_significant_data_fiduciary": "False",
+        "dpo_assigned": "False", "risk_level": "MEDIUM",
         "grievance_endpoint_available": "False"
     }])
 
@@ -360,13 +362,13 @@ def test_dpdp_015_evidence_contract(db_conn):
     """
     Test DPDP-015:
     - Runs sync_dpdp_015 to synchronize rule from JSON.
-    - Reads DPDP-015 from DB and asserts its S2 value equals JSON list.
-    - Verifies approved country (SG) passes and unapproved country (CN) violates.
-    - Changes the JSON rules list in a patched environment, re-syncs, and proves CN now passes (if CN is added to approved list).
+    - Proves no private country allowlist is used.
+    - Verifies explicit compliant assessment evidence passes.
+    - Verifies an explicit non-compliant assessment violates.
     """
     import json
     from db.sync_dpdp_015_rules import sync_dpdp_015
-    from unittest.mock import mock_open, patch
+    from unittest.mock import patch
 
     # 1. Run sync
     sync_dpdp_015()
@@ -375,16 +377,14 @@ def test_dpdp_015_evidence_contract(db_conn):
         cur.execute("SELECT * FROM rules WHERE rule_id = 'DPDP-015'")
         rule = cur.fetchone()
 
-    # Load original json to check S2 values match
+    # The database contract must match JSON and must not classify countries.
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     rules_path = os.path.join(base_dir, "data", "dpdp_kb", "dpdp_rules.json")
     with open(rules_path, "r") as f:
         orig_rules = json.load(f)
     orig_dpdp_015 = next(r for r in orig_rules if r["rule_id"] == "DPDP-015")
-    orig_s2 = next(s for s in orig_dpdp_015["evidence_signals"] if s["signal_id"] == "S2")
-    
-    db_s2 = next(s for s in rule["evidence_signals"] if s["signal_id"] == "S2")
-    assert db_s2["value"] == orig_s2["value"]
+    assert rule["evidence_signals"] == orig_dpdp_015["evidence_signals"]
+    assert all(signal["field"] != "transfer_country" for signal in rule["evidence_signals"])
 
     # 2. Test payloads
     tenant_id = "INTEG-015-T1"
@@ -406,10 +406,10 @@ def test_dpdp_015_evidence_contract(db_conn):
     ])
 
     raw_tx_1 = pd.DataFrame([
-        # SG -> Approved -> PASS
-        {"event_hash": "txhash01511", "customer_hash": "cust00000001", "consent_hash": "conhash01511", "event_type": "credit_check", "processing_purpose": "loan_processing", "event_date": "2026-08-23", "shared_with_third_party": "True", "third_party_hash": "syshash01511", "is_cross_border": "True", "transfer_country": "SG"},
-        # CN -> Unapproved -> VIOLATION
-        {"event_hash": "txhash01512", "customer_hash": "cust00000001", "consent_hash": "conhash01511", "event_type": "credit_check", "processing_purpose": "loan_processing", "event_date": "2026-08-23", "shared_with_third_party": "True", "third_party_hash": "syshash01511", "is_cross_border": "True", "transfer_country": "CN"}
+        # Country alone does not decide legality; explicit supported assessment passes.
+        {"event_hash": "txhash01511", "customer_hash": "cust00000001", "consent_hash": "conhash01511", "event_type": "credit_check", "processing_purpose": "loan_processing", "event_date": "2026-08-23", "shared_with_third_party": "True", "third_party_hash": "syshash01511", "is_cross_border": "True", "transfer_country": "SG", "transfer_restriction_compliant": "True", "transfer_assessment_reference": "LEGAL-TR-001"},
+        # Explicitly non-compliant assessment violates, regardless of country label.
+        {"event_hash": "txhash01512", "customer_hash": "cust00000001", "consent_hash": "conhash01511", "event_type": "credit_check", "processing_purpose": "loan_processing", "event_date": "2026-08-23", "shared_with_third_party": "True", "third_party_hash": "syshash01511", "is_cross_border": "True", "transfer_country": "CN", "transfer_restriction_compliant": "False", "transfer_assessment_reference": "LEGAL-TR-002"}
     ])
 
     # Cross-tenant data
@@ -448,24 +448,6 @@ def test_dpdp_015_evidence_contract(db_conn):
     from src.anonymization.hasher import hash_id
     assert violations[0].record_id.strip() == hash_id("txhash01512", "INTEG-015-T1", "v2")
 
-    # 3. Dynamic lists assertion: CN passes if added dynamically
-    modified_rules = json.loads(json.dumps(orig_rules))
-    modified_dpdp_015 = next(r for r in modified_rules if r["rule_id"] == "DPDP-015")
-    modified_s2 = next(s for s in modified_dpdp_015["evidence_signals"] if s["signal_id"] == "S2")
-    modified_s2["value"].append("CN")
-
-    mocked_open = mock_open(read_data=json.dumps(modified_rules))
-    with patch("builtins.open", mocked_open):
-        sync_dpdp_015()
-
-    with db_conn.cursor() as cur:
-        cur.execute("SELECT * FROM rules WHERE rule_id = 'DPDP-015'")
-        rule_modified = cur.fetchone()
-
-    db_s2_modified = next(s for s in rule_modified["evidence_signals"] if s["signal_id"] == "S2")
-    assert "CN" in db_s2_modified["value"]
-
-    findings_mod = agent._run_rule_dynamic(rule_modified, tenant_id, wrapper)
-    violations_mod = [f for f in findings_mod if f.outcome == "VIOLATION"]
-    assert len(violations_mod) == 0
+    passes = [finding for finding in findings if finding.outcome == "PASS"]
+    assert len(passes) == 1
 
