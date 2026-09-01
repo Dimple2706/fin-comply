@@ -53,7 +53,12 @@ MIGRATIONS = [
     "issue_10_transfer_assessment_evidence.sql",
     "issue_11_sdf_applicability.sql",
     "issue_12_access_authorization_evidence.sql",
+    # issue_15 must run before issue_13: issue_13 assumes the users table
+    # already has name/email/authorized_tenants columns, which issue_15 is
+    # what actually adds them (older databases don't have them yet).
+    "issue_15_users_table_missing_columns.sql",
     "issue_13_authentication_constraints.sql",
+    "issue_14_dpdp005_guardian_consent_fix.sql",
 ]
 
 
@@ -90,6 +95,7 @@ def run_pending_migrations() -> list[str]:
             cur.execute("SELECT filename FROM public.schema_migrations")
             already_applied = {row[0] for row in cur.fetchall()}
 
+            failed: list[str] = []
             for filename in MIGRATIONS:
                 if filename in already_applied:
                     continue
@@ -99,13 +105,28 @@ def run_pending_migrations() -> list[str]:
                     continue
                 sql = path.read_text(encoding="utf-8")
                 print(f"[run_migrations] Applying {filename} ...")
-                cur.execute(sql)
-                cur.execute(
-                    "INSERT INTO public.schema_migrations (filename) VALUES (%s)",
-                    (filename,),
-                )
+                try:
+                    cur.execute(sql)
+                    cur.execute(
+                        "INSERT INTO public.schema_migrations (filename) VALUES (%s)",
+                        (filename,),
+                    )
+                except Exception as e:
+                    # One migration's failure (e.g. it assumes a table shape
+                    # this database doesn't have yet) must never block every
+                    # migration listed after it -- each file is independent.
+                    # A failed statement can leave the session in an aborted
+                    # transaction; roll back so the next migration starts clean.
+                    print(f"[run_migrations] FAILED: {filename}: {e}")
+                    conn.rollback()
+                    failed.append(filename)
+                    continue
                 applied_now.append(filename)
                 print(f"[run_migrations] OK: {filename}")
+
+    if failed:
+        print(f"[run_migrations] {len(failed)} migration(s) FAILED and were skipped: {failed}")
+        print("[run_migrations] These need manual investigation -- they were not marked applied and will be retried next run.")
 
     return applied_now
 
