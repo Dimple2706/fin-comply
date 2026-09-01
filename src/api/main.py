@@ -8,6 +8,14 @@ async def lifespan(app: FastAPI):
     from src.anonymization.hasher import validate_hmac_secret_or_fail, check_database_migration_complete
     validate_hmac_secret_or_fail()
     check_database_migration_complete()
+
+    from db.run_migrations import run_pending_migrations
+    try:
+        applied = run_pending_migrations()
+        if applied:
+            print(f"Fin-Comply: applied {len(applied)} pending DB migration(s) at startup: {applied}")
+    except Exception as e:
+        print(f"Fin-Comply: WARNING — could not run pending DB migrations at startup: {e}")
     from src.governance.audit_logger import log_event, APP_STARTUP, MODEL_LOADED, MODEL_LOAD_FAILED
     
     startup_status = {}

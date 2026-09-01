@@ -1,5 +1,6 @@
 import os
 import json
+# pyrefly: ignore [missing-import]
 import pytest
 import psycopg
 from fastapi.testclient import TestClient

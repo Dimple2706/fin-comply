@@ -16,7 +16,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.api.main import app
 from src.api.routes import get_db_connection
-
+# pyrefly: ignore [missing-import]
 import pytest
 import os
 import json
