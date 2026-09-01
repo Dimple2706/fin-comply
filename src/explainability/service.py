@@ -76,7 +76,9 @@ RULE_EXPLANATIONS = {
             "Restrict all data processing on minor accounts until guardian consent is confirmed and recorded"
         ],
         "signal_definitions": {
-            "guardian_consent_missing_or_invalid": {"description": "Minor without valid active guardian consent", "weight": 1.0}
+            "S1": {"description": "Customer is flagged as a minor — heightened obligations apply under Section 9", "weight": 0.4},
+            "S2": {"description": "No guardian consent record linked to this minor's account", "weight": 0.4},
+            "S3": {"description": "Consent on file is not in active state even if a record exists", "weight": 0.2}
         }
     },
     "DPDP-006": {

@@ -94,11 +94,15 @@ def determine_row_outcome(rule_id: str, row: dict, signals_fired: List[str], sig
             return RuleOutcome.NOT_APPLICABLE, "Customer is an adult, child data rule is not applicable"
 
         # Check guardian consent missing/invalid -> VIOLATION
+        # Note: only the GUARDIAN's own consent record matters here. The minor's
+        # own consent_status is not evaluated by DPDP-005 (that's DPDP-001's
+        # concern) — a minor cannot give legally valid consent themselves, so
+        # their own consent_status is irrelevant to whether guardian consent
+        # was obtained.
         guardian_consent = row.get("guardian_consent_hash")
         guardian_status = row.get("guardian_consent_status")
-        consent_status = row.get("consent_status")
-        
-        if not guardian_consent or guardian_status != "active" or consent_status != "active":
+
+        if not guardian_consent or guardian_status != "active":
             return RuleOutcome.VIOLATION, "Child data missing or invalid guardian consent"
             
         return RuleOutcome.PASS, "Minor customer has active guardian consent"

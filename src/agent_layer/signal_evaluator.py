@@ -25,13 +25,9 @@ def _eval_dpdp_005(row: dict) -> bool:
         return False
         
     guardian_consent = row.get("guardian_consent_hash")
-    consent_status = row.get("consent_status")
     guardian_consent_status = row.get("guardian_consent_status")
 
     if not guardian_consent:
-        return True
-
-    if consent_status != "active":
         return True
 
     if guardian_consent_status != "active":
