@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-005-6ac4527a97a1,GEN-005,breach_notification,Breach Notification Policy,365,days,2024-09-21,2024-09-21,True,{}
-POL-GEN-005-dbaddf356424,GEN-005,encryption,Encryption Standards Policy,365,days,2025-07-15,2025-07-15,True,{}
-POL-GEN-005-22bf673d6c2d,GEN-005,breach_notification,Breach Notification Policy,365,days,2026-04-13,2026-04-13,True,{}
-POL-GEN-005-8fd1d041c482,GEN-005,encryption,Encryption Standards Policy,365,days,2025-10-08,2025-10-08,True,{}
-POL-GEN-005-6029d404be24,GEN-005,encryption,Encryption Standards Policy,365,days,2025-06-23,2025-06-23,True,{}
-POL-GEN-005-649ca38101ea,GEN-005,retention,Data Retention Policy,365,days,2025-11-29,2025-11-29,True,{}
-POL-GEN-005-5ad858563a0f,GEN-005,breach_notification,Breach Notification Policy,365,days,2025-08-26,2025-08-26,True,{}
-POL-GEN-005-850be3797a56,GEN-005,encryption,Encryption Standards Policy,365,days,2024-10-12,2024-10-12,True,{}
-POL-GEN-005-fe93e9b0a405,GEN-005,breach_notification,Breach Notification Policy,365,days,2026-03-07,2026-03-07,True,{}
-POL-GEN-005-acb5a7473c38,GEN-005,breach_notification,Breach Notification Policy,365,days,2024-08-19,2024-08-19,True,{}
+POL-GEN-005-7740e8413b2d,GEN-005,consent,Consent Management Policy,365,days,2024-12-08,2024-12-08,True,{}
+POL-GEN-005-9168b3779b69,GEN-005,breach_notification,Breach Notification Policy,365,days,2025-04-16,2025-04-16,True,{}
+POL-GEN-005-805acce9d07b,GEN-005,consent,Consent Management Policy,365,days,2024-11-30,2024-11-30,True,{}
+POL-GEN-005-fe289b289a47,GEN-005,consent,Consent Management Policy,365,days,2024-02-22,2024-02-22,True,{}
+POL-GEN-005-079c74119aae,GEN-005,breach_notification,Breach Notification Policy,365,days,2025-08-22,2025-08-22,True,{}
+POL-GEN-005-8d6204640efd,GEN-005,retention,Data Retention Policy,365,days,2025-03-24,2025-03-24,True,{}
+POL-GEN-005-df96373a2ba1,GEN-005,breach_notification,Breach Notification Policy,365,days,2025-03-19,2025-03-19,True,{}
+POL-GEN-005-bd86c89d6a7b,GEN-005,breach_notification,Breach Notification Policy,365,days,2024-02-07,2024-02-07,True,{}
+POL-GEN-005-734f5781980d,GEN-005,encryption,Encryption Standards Policy,365,days,2025-07-15,2025-07-15,True,{}
+POL-GEN-005-b707bfd82d79,GEN-005,encryption,Encryption Standards Policy,365,days,2025-08-02,2025-08-02,True,{}

@@ -169,11 +169,20 @@ def generate_governance_config(profile: dict) -> List[dict]:
     fd = profile["field_distributions"].get("governance_config", {})
     tenant_id = profile["tenant_id"]
 
+    dpo_assigned = _pick_bool(fd.get("dpo_assigned", True))
+    # Required whenever a DPO is assigned -- was never generated at all, so
+    # ingestion rejected any profile with dpo_assigned=True. field_mapper.py
+    # reads the raw column as "dpo_contact" (or pre-masked "dpo_contact_masked"),
+    # not "dpo_contact_email" -- that name is only field_config.json's
+    # documentation label for the semantic field, not the actual CSV header.
+    dpo_contact_email = f"dpo@{tenant_id.lower()}.example" if dpo_assigned else ""
+
     return [{
         "tenant_id": tenant_id,
         "tenant_name": profile.get("profile_name", tenant_id),
         "grievance_endpoint_available": _pick_bool(fd.get("grievance_endpoint_available", True)),
-        "dpo_assigned": _pick_bool(fd.get("dpo_assigned", True)),
+        "dpo_assigned": dpo_assigned,
+        "dpo_contact": dpo_contact_email,
         "audit_frequency_days": fd.get("audit_frequency_days", 90),
         "last_audit_date": fd.get("last_audit_date", _random_past_date()),
         "risk_level": fd.get("risk_level", "MEDIUM"),
@@ -236,6 +245,7 @@ def generate_consent_records(profile: dict, customer_rows: List[dict]) -> List[d
     minor_customer_ids = {r["customer_id"] for r in customer_rows if r["is_minor"]}
 
     rows = []
+    guardian_rows = []
     for i in range(n):
         consent_id = f"CON-{tenant_id}-{_uid()}"
         cust_id = random.choice(customer_ids)
@@ -262,9 +272,15 @@ def generate_consent_records(profile: dict, customer_rows: List[dict]) -> List[d
         else:
             consent_version = "v2.0"
 
-        # Consent timestamp and expiry
+        # Consent timestamp and expiry. DB constraint chk_expiry_after_consent
+        # requires expiry strictly after consent -- independently sampling
+        # from "past" (2024-2026-06) and "future" (2026-2028-06) ranges lets
+        # them overlap in 2026 and frequently produced expiry < consent.
+        # Anchor expiry to consent + 1-2 years instead.
         consent_ts = _random_timestamp()
-        expiry_ts = _random_timestamp(_random_future_date())
+        consent_date_val = date.fromisoformat(consent_ts.split("T")[0])
+        expiry_date_val = consent_date_val + timedelta(days=random.randint(365, 730))
+        expiry_ts = _random_timestamp(expiry_date_val.isoformat())
 
         # Withdrawal timestamp â€” only if status is withdrawn (chk_withdrawal_status)
         withdrawal_ts = ""
@@ -278,9 +294,34 @@ def generate_consent_records(profile: dict, customer_rows: List[dict]) -> List[d
             gh_val = fd.get("minor_rows_guardian_consent_hash",
                            fd.get("guardian_consent_hash", "null"))
             if gh_val == "null" or (isinstance(null_pct, (int, float)) and random.random() < null_pct):
+                # No valid guardian consent on file -- intentional, for
+                # profiles designed to be non-compliant on DPDP-005.
                 guardian_consent_id = ""
             else:
-                guardian_consent_id = f"GC-{_uid()}"
+                # Create a REAL guardian consent record and reference its
+                # consent_id, rather than a phantom ID matching no row.
+                # DPDP-005 evaluation resolves guardian consent by joining
+                # this value against another consent_records row's
+                # consent_id -- a fabricated ID that matches nothing left
+                # every minor showing as a violation regardless of the
+                # profile's intended compliance level.
+                guardian_consent_id = f"CON-{tenant_id}-{_uid()}"
+                guardian_rows.append({
+                    "consent_id": guardian_consent_id,
+                    "customer_id": cust_id,
+                    "tenant_id": tenant_id,
+                    "consent_status": "active",
+                    "consent_timestamp": _random_timestamp(),
+                    "expiry_timestamp": _random_timestamp(_random_future_date()),
+                    "consented_purpose": "guardian_authorization",
+                    "consent_version": "v2.0",
+                    "notice_provided": True,
+                    "is_bundled": False,
+                    "consent_channel": _pick(fd.get("consent_channel", "app")),
+                    "withdrawal_timestamp": "",
+                    "guardian_consent_id": "",
+                    "additional_attributes": "{}",
+                })
         else:
             gh_val = fd.get("non_minor_rows_guardian_consent_hash",
                            fd.get("guardian_consent_hash", "null"))
@@ -300,25 +341,36 @@ def generate_consent_records(profile: dict, customer_rows: List[dict]) -> List[d
             "is_bundled": is_bundled,
             "consent_channel": consent_channel,
             "withdrawal_timestamp": withdrawal_ts,
+            "guardian_consent_id": guardian_consent_id,
             "additional_attributes": "{}",
         })
+    rows.extend(guardian_rows)
     return rows
 
 
-def generate_transaction_events(profile: dict, consent_rows: List[dict]) -> List[dict]:
+def generate_transaction_events(profile: dict, consent_rows: List[dict], system_rows: List[dict]) -> List[dict]:
     """Generate transaction_events using consent_ids from consent_records."""
     n = profile["record_counts"]["n_transaction_events"]
     fd = profile["field_distributions"].get("transaction_events", {})
     tenant_id = profile["tenant_id"]
 
-    consent_data = [(r["consent_id"], r["customer_id"], r["consented_purpose"]) for r in consent_rows]
+    consent_data = [
+        (r["consent_id"], r["customer_id"], r["consented_purpose"], r["consent_timestamp"], r["expiry_timestamp"])
+        for r in consent_rows
+    ]
+
+    # Third-party FK integrity (matches the fix already prescribed for the
+    # canonical generator): only external systems can be a real third-party
+    # recipient. A fabricated ID that matches no system_inventory row fails
+    # cross-file validation at ingestion.
+    third_party_system_ids = [s["system_id"] for s in system_rows if s.get("data_processor_type") != "internal"]
 
     mismatch_pct = fd.get("consented_purpose_mismatch_pct", 0)
 
     rows = []
     for i in range(n):
         event_id = f"EVT-{tenant_id}-{_uid()}"
-        consent_id, cust_id, consented_purpose = random.choice(consent_data)
+        consent_id, cust_id, consented_purpose, consent_ts_val, expiry_ts_val = random.choice(consent_data)
 
         event_type = _pick(fd.get("event_type", "credit_check"))
 
@@ -331,18 +383,47 @@ def generate_transaction_events(profile: dict, consent_rows: List[dict]) -> List
             ]
             processing_purpose = random.choice(mismatch_purposes) if mismatch_purposes else "marketing"
         else:
-            processing_purpose = _pick(fd.get("processing_purpose", consented_purpose))
+            # Not a deliberate mismatch -- processing_purpose must actually
+            # equal the linked consent's purpose. Independently re-sampling
+            # from a "processing_purpose" distribution (even one identical
+            # to the consented-purpose distribution) produces an accidental
+            # mismatch on every draw that lands on a different value,
+            # firing DPDP-002 on data that was never meant to violate it.
+            processing_purpose = consented_purpose
 
         shared = _pick_bool(fd.get("shared_with_third_party", False))
         is_cross_border = _pick_bool(fd.get("is_cross_border", False))
 
         third_party_id = ""
         if shared:
-            third_party_id = f"TP-{_uid()}"
+            if third_party_system_ids:
+                third_party_id = random.choice(third_party_system_ids)
+            else:
+                # No real external system exists for this tenant to share
+                # with -- don't fabricate a reference to nothing.
+                shared = False
 
         transfer_country = ""
         if is_cross_border:
             transfer_country = fd.get("transfer_country_for_cross_border", "US")
+
+        # DPDP-001 fires when a transaction's timestamp falls after its own
+        # consent's expiry date. Sampling the event timestamp fully
+        # independently of which consent it's linked to let this happen by
+        # pure chance even for consent_status='active' rows. Default to a
+        # timestamp inside the consent's own valid window; genuine DPDP-001
+        # violations still fire correctly via consent_status
+        # (expired/withdrawn/revoked), independent of this.
+        try:
+            consent_dt = date.fromisoformat(str(consent_ts_val).split("T")[0])
+            expiry_dt = date.fromisoformat(str(expiry_ts_val).split("T")[0])
+            if expiry_dt > consent_dt:
+                event_date_val = consent_dt + timedelta(days=random.randint(0, (expiry_dt - consent_dt).days))
+                event_timestamp = f"{event_date_val.isoformat()}T{random.randint(0,23):02d}:{random.randint(0,59):02d}:00"
+            else:
+                event_timestamp = consent_ts_val
+        except (TypeError, ValueError):
+            event_timestamp = _random_timestamp()
 
         rows.append({
             "event_id": event_id,
@@ -351,7 +432,7 @@ def generate_transaction_events(profile: dict, consent_rows: List[dict]) -> List
             "consent_id": consent_id,
             "event_type": event_type,
             "processing_purpose": processing_purpose,
-            "timestamp": _random_timestamp(),
+            "timestamp": event_timestamp,
             "shared_with_third_party": shared,
             "third_party_id": third_party_id,
             "is_cross_border": is_cross_border,
@@ -441,11 +522,26 @@ def generate_data_lifecycle(profile: dict, customer_rows: List[dict]) -> List[di
     retention_when_complete = fd.get("retention_status_when_purpose_complete", None)
 
     rows = []
+    used_pairs = set()  # DB: UNIQUE(customer_hash, data_category) per tenant
     for i in range(n):
         lifecycle_id = f"LC-{tenant_id}-{_uid()}"
-        cust_id = random.choice(customer_ids)
 
-        data_category = _pick(fd.get("data_category", "kyc_documents"))
+        # A customer can have at most one lifecycle row per data_category.
+        # Retry on collision instead of letting a duplicate reach the DB;
+        # skip this row (rather than fabricate a workaround) if no free
+        # pair can be found after a reasonable number of attempts.
+        cust_id = None
+        data_category = None
+        for _attempt in range(20):
+            candidate_cust = random.choice(customer_ids)
+            candidate_category = _pick(fd.get("data_category", "kyc_documents"))
+            if (candidate_cust, candidate_category) not in used_pairs:
+                cust_id = candidate_cust
+                data_category = candidate_category
+                break
+        if cust_id is None:
+            continue
+        used_pairs.add((cust_id, data_category))
 
         # Determine if this row has a past expiry date
         is_past = isinstance(past_pct, (int, float)) and random.random() < past_pct
@@ -454,7 +550,12 @@ def generate_data_lifecycle(profile: dict, customer_rows: List[dict]) -> List[di
             retention_expiry_date = past_value
             retention_status = past_status
         else:
-            retention_expiry_date = _random_future_date()
+            # _random_future_date() samples a fixed 2026-2028 range, which
+            # can land before today's actual date and make a "not past" row
+            # look already-expired by accident (the same overlapping-range
+            # bug already fixed for consent/expiry timestamps). Anchor to
+            # today instead so "not past" is always genuinely future.
+            retention_expiry_date = (date.today() + timedelta(days=random.randint(30, 730))).isoformat()
             retention_status = _pick(current_status_dist)
 
         # Purpose completed logic
@@ -476,6 +577,16 @@ def generate_data_lifecycle(profile: dict, customer_rows: List[dict]) -> List[di
         if erasure_requested:
             erasure_ts = _random_timestamp(_random_past_date())
             erasure_source = "user"
+
+        # DB constraint chk_expired_not_future: retention_status IN
+        # ('expired','pending_deletion','deleted') requires
+        # retention_expiry_date <= CURRENT_DATE. Any of these three can end
+        # up paired with a future date here (via current_status_dist or the
+        # purpose-complete override) -- keep the date consistent with the
+        # final status rather than fighting it, so the profile's intended
+        # status rate is preserved.
+        if retention_status in ("expired", "pending_deletion", "deleted") and date.fromisoformat(retention_expiry_date) > date.today():
+            retention_expiry_date = past_value
 
         rows.append({
             "lifecycle_id": lifecycle_id,
@@ -592,6 +703,19 @@ def generate_dsar_requests(profile: dict, customer_rows: List[dict]) -> List[dic
         if fulfillment_status == "rejected":
             rejection_reason = "Rejected per policy"
 
+        # Required by the pipeline (field_config.json: "fulfilled_at" ->
+        # "fulfilled_date") to compute whether fulfilment happened before or
+        # after the SLA deadline. Empty unless the request was fulfilled;
+        # timing kept consistent with the independently-chosen sla_breached flag.
+        fulfilled_at = ""
+        if fulfillment_status == "fulfilled":
+            sla_due = date.fromisoformat(sla_due_date)
+            if sla_breached:
+                fulfilled_date_val = sla_due + timedelta(days=random.randint(1, 20))
+            else:
+                fulfilled_date_val = sub_date + timedelta(days=random.randint(1, 29))
+            fulfilled_at = f"{fulfilled_date_val.isoformat()}T{random.randint(0,23):02d}:{random.randint(0,59):02d}:00"
+
         rows.append({
             "dsar_id": dsar_id,
             "customer_id": cust_id,
@@ -602,6 +726,7 @@ def generate_dsar_requests(profile: dict, customer_rows: List[dict]) -> List[dic
             "sla_due_date": sla_due_date,
             "sla_breached": sla_breached,
             "fulfillment_status": fulfillment_status,
+            "fulfilled_at": fulfilled_at,
             "rejection_reason": rejection_reason,
             "additional_attributes": "{}",
         })
@@ -626,9 +751,17 @@ def generate_system_inventory(profile: dict) -> List[dict]:
         access_control_enabled = _pick_bool(fd.get("access_control_enabled", True))
         retention_policy_applied = _pick_bool(fd.get("retention_policy_applied", True))
         data_processor_type = _pick(fd.get("data_processor_type", "internal"))
+        # Some profiles use "external" as shorthand for a non-internal
+        # processor; the DB enum only knows internal/third_party_processor/
+        # sub_processor.
+        if data_processor_type == "external":
+            data_processor_type = "third_party_processor"
         dpa_signed = _pick_bool(fd.get("dpa_signed", True))
 
-        dpa_expiry_date = _random_future_date() if dpa_signed else ""
+        # DB constraint chk_internal_no_dpa_expiry: internal systems can
+        # never carry a DPA expiry date, regardless of dpa_signed -- there's
+        # no third-party agreement to expire.
+        dpa_expiry_date = _random_future_date() if (dpa_signed and data_processor_type != "internal") else ""
 
         data_types = random.choice(DATA_TYPES_STORED)
         third_party = random.choice(["yes", "no"])
@@ -791,7 +924,7 @@ def process_profile(profile: dict) -> dict:
 
     # 1d. Transaction depends on consent (â†’ customer)
     print(f"  [6/10] Generating transaction_events...")
-    txn_rows = generate_transaction_events(profile, consent_rows)
+    txn_rows = generate_transaction_events(profile, consent_rows, sys_rows)
 
     # 1e. Access, lifecycle, security, dsar depend on customer
     print(f"  [7/10] Generating access_logs...")

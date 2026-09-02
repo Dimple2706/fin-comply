@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-216-c14534a55260,GEN-216,access_control,Access Control Policy,365,days,2024-06-14,2024-06-14,True,{}
-POL-GEN-216-fd93ef57dd0b,GEN-216,access_control,Access Control Policy,365,days,2026-04-02,2026-04-02,True,{}
-POL-GEN-216-2faf82e853d1,GEN-216,access_control,Access Control Policy,365,days,2025-07-05,2025-07-05,True,{}
-POL-GEN-216-7f968f80ba22,GEN-216,access_control,Access Control Policy,365,days,2025-10-18,2025-10-18,True,{}
-POL-GEN-216-0211d569aacd,GEN-216,access_control,Access Control Policy,365,days,2024-01-07,2024-01-07,True,{}
-POL-GEN-216-ee6c61bd1ead,GEN-216,access_control,Access Control Policy,365,days,2025-10-18,2025-10-18,True,{}
-POL-GEN-216-36a407a34cf7,GEN-216,access_control,Access Control Policy,365,days,2024-10-12,2024-10-12,True,{}
-POL-GEN-216-f3c2afeecc61,GEN-216,access_control,Access Control Policy,365,days,2024-11-05,2024-11-05,True,{}
-POL-GEN-216-fc18c1f92148,GEN-216,access_control,Access Control Policy,365,days,2024-04-24,2024-04-24,True,{}
-POL-GEN-216-97e442dad9e5,GEN-216,access_control,Access Control Policy,365,days,2024-11-13,2024-11-13,True,{}
+POL-GEN-216-5a4ad75a5ede,GEN-216,access_control,Access Control Policy,365,days,2025-07-08,2025-07-08,True,{}
+POL-GEN-216-25eb4d5eeea3,GEN-216,access_control,Access Control Policy,365,days,2026-06-07,2026-06-07,True,{}
+POL-GEN-216-383b0074a281,GEN-216,access_control,Access Control Policy,365,days,2025-12-21,2025-12-21,True,{}
+POL-GEN-216-5f25c28c22eb,GEN-216,access_control,Access Control Policy,365,days,2025-09-29,2025-09-29,True,{}
+POL-GEN-216-fa28f448aa26,GEN-216,access_control,Access Control Policy,365,days,2025-08-11,2025-08-11,True,{}
+POL-GEN-216-f3444e6dcea1,GEN-216,access_control,Access Control Policy,365,days,2026-03-28,2026-03-28,True,{}
+POL-GEN-216-6e927f301a25,GEN-216,access_control,Access Control Policy,365,days,2025-08-26,2025-08-26,True,{}
+POL-GEN-216-828e5b4b14b6,GEN-216,access_control,Access Control Policy,365,days,2025-09-24,2025-09-24,True,{}
+POL-GEN-216-780a0edb4351,GEN-216,access_control,Access Control Policy,365,days,2024-03-18,2024-03-18,True,{}
+POL-GEN-216-c20141150fe1,GEN-216,access_control,Access Control Policy,365,days,2026-01-20,2026-01-20,True,{}

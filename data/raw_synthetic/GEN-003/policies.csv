@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-003-da64965ccddb,GEN-003,retention,Data Retention Policy,365,days,2025-10-27,2025-10-27,False,{}
-POL-GEN-003-e71300904aa2,GEN-003,retention,Data Retention Policy,365,days,2026-05-28,2026-05-28,False,{}
-POL-GEN-003-6a79228d1974,GEN-003,consent,Consent Management Policy,365,days,2024-11-04,2024-11-04,True,{}
-POL-GEN-003-acca67bba62c,GEN-003,consent,Consent Management Policy,365,days,2025-03-08,2025-03-08,True,{}
-POL-GEN-003-0e1ea7e3abe4,GEN-003,retention,Data Retention Policy,365,days,2024-06-05,2024-06-05,True,{}
-POL-GEN-003-b5fec4939d65,GEN-003,consent,Consent Management Policy,365,days,2025-05-11,2025-05-11,True,{}
-POL-GEN-003-f428b15aa6c9,GEN-003,encryption,Encryption Standards Policy,365,days,2025-08-22,2025-08-22,False,{}
-POL-GEN-003-f99c6eb3f09a,GEN-003,retention,Data Retention Policy,365,days,2026-04-29,2026-04-29,True,{}
-POL-GEN-003-0f11eacc90e1,GEN-003,consent,Consent Management Policy,365,days,2024-01-09,2024-01-09,True,{}
-POL-GEN-003-4b492b0ec9bf,GEN-003,retention,Data Retention Policy,365,days,2025-03-18,2025-03-18,False,{}
+POL-GEN-003-695f51fcae67,GEN-003,encryption,Encryption Standards Policy,365,days,2025-11-04,2025-11-04,True,{}
+POL-GEN-003-63ce05e5e025,GEN-003,retention,Data Retention Policy,365,days,2025-11-02,2025-11-02,False,{}
+POL-GEN-003-66ce068f6733,GEN-003,encryption,Encryption Standards Policy,365,days,2026-01-19,2026-01-19,True,{}
+POL-GEN-003-79709d86c7d2,GEN-003,consent,Consent Management Policy,365,days,2026-03-27,2026-03-27,False,{}
+POL-GEN-003-b9ed7a965aae,GEN-003,encryption,Encryption Standards Policy,365,days,2024-02-19,2024-02-19,True,{}
+POL-GEN-003-63a85782dc35,GEN-003,consent,Consent Management Policy,365,days,2026-03-28,2026-03-28,True,{}
+POL-GEN-003-28424d153ddf,GEN-003,retention,Data Retention Policy,365,days,2025-09-08,2025-09-08,True,{}
+POL-GEN-003-c4b825c163d6,GEN-003,retention,Data Retention Policy,365,days,2024-07-01,2024-07-01,True,{}
+POL-GEN-003-77fa62f2bf20,GEN-003,retention,Data Retention Policy,365,days,2025-02-12,2025-02-12,False,{}
+POL-GEN-003-695f5a960eff,GEN-003,retention,Data Retention Policy,365,days,2024-06-15,2024-06-15,False,{}

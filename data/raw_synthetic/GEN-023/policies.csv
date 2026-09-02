@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-023-4c5f36820027,GEN-023,access_control,Access Control Policy,365,days,2024-08-19,2024-08-19,True,{}
-POL-GEN-023-fa5eacf058bd,GEN-023,retention,Data Retention Policy,365,days,2026-04-13,2026-04-13,True,{}
-POL-GEN-023-06564dde01b9,GEN-023,access_control,Access Control Policy,365,days,2025-08-31,2025-08-31,True,{}
-POL-GEN-023-5fa1c929b45e,GEN-023,retention,Data Retention Policy,365,days,2025-06-21,2025-06-21,True,{}
-POL-GEN-023-528f55b7a2bc,GEN-023,consent,Consent Management Policy,365,days,2024-09-01,2024-09-01,True,{}
-POL-GEN-023-4826633dcebb,GEN-023,consent,Consent Management Policy,365,days,2024-03-28,2024-03-28,True,{}
-POL-GEN-023-1c373508543c,GEN-023,retention,Data Retention Policy,365,days,2024-12-02,2024-12-02,True,{}
-POL-GEN-023-4ba7289d2179,GEN-023,access_control,Access Control Policy,365,days,2025-05-26,2025-05-26,True,{}
-POL-GEN-023-be033af73776,GEN-023,access_control,Access Control Policy,365,days,2026-05-31,2026-05-31,True,{}
-POL-GEN-023-75c1798fe62f,GEN-023,consent,Consent Management Policy,365,days,2024-03-29,2024-03-29,True,{}
+POL-GEN-023-8d874f2433c8,GEN-023,retention,Data Retention Policy,365,days,2025-10-27,2025-10-27,True,{}
+POL-GEN-023-725281f246f6,GEN-023,access_control,Access Control Policy,365,days,2024-09-13,2024-09-13,True,{}
+POL-GEN-023-8b1620c76522,GEN-023,breach_notification,Breach Notification Policy,365,days,2026-04-25,2026-04-25,True,{}
+POL-GEN-023-17833c9861f9,GEN-023,access_control,Access Control Policy,365,days,2024-08-04,2024-08-04,True,{}
+POL-GEN-023-e9970bee4cd0,GEN-023,retention,Data Retention Policy,365,days,2025-12-01,2025-12-01,True,{}
+POL-GEN-023-e5ae914f2be1,GEN-023,breach_notification,Breach Notification Policy,365,days,2024-01-08,2024-01-08,True,{}
+POL-GEN-023-47a79a7546ac,GEN-023,consent,Consent Management Policy,365,days,2025-02-01,2025-02-01,True,{}
+POL-GEN-023-66a5579e9198,GEN-023,breach_notification,Breach Notification Policy,365,days,2025-11-07,2025-11-07,True,{}
+POL-GEN-023-d73a983f7231,GEN-023,breach_notification,Breach Notification Policy,365,days,2024-02-10,2024-02-10,True,{}
+POL-GEN-023-d75d756dcbf1,GEN-023,access_control,Access Control Policy,365,days,2024-07-11,2024-07-11,True,{}

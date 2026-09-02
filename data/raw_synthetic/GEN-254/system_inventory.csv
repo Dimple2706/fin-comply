@@ -1,6 +1,6 @@
 system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
-SYS-GEN-254-27e93f552b8c,GEN-254,Core Banking System,crm,customer_data,True,True,True,True,yes,internal,True,2027-05-16,{}
-SYS-GEN-254-0f61591e25f4,GEN-254,CRM Platform,core_banking,kyc_documents,True,True,True,True,yes,internal,True,2028-05-08,{}
-SYS-GEN-254-ee5a0ed8bb5a,GEN-254,Analytics Engine,analytics,kyc_documents,True,True,True,True,no,internal,True,2027-11-22,{}
-SYS-GEN-254-f70dd6b39809,GEN-254,KYC Platform,kyc_platform,transaction_data,True,True,True,True,yes,internal,True,2028-01-04,{}
-SYS-GEN-254-23708a9c05e7,GEN-254,Payment Gateway,payment_gateway,payment_records,True,True,True,True,yes,internal,True,2026-01-24,{}
+SYS-GEN-254-a7d5c31b3b28,GEN-254,Core Banking System,crm,payment_records,True,True,True,True,no,internal,True,,{}
+SYS-GEN-254-f75e8c748d9b,GEN-254,CRM Platform,core_banking,customer_data,True,True,True,True,no,internal,True,,{}
+SYS-GEN-254-8495bf68933d,GEN-254,Analytics Engine,analytics,customer_data,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-254-b0b72a640e99,GEN-254,KYC Platform,kyc_platform,credit_scores,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-254-7c2bed754ab2,GEN-254,Payment Gateway,payment_gateway,customer_data,True,True,True,True,no,internal,True,,{}

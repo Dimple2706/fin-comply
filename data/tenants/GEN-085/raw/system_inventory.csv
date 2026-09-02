@@ -1,13 +1,13 @@
 system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
-SYS-GEN-085-69d3c262c5d3,GEN-085,Core Banking System,crm,transaction_data,True,True,True,True,yes,internal,True,2028-03-18,{}
-SYS-GEN-085-ecad11594fa8,GEN-085,CRM Platform,core_banking,customer_data,True,True,True,True,yes,internal,True,2027-06-06,{}
-SYS-GEN-085-efdd9eaf3527,GEN-085,Analytics Engine,analytics,payment_records,True,True,True,True,no,internal,True,2027-05-25,{}
-SYS-GEN-085-e6abece7e928,GEN-085,KYC Platform,kyc_platform,payment_records,True,True,True,True,yes,internal,True,2027-10-20,{}
-SYS-GEN-085-e9a10c9774de,GEN-085,Payment Gateway,payment_gateway,kyc_documents,True,True,True,True,yes,internal,True,2026-11-03,{}
-SYS-GEN-085-cb97cf6d0033,GEN-085,Data Warehouse,data_warehouse,payment_records,True,True,True,True,no,internal,True,2028-04-25,{}
-SYS-GEN-085-42e2caaea68d,GEN-085,Fraud Detection System,crm,customer_data,True,True,True,True,yes,internal,True,2026-12-19,{}
-SYS-GEN-085-b7fbcb1ebff3,GEN-085,Loan Origination System,core_banking,kyc_documents,True,True,True,True,yes,internal,True,2027-12-26,{}
-SYS-GEN-085-da8131e9f7a3,GEN-085,Customer Portal,analytics,credit_scores,True,True,True,True,yes,internal,True,2027-08-30,{}
-SYS-GEN-085-5af32fa00bab,GEN-085,Reporting Engine,kyc_platform,transaction_data,True,True,True,True,no,internal,True,2026-02-12,{}
-SYS-GEN-085-8739046a2681,GEN-085,Mobile Banking,payment_gateway,payment_records,True,True,True,True,no,internal,True,2027-07-06,{}
-SYS-GEN-085-364b9ae257dd,GEN-085,Transaction Monitor,data_warehouse,customer_data,True,True,True,True,no,internal,True,2027-01-15,{}
+SYS-GEN-085-5e25c686e416,GEN-085,Core Banking System,crm,transaction_data,True,True,True,True,no,internal,True,,{}
+SYS-GEN-085-6fcb15ce6b00,GEN-085,CRM Platform,core_banking,transaction_data,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-085-62548430e014,GEN-085,Analytics Engine,analytics,payment_records,True,True,True,True,no,internal,True,,{}
+SYS-GEN-085-ccd7f92ab3ea,GEN-085,KYC Platform,kyc_platform,payment_records,True,True,True,True,no,internal,True,,{}
+SYS-GEN-085-ed9fb58c5d69,GEN-085,Payment Gateway,payment_gateway,payment_records,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-085-7a21cf58ad43,GEN-085,Data Warehouse,data_warehouse,credit_scores,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-085-6bbfb46c4c43,GEN-085,Fraud Detection System,crm,kyc_documents,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-085-adb92cb1c67d,GEN-085,Loan Origination System,core_banking,transaction_data,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-085-5a6a06c01ebc,GEN-085,Customer Portal,analytics,credit_scores,True,True,True,True,no,internal,True,,{}
+SYS-GEN-085-e7a8c68f1b94,GEN-085,Reporting Engine,kyc_platform,credit_scores,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-085-639d70c8d2ff,GEN-085,Mobile Banking,payment_gateway,customer_data,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-085-41313d5d2c31,GEN-085,Transaction Monitor,data_warehouse,customer_data,True,True,True,True,no,internal,True,,{}

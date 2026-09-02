@@ -371,7 +371,7 @@ def _anonymize_transaction_events(df: pd.DataFrame, tenant_id: str) -> List[dict
             "tenant_id": tenant_id, # Gate 1
             "consent_hash": _extract_hash(row, "consent_hash", "consent_id", tenant_id), # Gate 1, Technique 1
             "event_type": _validate_enum(row.get("event_type"), ["credit_check", "loan_disbursal", "emi_collection", "kyc_verification", "marketing_push", "data_enrichment", "account_update", "fraud_check"], "event_type", "transaction_events.csv", row_num, required=("event_type" in row)), # Gate 2, Technique 5
-            "processing_purpose": _validate_enum(row.get("processing_purpose"), ["loan_processing", "emi_collection", "kyc_verification", "credit_check", "marketing", "account_management", "fraud_detection", "data_enrichment"], "processing_purpose", "transaction_events.csv", row_num, required=("processing_purpose" in row)), # Gate 2, Technique 5
+            "processing_purpose": _validate_enum(row.get("processing_purpose"), ["loan_processing", "emi_collection", "kyc_verification", "credit_check", "marketing", "account_management", "fraud_detection", "data_enrichment", "data_brokering"], "processing_purpose", "transaction_events.csv", row_num, required=("processing_purpose" in row)), # Gate 2, Technique 5
             "event_date": _truncate_to_date(_first_present(row, "event_date", "timestamp")), # Gate 2, Technique 2
             "shared_with_third_party": _safe_bool(row.get("shared_with_third_party")), # Gate 2
             "third_party_hash": tp_hash, # Gate 2, Technique 1

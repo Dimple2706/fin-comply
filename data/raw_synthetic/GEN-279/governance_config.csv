@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-279,topup_critical_GEN-279,False,False,90,2018-01-01,CRITICAL
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-279,topup_critical_GEN-279,False,False,,90,2018-01-01,CRITICAL

@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-017,recovering_fintech,True,True,90,2025-09-01,LOW
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-017,recovering_fintech,True,True,dpo@gen-017.example,90,2025-09-01,LOW

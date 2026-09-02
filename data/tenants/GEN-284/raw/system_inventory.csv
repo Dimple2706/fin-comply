@@ -1,6 +1,6 @@
 system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
-SYS-GEN-284-3ca0ed6e2cc7,GEN-284,Core Banking System,crm,customer_data,True,False,False,False,yes,external,False,,{}
-SYS-GEN-284-deee42f820c9,GEN-284,CRM Platform,core_banking,customer_data,True,False,False,False,yes,external,False,,{}
-SYS-GEN-284-5b38519a9350,GEN-284,Analytics Engine,analytics,payment_records,True,False,False,False,no,external,False,,{}
-SYS-GEN-284-2c01c7d5ee73,GEN-284,KYC Platform,kyc_platform,customer_data,True,False,False,False,yes,external,False,,{}
-SYS-GEN-284-73e49027628f,GEN-284,Payment Gateway,payment_gateway,credit_scores,True,False,False,False,yes,external,False,,{}
+SYS-GEN-284-7223648e415c,GEN-284,Core Banking System,crm,payment_records,True,False,False,False,yes,third_party_processor,False,,{}
+SYS-GEN-284-6d1ffd08fe50,GEN-284,CRM Platform,core_banking,customer_data,True,False,False,False,yes,third_party_processor,False,,{}
+SYS-GEN-284-ff904be00263,GEN-284,Analytics Engine,analytics,kyc_documents,True,False,False,False,no,third_party_processor,False,,{}
+SYS-GEN-284-f9f56dc937d0,GEN-284,KYC Platform,kyc_platform,payment_records,True,False,False,False,yes,third_party_processor,False,,{}
+SYS-GEN-284-f70231be952c,GEN-284,Payment Gateway,payment_gateway,transaction_data,True,False,False,False,yes,third_party_processor,False,,{}

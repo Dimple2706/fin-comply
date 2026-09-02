@@ -78,6 +78,7 @@ def _assign_label(total_crore: float) -> int:
 
 
 LABEL_NAMES = {0: "COMPLIANT", 1: "LOW", 2: "MEDIUM", 3: "HIGH", 4: "CRITICAL"}
+TIER_TO_LABEL = {v: k for k, v in LABEL_NAMES.items()}
 
 # ── Rule groupings for domain features ───────────────────────────────────────
 CONSENT_RULES     = {"DPDP-001", "DPDP-002", "DPDP-004", "DPDP-007"}
@@ -91,7 +92,8 @@ FEATURE_COLS = [
     "n_high_rules_fired", "breach_rule_fired", "minor_data_rule_fired",
     "max_rule_score", "max_prevalence_ratio", "consent_violation_count",
     "retention_violation_count", "encryption_violation_count",
-    "access_violation_count", "policy_violation_count", "label"
+    "access_violation_count", "policy_violation_count",
+    "total_penalty_exposure", "label"
 ]
 
 META_COLS = [
@@ -382,10 +384,20 @@ def main():
             vr = rj.get("violation_report", [])
             violated_rule_ids = list({e["rule_id"] for e in vr if e.get("outcome") == "VIOLATION"})
             total_exposure = sum(penalty_map.get(rid, 0) for rid in violated_rule_ids)
-            label = _assign_label(total_exposure)
             risk_tier = rj.get("risk_tier", "UNKNOWN")
+            # The ML label must match what the live rule engine actually
+            # decided (risk_tier), not a separate penalty-threshold
+            # recomputation -- that ignored the severity-floor policy
+            # (any CRITICAL finding, or 3+ HIGH findings, forces a tier
+            # minimum) and silently mislabeled real CRITICAL/MEDIUM tenants
+            # as HIGH/LOW. Fall back to the exposure-based estimate only if
+            # risk_tier is missing or unrecognized.
+            if risk_tier in TIER_TO_LABEL:
+                label = TIER_TO_LABEL[risk_tier]
+            else:
+                label = _assign_label(total_exposure)
 
-            feature_rows.append({**feats, "label": label})
+            feature_rows.append({**feats, "total_penalty_exposure": total_exposure, "label": label})
             metadata_rows.append({
                 "tenant_id":              tid,
                 "profile_name":           profile_name,

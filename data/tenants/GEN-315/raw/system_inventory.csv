@@ -1,6 +1,6 @@
 system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
-SYS-GEN-315-55bc0827f944,GEN-315,Core Banking System,crm,payment_records,True,False,False,False,no,external,False,,{}
-SYS-GEN-315-9c990e200842,GEN-315,CRM Platform,core_banking,customer_data,True,False,False,False,no,external,False,,{}
-SYS-GEN-315-245270e708c4,GEN-315,Analytics Engine,analytics,payment_records,True,False,False,False,no,external,False,,{}
-SYS-GEN-315-d247f9ea0a57,GEN-315,KYC Platform,kyc_platform,payment_records,True,False,False,False,no,external,False,,{}
-SYS-GEN-315-308011fedc64,GEN-315,Payment Gateway,payment_gateway,kyc_documents,True,False,False,False,yes,external,False,,{}
+SYS-GEN-315-de8682c96ac2,GEN-315,Core Banking System,crm,credit_scores,True,False,False,False,yes,third_party_processor,False,,{}
+SYS-GEN-315-5bd77c8ab9be,GEN-315,CRM Platform,core_banking,transaction_data,True,False,False,False,no,third_party_processor,False,,{}
+SYS-GEN-315-7a1c4160a113,GEN-315,Analytics Engine,analytics,kyc_documents,True,False,False,False,yes,third_party_processor,False,,{}
+SYS-GEN-315-d781a73f03ea,GEN-315,KYC Platform,kyc_platform,transaction_data,True,False,False,False,yes,third_party_processor,False,,{}
+SYS-GEN-315-95ed6025fddf,GEN-315,Payment Gateway,payment_gateway,payment_records,True,False,False,False,yes,third_party_processor,False,,{}

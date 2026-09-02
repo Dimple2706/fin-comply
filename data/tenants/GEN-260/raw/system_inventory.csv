@@ -1,6 +1,6 @@
 system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
-SYS-GEN-260-0e2ad659b525,GEN-260,Core Banking System,crm,kyc_documents,True,True,True,True,no,internal,True,2028-05-01,{}
-SYS-GEN-260-d97d7fd6c6bf,GEN-260,CRM Platform,core_banking,kyc_documents,True,True,True,True,no,internal,True,2026-01-05,{}
-SYS-GEN-260-204cbe87d1fc,GEN-260,Analytics Engine,analytics,customer_data,True,True,True,True,no,internal,True,2028-03-16,{}
-SYS-GEN-260-7daa5860f225,GEN-260,KYC Platform,kyc_platform,customer_data,True,True,True,True,yes,internal,True,2028-02-04,{}
-SYS-GEN-260-c891334f8cd2,GEN-260,Payment Gateway,payment_gateway,transaction_data,True,True,True,True,no,internal,True,2026-03-28,{}
+SYS-GEN-260-c12aab536d2d,GEN-260,Core Banking System,crm,transaction_data,True,True,True,True,no,internal,True,,{}
+SYS-GEN-260-798569caf716,GEN-260,CRM Platform,core_banking,credit_scores,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-260-e4297edaacfc,GEN-260,Analytics Engine,analytics,transaction_data,True,True,True,True,no,internal,True,,{}
+SYS-GEN-260-4f00bdd5ee1f,GEN-260,KYC Platform,kyc_platform,transaction_data,True,True,True,True,yes,internal,True,,{}
+SYS-GEN-260-73bef59155b8,GEN-260,Payment Gateway,payment_gateway,customer_data,True,True,True,True,yes,internal,True,,{}

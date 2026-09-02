@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-086-709bc7fb2c04,GEN-086,retention,Data Retention Policy,365,days,2026-04-08,2026-04-08,False,{}
-POL-GEN-086-d64aa5a8848a,GEN-086,retention,Data Retention Policy,365,days,2025-03-17,2025-03-17,False,{}
-POL-GEN-086-b17912c91bf8,GEN-086,retention,Data Retention Policy,365,days,2025-08-02,2025-08-02,False,{}
-POL-GEN-086-0359b00aa63e,GEN-086,retention,Data Retention Policy,365,days,2025-06-03,2025-06-03,False,{}
-POL-GEN-086-4750fc884027,GEN-086,retention,Data Retention Policy,365,days,2025-07-18,2025-07-18,False,{}
-POL-GEN-086-147b8052153a,GEN-086,retention,Data Retention Policy,365,days,2025-01-14,2025-01-14,False,{}
-POL-GEN-086-733122aaa7d2,GEN-086,retention,Data Retention Policy,365,days,2026-06-06,2026-06-06,False,{}
-POL-GEN-086-5d80ee0d85c7,GEN-086,retention,Data Retention Policy,365,days,2024-11-15,2024-11-15,False,{}
-POL-GEN-086-9506f11fdfbf,GEN-086,retention,Data Retention Policy,365,days,2025-01-17,2025-01-17,False,{}
-POL-GEN-086-9e60f9657c10,GEN-086,retention,Data Retention Policy,365,days,2025-05-05,2025-05-05,False,{}
+POL-GEN-086-2c030d8f856d,GEN-086,retention,Data Retention Policy,365,days,2025-05-03,2025-05-03,False,{}
+POL-GEN-086-a6181621b25b,GEN-086,retention,Data Retention Policy,365,days,2025-10-14,2025-10-14,False,{}
+POL-GEN-086-356085643115,GEN-086,retention,Data Retention Policy,365,days,2025-04-15,2025-04-15,False,{}
+POL-GEN-086-8e87f6146a38,GEN-086,retention,Data Retention Policy,365,days,2024-02-05,2024-02-05,False,{}
+POL-GEN-086-513b3f66ad4d,GEN-086,retention,Data Retention Policy,365,days,2026-03-22,2026-03-22,False,{}
+POL-GEN-086-14b55e065615,GEN-086,retention,Data Retention Policy,365,days,2024-03-31,2024-03-31,False,{}
+POL-GEN-086-fbd9c4735ff5,GEN-086,retention,Data Retention Policy,365,days,2025-12-01,2025-12-01,False,{}
+POL-GEN-086-928e36755585,GEN-086,retention,Data Retention Policy,365,days,2024-05-23,2024-05-23,False,{}
+POL-GEN-086-5e49bb6c556f,GEN-086,retention,Data Retention Policy,365,days,2025-06-30,2025-06-30,False,{}
+POL-GEN-086-76362697852f,GEN-086,retention,Data Retention Policy,365,days,2025-07-13,2025-07-13,False,{}

@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-260,topup_compliant_GEN-260,True,True,90,2026-07-01,LOW
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-260,topup_compliant_GEN-260,True,True,dpo@gen-260.example,90,2026-07-01,LOW

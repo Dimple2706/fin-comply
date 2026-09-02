@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-007,purpose_mismatch_lender,True,True,90,2025-10-01,MEDIUM
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-007,purpose_mismatch_lender,True,True,dpo@gen-007.example,90,2025-10-01,MEDIUM

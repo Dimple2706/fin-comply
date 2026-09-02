@@ -1,6 +1,6 @@
 system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
-SYS-GEN-264-f37296a15169,GEN-264,Core Banking System,crm,payment_records,True,True,True,False,yes,internal,False,,{}
-SYS-GEN-264-725d0ac97c13,GEN-264,CRM Platform,core_banking,customer_data,True,True,True,False,no,internal,False,,{}
-SYS-GEN-264-7d444a0ca779,GEN-264,Analytics Engine,analytics,customer_data,True,True,True,False,no,internal,False,,{}
-SYS-GEN-264-02b4b7c0042e,GEN-264,KYC Platform,kyc_platform,credit_scores,True,True,True,False,yes,internal,False,,{}
-SYS-GEN-264-0166bad63568,GEN-264,Payment Gateway,payment_gateway,kyc_documents,True,True,True,False,no,internal,False,,{}
+SYS-GEN-264-41022a280755,GEN-264,Core Banking System,crm,transaction_data,True,True,True,False,no,internal,False,,{}
+SYS-GEN-264-245f3d5e9f7d,GEN-264,CRM Platform,core_banking,kyc_documents,True,True,True,False,no,internal,False,,{}
+SYS-GEN-264-3a86903901fa,GEN-264,Analytics Engine,analytics,credit_scores,True,True,True,False,no,internal,False,,{}
+SYS-GEN-264-fcb1e510144b,GEN-264,KYC Platform,kyc_platform,payment_records,True,True,True,False,yes,internal,False,,{}
+SYS-GEN-264-3749c38174c4,GEN-264,Payment Gateway,payment_gateway,kyc_documents,True,True,True,False,no,internal,False,,{}

@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-263,topup_high_GEN-263,False,False,90,2021-01-01,HIGH
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-263,topup_high_GEN-263,False,False,,90,2021-01-01,HIGH

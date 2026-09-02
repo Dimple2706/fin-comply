@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-004,aggressive_growth_fintech,True,True,90,2025-09-01,HIGH
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-004,aggressive_growth_fintech,True,True,dpo@gen-004.example,90,2025-09-01,HIGH

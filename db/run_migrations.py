@@ -59,6 +59,8 @@ MIGRATIONS = [
     "issue_15_users_table_missing_columns.sql",
     "issue_13_authentication_constraints.sql",
     "issue_14_dpdp005_guardian_consent_fix.sql",
+    "issue_16_widen_hash_columns.sql",
+    "issue_17_data_brokering_purpose.sql",
 ]
 
 

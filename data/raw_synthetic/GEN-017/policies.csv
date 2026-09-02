@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-017-8c5de99403ae,GEN-017,encryption,Encryption Standards Policy,365,days,2024-08-29,2024-08-29,True,{}
-POL-GEN-017-de65b5b99e30,GEN-017,encryption,Encryption Standards Policy,365,days,2024-01-30,2024-01-30,True,{}
-POL-GEN-017-38394e5f4d8e,GEN-017,encryption,Encryption Standards Policy,365,days,2025-10-25,2025-10-25,True,{}
-POL-GEN-017-666eeafb1d02,GEN-017,consent,Consent Management Policy,365,days,2024-01-25,2024-01-25,True,{}
-POL-GEN-017-d0c40cddee3e,GEN-017,breach_notification,Breach Notification Policy,365,days,2026-03-16,2026-03-16,True,{}
-POL-GEN-017-c50e86652024,GEN-017,retention,Data Retention Policy,365,days,2025-06-12,2025-06-12,True,{}
-POL-GEN-017-9e73e368face,GEN-017,encryption,Encryption Standards Policy,365,days,2024-08-18,2024-08-18,True,{}
-POL-GEN-017-39a4e8f7cb7a,GEN-017,consent,Consent Management Policy,365,days,2024-09-29,2024-09-29,True,{}
-POL-GEN-017-56828efd37dc,GEN-017,breach_notification,Breach Notification Policy,365,days,2025-08-09,2025-08-09,True,{}
-POL-GEN-017-630f87918f6d,GEN-017,consent,Consent Management Policy,365,days,2024-04-03,2024-04-03,True,{}
+POL-GEN-017-14aecad52915,GEN-017,consent,Consent Management Policy,365,days,2025-03-16,2025-03-16,False,{}
+POL-GEN-017-ffd86be96892,GEN-017,retention,Data Retention Policy,365,days,2026-05-08,2026-05-08,True,{}
+POL-GEN-017-c2056485bea9,GEN-017,encryption,Encryption Standards Policy,365,days,2026-02-06,2026-02-06,True,{}
+POL-GEN-017-da559dece42f,GEN-017,encryption,Encryption Standards Policy,365,days,2025-09-18,2025-09-18,True,{}
+POL-GEN-017-32ab0d7db71d,GEN-017,retention,Data Retention Policy,365,days,2026-05-22,2026-05-22,True,{}
+POL-GEN-017-8f6e5efde914,GEN-017,breach_notification,Breach Notification Policy,365,days,2025-03-29,2025-03-29,True,{}
+POL-GEN-017-ffd04898914d,GEN-017,breach_notification,Breach Notification Policy,365,days,2024-03-09,2024-03-09,True,{}
+POL-GEN-017-fd251c521fc8,GEN-017,retention,Data Retention Policy,365,days,2025-09-21,2025-09-21,False,{}
+POL-GEN-017-a146814b5dcc,GEN-017,breach_notification,Breach Notification Policy,365,days,2025-01-25,2025-01-25,True,{}
+POL-GEN-017-2c4c2ad1b930,GEN-017,encryption,Encryption Standards Policy,365,days,2024-12-10,2024-12-10,False,{}

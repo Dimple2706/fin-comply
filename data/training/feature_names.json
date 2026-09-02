@@ -11,5 +11,6 @@
   "retention_violation_count",
   "encryption_violation_count",
   "access_violation_count",
-  "policy_violation_count"
+  "policy_violation_count",
+  "total_penalty_exposure"
 ]

@@ -1,6 +1,6 @@
-dsar_id,customer_id,tenant_id,request_type,submitted_at,acknowledged_at,sla_due_date,sla_breached,fulfillment_status,rejection_reason,additional_attributes
-DSAR-GEN-311-1c1995c782cb,CUST-GEN-311-8bbc167be18c,GEN-311,access,2024-11-09T03:19:00,2025-04-30T01:23:00,2024-12-09,False,pending,,{}
-DSAR-GEN-311-829920783c59,CUST-GEN-311-d68432e435d6,GEN-311,access,2026-03-26T11:16:00,2025-07-26T19:44:00,2026-04-25,False,pending,,{}
-DSAR-GEN-311-fd3d8c9d76bc,CUST-GEN-311-3233f57f70b5,GEN-311,access,2025-07-10T23:52:00,2025-09-18T01:10:00,2025-08-09,False,pending,,{}
-DSAR-GEN-311-b045e49b5ba9,CUST-GEN-311-5c95b28f0ba6,GEN-311,access,2026-01-24T18:53:00,2025-06-26T01:41:00,2026-02-23,False,pending,,{}
-DSAR-GEN-311-e64b9af90f97,CUST-GEN-311-9eab369a697f,GEN-311,access,2026-06-22T09:17:00,2024-11-24T22:09:00,2026-07-22,False,pending,,{}
+dsar_id,customer_id,tenant_id,request_type,submitted_at,acknowledged_at,sla_due_date,sla_breached,fulfillment_status,fulfilled_at,rejection_reason,additional_attributes
+DSAR-GEN-311-6b25c48dc05a,CUST-GEN-311-007c1a55ddb9,GEN-311,access,2025-02-28T01:03:00,2025-03-01T08:41:00,2025-03-30,False,pending,,,{}
+DSAR-GEN-311-f3763d26370c,CUST-GEN-311-51854ecb87fa,GEN-311,access,2024-06-18T00:02:00,2024-03-15T19:33:00,2024-07-18,False,pending,,,{}
+DSAR-GEN-311-b67d406187b9,CUST-GEN-311-ae6691416092,GEN-311,access,2025-05-09T05:25:00,2025-03-14T01:27:00,2025-06-08,False,pending,,,{}
+DSAR-GEN-311-fb1ae9bcc428,CUST-GEN-311-74ed5f11c182,GEN-311,access,2025-05-28T06:48:00,2024-05-18T17:29:00,2025-06-27,False,pending,,,{}
+DSAR-GEN-311-c491086b15d1,CUST-GEN-311-88f750ff4fe0,GEN-311,access,2024-02-26T05:14:00,2026-02-20T01:03:00,2024-03-27,False,pending,,,{}

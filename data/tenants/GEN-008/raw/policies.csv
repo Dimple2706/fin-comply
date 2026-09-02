@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-008-d7b2dcec58ff,GEN-008,consent,Consent Management Policy,365,days,2025-03-22,2025-03-22,True,{}
-POL-GEN-008-09d3e6f60591,GEN-008,consent,Consent Management Policy,365,days,2024-03-01,2024-03-01,True,{}
-POL-GEN-008-b1948649abed,GEN-008,access_control,Access Control Policy,365,days,2024-02-03,2024-02-03,True,{}
-POL-GEN-008-740e0da7d41a,GEN-008,consent,Consent Management Policy,365,days,2026-01-08,2026-01-08,True,{}
-POL-GEN-008-62d5f16a1e59,GEN-008,retention,Data Retention Policy,365,days,2025-08-27,2025-08-27,True,{}
-POL-GEN-008-978a6ea66e13,GEN-008,retention,Data Retention Policy,365,days,2026-04-20,2026-04-20,True,{}
-POL-GEN-008-bd19484075d7,GEN-008,access_control,Access Control Policy,365,days,2025-11-24,2025-11-24,True,{}
-POL-GEN-008-02bf763f447e,GEN-008,consent,Consent Management Policy,365,days,2025-03-04,2025-03-04,True,{}
-POL-GEN-008-c2ab12e4f809,GEN-008,retention,Data Retention Policy,365,days,2025-11-23,2025-11-23,True,{}
-POL-GEN-008-4c3737e7d99f,GEN-008,consent,Consent Management Policy,365,days,2024-06-26,2024-06-26,True,{}
+POL-GEN-008-d9f391d7ac31,GEN-008,access_control,Access Control Policy,365,days,2026-01-16,2026-01-16,True,{}
+POL-GEN-008-86fcde328a9b,GEN-008,retention,Data Retention Policy,365,days,2025-09-03,2025-09-03,True,{}
+POL-GEN-008-e5bb0f024af3,GEN-008,retention,Data Retention Policy,365,days,2026-06-06,2026-06-06,True,{}
+POL-GEN-008-5abe1ae97c17,GEN-008,retention,Data Retention Policy,365,days,2024-12-30,2024-12-30,True,{}
+POL-GEN-008-7b86eb6042b4,GEN-008,access_control,Access Control Policy,365,days,2026-01-11,2026-01-11,True,{}
+POL-GEN-008-5a7001e0c63a,GEN-008,consent,Consent Management Policy,365,days,2024-11-22,2024-11-22,True,{}
+POL-GEN-008-c2fe533b5977,GEN-008,consent,Consent Management Policy,365,days,2025-01-04,2025-01-04,True,{}
+POL-GEN-008-57af564423a1,GEN-008,consent,Consent Management Policy,365,days,2024-02-02,2024-02-02,True,{}
+POL-GEN-008-18aa96eb53cb,GEN-008,retention,Data Retention Policy,365,days,2025-06-28,2025-06-28,True,{}
+POL-GEN-008-a50937fa8fd4,GEN-008,access_control,Access Control Policy,365,days,2025-04-19,2025-04-19,True,{}

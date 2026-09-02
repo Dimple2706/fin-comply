@@ -1,13 +1,13 @@
 system_id,tenant_id,system_name,system_type,data_types_stored,pii_stored,encryption_enabled,access_control_enabled,retention_policy_applied,third_party_integrations,data_processor_type,dpa_signed,dpa_expiry_date,additional_attributes
-SYS-GEN-246-43e450717127,GEN-246,Core Banking System,crm,transaction_data,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-61b4867bf2a9,GEN-246,CRM Platform,core_banking,kyc_documents,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-1b0f5103594f,GEN-246,Analytics Engine,analytics,customer_data,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-d583c04a0db6,GEN-246,KYC Platform,kyc_platform,transaction_data,True,True,True,True,no,third_party_processor,False,,{}
-SYS-GEN-246-ef559eae221e,GEN-246,Payment Gateway,payment_gateway,transaction_data,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-d298c12a9c2b,GEN-246,Data Warehouse,data_warehouse,customer_data,True,True,True,True,no,third_party_processor,False,,{}
-SYS-GEN-246-66af37223e40,GEN-246,Fraud Detection System,crm,customer_data,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-34511aa8e79d,GEN-246,Loan Origination System,core_banking,kyc_documents,True,True,True,True,no,third_party_processor,False,,{}
-SYS-GEN-246-fcd598a8bf2a,GEN-246,Customer Portal,analytics,credit_scores,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-459f5d0f5cf7,GEN-246,Reporting Engine,kyc_platform,customer_data,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-dfff6d51096b,GEN-246,Mobile Banking,payment_gateway,credit_scores,True,True,True,True,yes,third_party_processor,False,,{}
-SYS-GEN-246-696588251f40,GEN-246,Transaction Monitor,data_warehouse,customer_data,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-246-3a452bd10207,GEN-246,Core Banking System,crm,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-246-f46ce2287149,GEN-246,CRM Platform,core_banking,transaction_data,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-246-4b69fa9c6d15,GEN-246,Analytics Engine,analytics,payment_records,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-246-3c42cb251595,GEN-246,KYC Platform,kyc_platform,transaction_data,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-246-1eb8d1d2c77f,GEN-246,Payment Gateway,payment_gateway,payment_records,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-246-70c9db03d326,GEN-246,Data Warehouse,data_warehouse,credit_scores,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-246-cc5450062549,GEN-246,Fraud Detection System,crm,customer_data,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-246-7ac4be4892d0,GEN-246,Loan Origination System,core_banking,transaction_data,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-246-193b4a3d297a,GEN-246,Customer Portal,analytics,customer_data,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-246-868e02f7e40f,GEN-246,Reporting Engine,kyc_platform,payment_records,True,True,True,True,no,third_party_processor,False,,{}
+SYS-GEN-246-df13a21f7567,GEN-246,Mobile Banking,payment_gateway,payment_records,True,True,True,True,yes,third_party_processor,False,,{}
+SYS-GEN-246-0b21d006c174,GEN-246,Transaction Monitor,data_warehouse,customer_data,True,True,True,True,no,third_party_processor,False,,{}

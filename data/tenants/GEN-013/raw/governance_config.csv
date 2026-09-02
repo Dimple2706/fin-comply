@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-013,consent_farming_app,True,True,90,2025-12-01,MEDIUM
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-013,consent_farming_app,True,True,dpo@gen-013.example,90,2025-12-01,MEDIUM

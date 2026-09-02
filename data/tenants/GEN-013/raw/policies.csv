@@ -1,11 +1,11 @@
 policy_id,tenant_id,policy_type,policy_name,policy_value_numeric,policy_value_unit,effective_date,last_updated,is_active,additional_attributes
-POL-GEN-013-2dac3bd3dfa1,GEN-013,encryption,Encryption Standards Policy,365,days,2025-02-28,2025-02-28,True,{}
-POL-GEN-013-26f974d52ed2,GEN-013,retention,Data Retention Policy,365,days,2025-11-26,2025-11-26,True,{}
-POL-GEN-013-891863a95dc5,GEN-013,retention,Data Retention Policy,365,days,2025-03-18,2025-03-18,True,{}
-POL-GEN-013-9738f86bd46d,GEN-013,encryption,Encryption Standards Policy,365,days,2025-11-19,2025-11-19,True,{}
-POL-GEN-013-ce246b0171e4,GEN-013,encryption,Encryption Standards Policy,365,days,2026-03-10,2026-03-10,True,{}
-POL-GEN-013-f299e8298f4e,GEN-013,encryption,Encryption Standards Policy,365,days,2024-08-24,2024-08-24,True,{}
-POL-GEN-013-d147a1bde406,GEN-013,encryption,Encryption Standards Policy,365,days,2026-04-17,2026-04-17,True,{}
-POL-GEN-013-ff5b4cf39618,GEN-013,consent,Consent Management Policy,365,days,2025-05-25,2025-05-25,True,{}
-POL-GEN-013-d1bf9743e713,GEN-013,consent,Consent Management Policy,365,days,2024-03-07,2024-03-07,True,{}
-POL-GEN-013-659b6c12ad06,GEN-013,consent,Consent Management Policy,365,days,2024-10-13,2024-10-13,True,{}
+POL-GEN-013-0ac4e29fe8dd,GEN-013,retention,Data Retention Policy,365,days,2024-09-27,2024-09-27,True,{}
+POL-GEN-013-16f887b365b4,GEN-013,encryption,Encryption Standards Policy,365,days,2025-05-15,2025-05-15,True,{}
+POL-GEN-013-c407a2b55510,GEN-013,encryption,Encryption Standards Policy,365,days,2024-07-14,2024-07-14,True,{}
+POL-GEN-013-9ec4732f3a0c,GEN-013,consent,Consent Management Policy,365,days,2025-10-11,2025-10-11,True,{}
+POL-GEN-013-5fd1313d6330,GEN-013,consent,Consent Management Policy,365,days,2025-08-07,2025-08-07,True,{}
+POL-GEN-013-6d8f6da3437c,GEN-013,consent,Consent Management Policy,365,days,2024-02-11,2024-02-11,True,{}
+POL-GEN-013-533bcad2b458,GEN-013,consent,Consent Management Policy,365,days,2025-02-19,2025-02-19,True,{}
+POL-GEN-013-daeaf1be9bec,GEN-013,encryption,Encryption Standards Policy,365,days,2025-11-30,2025-11-30,True,{}
+POL-GEN-013-68a3f37ccba4,GEN-013,encryption,Encryption Standards Policy,365,days,2024-04-21,2024-04-21,True,{}
+POL-GEN-013-0eb9ffcfe089,GEN-013,encryption,Encryption Standards Policy,365,days,2024-09-28,2024-09-28,True,{}

@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-016,overloaded_compliance_team,True,True,90,2024-06-01,MEDIUM
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-016,overloaded_compliance_team,True,True,dpo@gen-016.example,90,2024-06-01,MEDIUM

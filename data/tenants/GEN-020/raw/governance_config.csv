@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-020,high_volume_processor,True,True,90,2025-10-01,MEDIUM
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-020,high_volume_processor,True,True,dpo@gen-020.example,90,2025-10-01,MEDIUM

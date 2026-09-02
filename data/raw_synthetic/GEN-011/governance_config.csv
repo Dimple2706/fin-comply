@@ -1,2 +1,2 @@
-tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,audit_frequency_days,last_audit_date,risk_level
-GEN-011,cross_border_specialist,True,True,90,2026-01-01,HIGH
+tenant_id,tenant_name,grievance_endpoint_available,dpo_assigned,dpo_contact,audit_frequency_days,last_audit_date,risk_level
+GEN-011,cross_border_specialist,True,True,dpo@gen-011.example,90,2026-01-01,HIGH
