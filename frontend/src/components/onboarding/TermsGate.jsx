@@ -1,58 +1,51 @@
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  HiOutlineShieldCheck,
+  HiOutlineArrowRight,
+  HiOutlineCheckCircle,
+  HiOutlineDocumentText,
   HiOutlineLockClosed,
+  HiOutlineShieldCheck,
   HiOutlineSparkles,
 } from 'react-icons/hi2';
-import Card from '../ui/Card';
-import OnboardingProgress from './OnboardingProgress';
-import TermsContent from './TermsContent';
+import TermsModal from './TermsModal';
 import { setTermsAcceptance, TERMS_VERSION } from '../../utils/termsAcceptance';
 
-const TRUST_CARDS = [
+const TRUST_POINTS = [
   {
     icon: HiOutlineShieldCheck,
-    title: 'Deterministic Compliance Rules',
-    description:
-      'Core compliance findings are evaluated against structured DPDP and internal policy rules rather than being decided solely by a generative AI model.',
+    title: 'Controlled access',
+    description: 'Only authorised accounts can access an organisation’s assessment workspace.',
   },
   {
     icon: HiOutlineLockClosed,
-    title: 'Privacy-Aware Processing',
-    description:
-      'Supported identifiers are pseudonymized before compliance analysis and raw upload copies are used only during ingestion.',
+    title: 'Data safeguards',
+    description: 'Safeguards are applied while organisational information is uploaded, reviewed and stored.',
   },
   {
     icon: HiOutlineSparkles,
-    title: 'Explainable Intelligence',
-    description:
-      'Machine-learning and AI components assist with risk prediction and explanations while deterministic findings remain traceable to rules and evidence signals.',
+    title: 'Traceable findings',
+    description: 'Each finding is presented with its relevant evidence and recommended next action.',
   },
 ];
 
-const fadeUp = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
-};
+function Brand() {
+  return (
+    <div className="fin-brand">
+      <span className="fin-brand-mark"><HiOutlineShieldCheck aria-hidden="true" /></span>
+      <span className="fin-brand-copy">
+        <strong>FinComply</strong>
+        <small>DPDP readiness workspace</small>
+      </span>
+    </div>
+  );
+}
 
-/**
- * TermsGate
- * =========
- * Step 1 of the onboarding flow.
- * Full-page Terms & System Use acceptance screen.
- *
- * The organisation/upload interface is NOT rendered until the user
- * explicitly accepts both checkboxes and clicks "Accept & Continue".
- *
- * Props:
- *   onAccept — () => void  (called after storing versioned acceptance)
- */
-export default function TermsGate({ onAccept }) {
+export default function TermsGate({ onAccept, user, onLogout }) {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedAuthority, setAgreedAuthority] = useState(false);
   const [declined, setDeclined] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const canContinue = agreedTerms && agreedAuthority;
 
@@ -64,246 +57,148 @@ export default function TermsGate({ onAccept }) {
 
   const handleDecline = useCallback(() => {
     setDeclined(true);
-    // Reset checkboxes when declining
     setAgreedTerms(false);
     setAgreedAuthority(false);
   }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen relative"
-    >
-      {/* Top Nav */}
-      <nav className="h-16 flex items-center justify-between px-6 border-b border-subtle bg-base/50 backdrop-blur-md sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-lg tracking-tight">Fin-Comply</span>
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-elevated text-secondary border border-subtle">
-            v{TERMS_VERSION}
-          </span>
-        </div>
-        <span className="text-sm text-secondary">System Use Terms</span>
-      </nav>
-
-      <main className="container-center pb-24">
-        {/* Header */}
-        <div className="pt-16 sm:pt-20 max-w-[720px] mx-auto text-center">
-          <motion.span
-            {...fadeUp}
-            transition={{ delay: 0.1 }}
-            className="inline-block px-3 py-1 rounded-full text-xs font-medium border border-subtle bg-elevated/50 text-secondary mb-6"
-          >
-            DPDP Compliance Intelligence
-          </motion.span>
-
-          <motion.h1
-            {...fadeUp}
-            transition={{ delay: 0.2 }}
-            className="text-display mb-4"
-          >
-            Before you begin
-          </motion.h1>
-
-          <motion.p
-            {...fadeUp}
-            transition={{ delay: 0.3 }}
-            className="text-body text-secondary max-w-[600px] mx-auto mb-8"
-          >
-            Please review how Fin-Comply processes organisational compliance data and how automated
-            analysis is used before starting an assessment.
-          </motion.p>
-
-          {/* Progress indicator */}
-          <motion.div {...fadeUp} transition={{ delay: 0.35 }}>
-            <OnboardingProgress currentStep={1} />
-          </motion.div>
-        </div>
-
-        {/* Trust cards */}
-        <motion.div
-          {...fadeUp}
-          transition={{ delay: 0.4 }}
-          className="mt-12 max-w-[880px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-4"
-        >
-          {TRUST_CARDS.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Card key={card.title} className="p-5">
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-brand-primary/10 flex items-center justify-center flex-shrink-0 border border-brand-primary/20">
-                    <Icon className="text-lg" style={{ color: 'var(--brand-primary)' }} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-primary mb-1">{card.title}</h4>
-                    <p className="text-xs leading-relaxed text-secondary">{card.description}</p>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </motion.div>
-
-        {/* Terms card */}
-        <motion.div
-          {...fadeUp}
-          transition={{ delay: 0.5 }}
-          className="mt-8 max-w-[880px] mx-auto"
-        >
-          <Card className="overflow-hidden">
-            {/* Card header */}
-            <div className="p-6 sm:p-8 pb-4 border-b border-subtle bg-base/30">
-              <div className="flex items-center gap-3 mb-1">
-                <h2 className="text-h2 text-primary">System Use Terms</h2>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-elevated text-secondary border border-subtle">
-                  v{TERMS_VERSION}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fin-shell">
+      <header className="fin-nav">
+        <div className="fin-nav-inner">
+          <Brand />
+          <div className="flex items-center gap-3 sm:gap-5">
+            <button type="button" onClick={() => setShowTerms(true)} className="text-sm font-semibold text-secondary hover:text-primary transition-colors">
+              Read full terms
+            </button>
+            {user && (
+              <span className="hidden sm:inline-flex items-center gap-2 text-xs text-secondary">
+                <span className="h-8 w-8 rounded-xl grid place-items-center text-white font-bold bg-brand-secondary">
+                  {(user.name || user.username || '?')[0].toUpperCase()}
                 </span>
+                {user.name || user.username}
+              </span>
+            )}
+            {onLogout && (
+              <button type="button" onClick={onLogout} className="action-secondary px-4 min-h-10 text-xs">Sign out</button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+
+      <main className="fin-page">
+        <div className="onboarding-grid">
+          <aside className="journey-panel" aria-label="Onboarding progress">
+            <span className="eyebrow">Workspace setup · about 3 minutes</span>
+            <h1>Set up your compliance review.</h1>
+            <p>
+              Confirm your authority, choose the assessment scope and review your organisation’s readiness in one secure workspace.
+            </p>
+
+            <div className="journey-steps">
+              <div className="journey-step active">
+                <span className="journey-step-number">1</span>
+                <div><strong>Review and confirm</strong><span>Accept the terms and confirm your authority to proceed.</span></div>
               </div>
-              <p className="text-caption">
-                Please read the following terms carefully before proceeding.
+              <div className="journey-step">
+                <span className="journey-step-number">2</span>
+                <div><strong>Choose assessment scope</strong><span>Use your current workspace or provide updated records.</span></div>
+              </div>
+              <div className="journey-step">
+                <span className="journey-step-number">3</span>
+                <div><strong>Review results and actions</strong><span>Prioritise findings and download the assessment report.</span></div>
+              </div>
+            </div>
+
+            <div className="journey-note">
+              <HiOutlineDocumentText className="text-xl flex-shrink-0" aria-hidden="true" />
+              <span>FinComply supports your internal review. It does not provide legal advice or regulatory certification.</span>
+            </div>
+          </aside>
+
+          <section className="workspace-surface" aria-labelledby="welcome-title">
+            <div className="workspace-header">
+              <span className="section-eyebrow">Step 1 of 3 · Authorisation</span>
+              <h2 id="welcome-title">Review and confirm</h2>
+              <p>
+                Confirm the terms of use and that you are authorised to begin an assessment for this organisation.
               </p>
             </div>
 
-            {/* Scrollable terms content */}
-            <div className="p-6 sm:p-8 max-h-[50vh] overflow-y-auto terms-scrollbar">
-              <TermsContent />
-            </div>
+            <div className="workspace-body">
+              <div className="plain-note">
+                <HiOutlineCheckCircle className="text-xl flex-shrink-0" aria-hidden="true" />
+                <span>
+                  <strong className="block text-primary mb-1">Important responsibility</strong>
+                  Your organisation is responsible for providing appropriate information and reviewing the findings before acting on them.
+                </span>
+              </div>
 
-            {/* Acceptance controls */}
-            <div className="p-6 sm:p-8 pt-4 border-t border-subtle bg-base/30 space-y-4">
-              {/* Checkbox 1 */}
-              <label
-                htmlFor="terms-checkbox"
-                className="flex items-start gap-3 cursor-pointer group"
-              >
-                <div className="relative flex-shrink-0 mt-0.5">
+              <div className="trust-grid">
+                {TRUST_POINTS.map(({ icon: Icon, title, description }) => (
+                  <article className="trust-card" key={title}>
+                    <Icon aria-hidden="true" />
+                    <strong>{title}</strong>
+                    <p>{description}</p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="process-row" aria-label="Assessment journey">
+                <div className="process-item"><strong>1. Confirm authority</strong><span>Accept the terms for this organisational assessment.</span></div>
+                <HiOutlineArrowRight className="process-arrow" aria-hidden="true" />
+                <div className="process-item"><strong>2. Select information</strong><span>Use your current workspace or provide an approved update.</span></div>
+                <HiOutlineArrowRight className="process-arrow" aria-hidden="true" />
+                <div className="process-item"><strong>3. Review readiness</strong><span>Prioritise findings and plan the next actions.</span></div>
+              </div>
+
+              <div className="acceptance-box">
+                <p className="text-sm font-semibold text-primary mb-4">Confirm before continuing</p>
+                <label className="acceptance-row" htmlFor="terms-checkbox">
                   <input
-                    type="checkbox"
                     id="terms-checkbox"
-                    checked={agreedTerms}
-                    onChange={(e) => {
-                      setAgreedTerms(e.target.checked);
-                      if (declined) setDeclined(false);
-                    }}
-                    className="peer sr-only"
-                  />
-                  <div
-                    className={`h-5 w-5 rounded border-2 transition-all flex items-center justify-center ${
-                      agreedTerms
-                        ? 'bg-brand-primary border-brand-primary'
-                        : 'bg-elevated border-subtle group-hover:border-brand-primary/50'
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {agreedTerms && (
-                      <motion.svg
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="h-3 w-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </motion.svg>
-                    )}
-                  </div>
-                </div>
-                <span className="text-sm text-secondary group-hover:text-primary transition-colors select-none">
-                  I have read and agree to the Fin-Comply System Use Terms.
-                </span>
-              </label>
-
-              {/* Checkbox 2 */}
-              <label
-                htmlFor="authority-checkbox"
-                className="flex items-start gap-3 cursor-pointer group"
-              >
-                <div className="relative flex-shrink-0 mt-0.5">
-                  <input
+                    className="acceptance-check"
                     type="checkbox"
-                    id="authority-checkbox"
-                    checked={agreedAuthority}
-                    onChange={(e) => {
-                      setAgreedAuthority(e.target.checked);
-                      if (declined) setDeclined(false);
-                    }}
-                    className="peer sr-only"
+                    checked={agreedTerms}
+                    onChange={(event) => { setAgreedTerms(event.target.checked); setDeclined(false); }}
                   />
-                  <div
-                    className={`h-5 w-5 rounded border-2 transition-all flex items-center justify-center ${
-                      agreedAuthority
-                        ? 'bg-brand-primary border-brand-primary'
-                        : 'bg-elevated border-subtle group-hover:border-brand-primary/50'
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {agreedAuthority && (
-                      <motion.svg
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="h-3 w-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </motion.svg>
-                    )}
-                  </div>
-                </div>
-                <span className="text-sm text-secondary group-hover:text-primary transition-colors select-none">
-                  I confirm that I am authorised to submit the organisation&apos;s data for this assessment.
-                </span>
-              </label>
+                  <span>
+                    I have read and agree to the FinComply System Use Terms (version {TERMS_VERSION}).
+                    <button type="button" onClick={(event) => { event.preventDefault(); setShowTerms(true); }} className="ml-1 font-semibold underline underline-offset-2 text-primary">
+                      Review terms
+                    </button>
+                  </span>
+                </label>
+                <label className="acceptance-row" htmlFor="authority-checkbox">
+                  <input
+                    id="authority-checkbox"
+                    className="acceptance-check"
+                    type="checkbox"
+                    checked={agreedAuthority}
+                    onChange={(event) => { setAgreedAuthority(event.target.checked); setDeclined(false); }}
+                  />
+                  <span>I confirm that I am authorised to use this organisation’s data for a compliance assessment.</span>
+                </label>
+              </div>
 
-              {/* Decline message */}
               <AnimatePresence>
                 {declined && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <p className="text-sm text-amber-400/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3">
-                      You must accept the System Use Terms before starting a compliance assessment.
-                    </p>
-                  </motion.div>
+                  <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="fin-error mt-4" role="alert">
+                    Both confirmations are required before an organisational assessment can begin.
+                  </motion.p>
                 )}
               </AnimatePresence>
 
-              {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-                <button
-                  disabled={!canContinue}
-                  onClick={handleAccept}
-                  className={`flex-1 h-12 rounded-lg font-medium text-white transition-all flex items-center justify-center gap-2 ${
-                    canContinue
-                      ? 'btn-gradient shadow-glow hover:opacity-90 cursor-pointer'
-                      : 'bg-elevated text-muted cursor-not-allowed border border-subtle'
-                  }`}
-                  aria-disabled={!canContinue}
-                >
-                  Accept &amp; Continue
-                </button>
-                <button
-                  onClick={handleDecline}
-                  className="px-6 h-12 rounded-lg text-sm font-medium text-secondary hover:text-primary border border-subtle hover:bg-elevated transition-colors"
-                >
-                  Decline
+              <div className="mt-5 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+                <button type="button" onClick={handleDecline} className="action-secondary px-6">Not now</button>
+                <button type="button" disabled={!canContinue} onClick={handleAccept} className="action-primary px-7 inline-flex items-center justify-center gap-2">
+                  Continue to data source <HiOutlineArrowRight aria-hidden="true" />
                 </button>
               </div>
             </div>
-          </Card>
-        </motion.div>
-
-        <footer className="mt-16 text-center text-caption text-muted">
-          Fin-Comply v{TERMS_VERSION} • Decision-Support System • DPDP Act 2023
-        </footer>
+          </section>
+        </div>
       </main>
     </motion.div>
   );

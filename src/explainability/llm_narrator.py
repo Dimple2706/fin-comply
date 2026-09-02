@@ -54,7 +54,7 @@ def _pii_scan(text: str) -> bool:
 # ── Lazy Gemini client (avoids crash on import when key is placeholder) ───────
 
 _model = None
-_MODEL_NAME = "gemini-3.6-flash"
+_MODEL_NAME = "gemini-2.5-flash"
 
 
 def _get_model():

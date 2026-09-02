@@ -19,14 +19,14 @@ import { loginUser, registerUser } from '../services/api';
 
 function InputField({ id, label, type = 'text', value, onChange, placeholder, icon: Icon, error, showToggle, onToggle, showPassword, autoComplete = 'off' }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-semibold uppercase tracking-widest text-secondary">
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-[13px] font-semibold text-primary">
         {label}
       </label>
       <div className="relative">
         {Icon && (
           <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
-            <Icon className="w-4 h-4" />
+            <Icon className="w-5 h-5" />
           </span>
         )}
         <input
@@ -36,22 +36,16 @@ function InputField({ id, label, type = 'text', value, onChange, placeholder, ic
           onChange={onChange}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`w-full rounded-xl border bg-surface text-primary text-sm placeholder:text-muted transition-all duration-200
-            py-3 pr-4 outline-none
-            ${Icon ? 'pl-10' : 'pl-4'}
-            ${error
-              ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-              : 'border-subtle focus:border-brand-primary focus:ring-2 focus:ring-blue-500/15'
-            }`}
+          className={`auth-input ${Icon ? '' : '!pl-4'} ${error ? 'has-error' : ''}`}
         />
         {showToggle && (
           <button
             type="button"
             onClick={onToggle}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-secondary transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-primary transition-colors"
             tabIndex={-1}
           >
-            {showPassword ? <HiOutlineEyeSlash className="w-4 h-4" /> : <HiOutlineEye className="w-4 h-4" />}
+            {showPassword ? <HiOutlineEyeSlash className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
           </button>
         )}
       </div>
@@ -82,8 +76,8 @@ function PasswordStrength({ password }) {
   ];
   const score = checks.filter(Boolean).length;
   const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
-  const colors = ['', 'bg-red-400', 'bg-yellow-400', 'bg-blue-400', 'bg-green-500'];
-  const textColors = ['', 'text-red-500', 'text-yellow-600', 'text-blue-600', 'text-green-600'];
+  const colors = ['', 'bg-red-400', 'bg-yellow-500', 'bg-[#bf6a45]', 'bg-[#23665e]'];
+  const textColors = ['', 'text-red-500', 'text-yellow-700', 'text-[#a85635]', 'text-[#23665e]'];
 
   return (
     <div className="mt-1">
@@ -180,9 +174,7 @@ function LoginForm({ onSuccess, switchToRegister }) {
       <button
         type="submit"
         disabled={loading}
-        className="mt-1 w-full py-3 rounded-xl btn-gradient text-white font-semibold text-sm
-          flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:opacity-90
-          transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="action-primary mt-1 w-full px-5 flex items-center justify-center gap-2 disabled:opacity-60"
       >
         {loading ? (
           <span className="flex items-center gap-2">
@@ -213,7 +205,7 @@ function LoginForm({ onSuccess, switchToRegister }) {
 
 /* ─── Register Form ──────────────────────────────────────────────────────── */
 
-function RegisterForm({ onSuccess, switchToLogin }) {
+function RegisterForm({ switchToLogin }) {
   const [form, setForm] = useState({ name: '', email: '', username: '', password: '', confirm: '', tenantName: '', tenantId: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -303,8 +295,8 @@ function RegisterForm({ onSuccess, switchToLogin }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {/* ── Personal Details ── */}
-      <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-500 mb-3">Your Details</p>
+      <div className="auth-form-section">
+        <p className="section-eyebrow mb-4">Your details</p>
         <div className="flex flex-col gap-4">
           <InputField id="name" label="Full Name" value={form.name} onChange={set('name')} placeholder="Jane Smith" icon={HiOutlineIdentification} error={errors.name} />
           <InputField id="email" label="Email Address" type="email" value={form.email} onChange={set('email')} placeholder="jane@company.com" icon={HiOutlineEnvelope} error={errors.email} autoComplete="email" />
@@ -342,12 +334,12 @@ function RegisterForm({ onSuccess, switchToLogin }) {
       </div>
 
       {/* ── Company Details ── */}
-      <div className="p-3 rounded-xl bg-indigo-50/50 border border-indigo-100">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-indigo-500 mb-3">Your Company</p>
+      <div className="auth-form-section">
+        <p className="section-eyebrow mb-4">Your organisation</p>
         <div className="flex flex-col gap-4">
           <InputField
             id="tenantName"
-            label="Company Name"
+            label="Organisation name"
             value={form.tenantName}
             onChange={set('tenantName')}
             placeholder="e.g. HDFC Bank"
@@ -357,15 +349,15 @@ function RegisterForm({ onSuccess, switchToLogin }) {
           <div className="flex flex-col gap-1.5">
             <InputField
               id="tenantId"
-              label="Company Tenant ID"
+              label="Organisation ID"
               value={form.tenantId}
               onChange={(e) => setForm(f => ({ ...f, tenantId: e.target.value.toUpperCase() }))}
               placeholder="e.g. HDFC-001"
               icon={HiOutlineUser}
               error={errors.tenantId}
             />
-            <p className="text-[11px] text-slate-400 pl-0.5">
-              Unique identifier for your organisation — letters, numbers, hyphens only. This links your account to your company's data.
+            <p className="text-xs leading-5 text-muted pl-0.5">
+              Use a unique code such as QUICKLOAN-001. An existing organisation ID cannot be claimed during registration.
             </p>
           </div>
         </div>
@@ -388,9 +380,7 @@ function RegisterForm({ onSuccess, switchToLogin }) {
       <button
         type="submit"
         disabled={loading}
-        className="mt-1 w-full py-3 rounded-xl btn-gradient text-white font-semibold text-sm
-          flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:opacity-90
-          transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="action-primary mt-1 w-full px-5 flex items-center justify-center gap-2 disabled:opacity-60"
       >
         {loading ? (
           <span className="flex items-center gap-2">
@@ -422,205 +412,119 @@ function RegisterForm({ onSuccess, switchToLogin }) {
 /* ─── Auth Page (main export) ────────────────────────────────────────────── */
 
 const FEATURES = [
-  { icon: '🛡️', text: 'DPDP Act 2023 compliance engine' },
-  { icon: '🤖', text: 'AI-powered rule evaluation' },
-  { icon: '📊', text: 'Real-time risk scoring & reporting' },
-  { icon: '🔐', text: 'Role-based access control (RBAC)' },
+  { icon: HiOutlineShieldCheck, title: 'DPDP readiness', description: 'Review selected obligations in one organised workspace.' },
+  { icon: HiOutlineCheckCircle, title: 'Prioritised findings', description: 'Focus first on the gaps that require attention.' },
+  { icon: HiOutlineSparkles, title: 'Clear risk insights', description: 'Understand the factors influencing each assessment.' },
+  { icon: HiOutlineLockClosed, title: 'Controlled access', description: 'Keep each organisation workspace limited to authorised users.' },
 ];
 
+function AuthBrand() {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="h-11 w-11 rounded-2xl grid place-items-center bg-[#dabf9f] text-[#2b202e] shadow-lg">
+        <HiOutlineShieldCheck className="h-6 w-6" aria-hidden="true" />
+      </span>
+      <span className="leading-tight">
+        <strong className="block text-lg text-[#fffaf3]">FinComply</strong>
+        <small className="mt-1 block text-[10px] font-bold uppercase tracking-[0.15em] text-[#fffaf3]/55">DPDP readiness workspace</small>
+      </span>
+    </div>
+  );
+}
+
+function BackButton({ onClick }) {
+  return (
+    <button type="button" onClick={onClick} className="mb-7 inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-secondary hover:text-primary transition-colors">
+      <HiOutlineArrowRight className="h-4 w-4 rotate-180" aria-hidden="true" />
+      Back
+    </button>
+  );
+}
+
 export default function AuthPage({ onLoginSuccess }) {
-  const [mode, setMode] = useState('landing'); // 'landing' | 'login' | 'register'
+  const [mode, setMode] = useState('landing');
 
   return (
-    <div className="min-h-screen bg-base flex">
-      {/* ── Left panel: branding ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 flex-col justify-between p-12">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute top-1/2 -left-32 w-80 h-80 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute -bottom-32 right-1/4 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-          {/* Grid pattern */}
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
+    <div className="auth-shell">
+      <section className="auth-story" aria-labelledby="product-heading">
+        <div className="auth-story-inner">
+          <AuthBrand />
 
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <HiOutlineShieldCheck className="w-6 h-6 text-white" />
+          <div className="auth-story-copy">
+            <span className="eyebrow">Privacy compliance, made actionable</span>
+            <h1 id="product-heading">Turn privacy obligations into clear action.</h1>
+            <p>
+              Review your organisation’s DPDP readiness, prioritise gaps and prepare an evidence-led assessment for professional review.
+            </p>
+
+            <div className="auth-feature-grid">
+              {FEATURES.map(({ icon: Icon, title, description }) => (
+                <article className="auth-feature" key={title}>
+                  <span className="auth-feature-icon"><Icon className="h-5 w-5" aria-hidden="true" /></span>
+                  <span><strong>{title}</strong><span>{description}</span></span>
+                </article>
+              ))}
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">Fin-Comply</span>
           </div>
 
-          <h1 className="text-4xl font-bold text-white leading-tight mb-4">
-            India's DPDP<br />Compliance Platform
-          </h1>
-          <p className="text-blue-100 text-base leading-relaxed mb-10 max-w-sm">
-            Automated compliance evaluation against the Digital Personal Data Protection Act 2023. Built for financial institutions.
-          </p>
-
-          <div className="flex flex-col gap-4">
-            {FEATURES.map((f) => (
-              <div key={f.text} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center text-base flex-shrink-0">
-                  {f.icon}
-                </div>
-                <span className="text-sm text-blue-50 font-medium">{f.text}</span>
-              </div>
-            ))}
-          </div>
+          <p className="auth-story-footer">Decision support for organisations preparing for India’s DPDP Act, 2023.</p>
         </div>
+      </section>
 
-        <div className="relative z-10">
-          <p className="text-xs text-blue-200/70">
-            © 2024 Fin-Comply. Regulatory Intelligence Engine v2.0
-          </p>
-        </div>
-      </div>
-
-      {/* ── Right panel: auth form ── */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-        <div className="w-full max-w-md">
-
-          {/* Mobile logo */}
-          <div className="flex lg:hidden items-center gap-2 mb-8 justify-center">
-            <div className="w-9 h-9 rounded-xl btn-gradient flex items-center justify-center">
-              <HiOutlineShieldCheck className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-lg text-primary tracking-tight">Fin-Comply</span>
-          </div>
-
+      <section className="auth-panel" aria-label="Account access">
+        <div className="auth-card">
           <AnimatePresence mode="wait">
-            {/* ── Landing: choose action ── */}
             {mode === 'landing' && (
-              <motion.div
-                key="landing"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="text-center mb-10">
-                  <div className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-                    <HiOutlineSparkles className="w-3.5 h-3.5" />
-                    DPDP Compliance Engine
-                  </div>
-                  <h2 className="text-3xl font-bold text-primary mb-2 tracking-tight">Welcome back</h2>
-                  <p className="text-secondary text-sm">Sign in to your account or create a new one to get started.</p>
+              <motion.div key="landing" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
+                <div className="auth-heading">
+                  <span className="section-eyebrow">Secure workspace access</span>
+                  <h2>Welcome to FinComply</h2>
+                  <p>Sign in to continue an assessment, or create an account for a new organisation workspace.</p>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => setMode('login')}
-                    className="w-full py-4 rounded-2xl btn-gradient text-white font-semibold text-base
-                      flex items-center justify-center gap-3 shadow-lg hover:shadow-xl
-                      hover:opacity-95 transition-all duration-200"
-                  >
-                    <HiOutlineLockClosed className="w-5 h-5" />
-                    Sign In
-                    <HiOutlineArrowRight className="w-5 h-5 ml-auto" />
+                <div className="grid gap-3">
+                  <motion.button type="button" whileTap={{ scale: 0.99 }} onClick={() => setMode('login')} className="auth-choice primary">
+                    <span className="auth-choice-icon"><HiOutlineLockClosed className="h-5 w-5" aria-hidden="true" /></span>
+                    <span><strong>Sign in</strong><small>Continue to your authorised workspace</small></span>
+                    <HiOutlineArrowRight className="h-5 w-5" aria-hidden="true" />
                   </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => setMode('register')}
-                    className="w-full py-4 rounded-2xl bg-surface border-2 border-subtle text-primary font-semibold text-base
-                      flex items-center justify-center gap-3 hover:border-brand-primary/40 hover:bg-elevated
-                      transition-all duration-200 shadow-card"
-                  >
-                    <HiOutlineIdentification className="w-5 h-5 text-brand-primary" />
-                    Create Account
-                    <HiOutlineArrowRight className="w-5 h-5 ml-auto text-secondary" />
+                  <motion.button type="button" whileTap={{ scale: 0.99 }} onClick={() => setMode('register')} className="auth-choice">
+                    <span className="auth-choice-icon"><HiOutlineIdentification className="h-5 w-5" aria-hidden="true" /></span>
+                    <span><strong>Create an account</strong><small>Set up a new organisation workspace</small></span>
+                    <HiOutlineArrowRight className="h-5 w-5 text-secondary" aria-hidden="true" />
                   </motion.button>
                 </div>
 
-                <div className="mt-8 grid grid-cols-2 gap-3">
-                  {FEATURES.map((f) => (
-                    <div key={f.text} className="flex items-start gap-2 p-3 rounded-xl bg-elevated">
-                      <span className="text-sm">{f.icon}</span>
-                      <span className="text-xs text-secondary leading-tight">{f.text}</span>
-                    </div>
-                  ))}
-                </div>
+                <p className="mt-6 text-center text-xs leading-5 text-muted">Access is limited to organisation workspaces assigned to your account.</p>
               </motion.div>
             )}
 
-            {/* ── Login form ── */}
             {mode === 'login' && (
-              <motion.div
-                key="login"
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.25 }}
-              >
-                <button
-                  onClick={() => setMode('landing')}
-                  className="flex items-center gap-1.5 text-sm text-secondary hover:text-primary mb-8 transition-colors group"
-                >
-                  <svg className="w-4 h-4 rotate-180 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                  Back
-                </button>
-
-                <div className="mb-8">
-                  <div className="w-12 h-12 rounded-2xl btn-gradient flex items-center justify-center mb-4 shadow-md">
-                    <HiOutlineLockClosed className="w-6 h-6 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-primary tracking-tight">Sign in</h2>
-                  <p className="text-secondary text-sm mt-1">Enter your credentials to access your account.</p>
+              <motion.div key="login" initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} transition={{ duration: 0.22 }}>
+                <BackButton onClick={() => setMode('landing')} />
+                <div className="auth-heading">
+                  <span className="section-eyebrow">Account access</span>
+                  <h2>Welcome back</h2>
+                  <p>Enter your username and password to continue to your workspace.</p>
                 </div>
-
-                <LoginForm
-                  onSuccess={onLoginSuccess}
-                  switchToRegister={() => setMode('register')}
-                />
+                <LoginForm onSuccess={onLoginSuccess} switchToRegister={() => setMode('register')} />
               </motion.div>
             )}
 
-            {/* ── Register form ── */}
             {mode === 'register' && (
-              <motion.div
-                key="register"
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.25 }}
-              >
-                <button
-                  onClick={() => setMode('landing')}
-                  className="flex items-center gap-1.5 text-sm text-secondary hover:text-primary mb-8 transition-colors group"
-                >
-                  <svg className="w-4 h-4 rotate-180 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                  Back
-                </button>
-
-                <div className="mb-6">
-                  <div className="w-12 h-12 rounded-2xl btn-gradient flex items-center justify-center mb-4 shadow-md">
-                    <HiOutlineIdentification className="w-6 h-6 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-primary tracking-tight">Create account</h2>
-                  <p className="text-secondary text-sm mt-1">Fill in your details to get started with Fin-Comply.</p>
+              <motion.div key="register" initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} transition={{ duration: 0.22 }}>
+                <BackButton onClick={() => setMode('landing')} />
+                <div className="auth-heading">
+                  <span className="section-eyebrow">New workspace</span>
+                  <h2>Create an account</h2>
+                  <p>Set up an account for a new organisation. Existing organisation access must be granted by its administrator.</p>
                 </div>
-
-                <RegisterForm
-                  onSuccess={() => {}}
-                  switchToLogin={() => setMode('login')}
-                />
+                <RegisterForm switchToLogin={() => setMode('login')} />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -624,6 +624,12 @@ def run_compliance_analysis(
         "findings": [finding.to_dict() for finding in internal_control_findings],
     }
 
+    # ML training uses occurrence counts, while violation_report is grouped to
+    # one entry per rule for display. Attach the full counts before inference
+    # to keep the production feature vector identical to the training contract.
+    report["total_violations"] = len(violations_only)
+    report["total_warnings"] = len(warnings_only)
+
     # ── Step 6: ML layer ─────────────────────────────────────
 
     if ML_AVAILABLE:

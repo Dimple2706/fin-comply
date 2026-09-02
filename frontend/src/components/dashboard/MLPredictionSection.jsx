@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   HiOutlineCpuChip, 
   HiOutlineChartBar, 
@@ -6,7 +7,10 @@ import {
   HiOutlineArrowTrendingDown,
   HiOutlineCheckCircle,
   HiOutlineExclamationTriangle,
-  HiOutlineInformationCircle
+  HiOutlineInformationCircle,
+  HiOutlineShieldCheck,
+  HiChevronDown,
+  HiChevronUp
 } from 'react-icons/hi2';
 import Card from '../ui/Card';
 
@@ -18,23 +22,80 @@ const TIER_COLORS = {
   CRITICAL: { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/30', fill: '#ef4444' },
 };
 
+const TIER_RANK = { COMPLIANT: 0, LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
+
 const FEATURE_LABEL_MAP = {
-  n_violations: 'Total Violations Count',
-  n_warnings: 'Total Warnings Count',
-  n_critical_rules_fired: 'Critical Rules Triggered',
-  n_high_rules_fired: 'High Severity Rules Triggered',
-  breach_rule_fired: 'Data Breach Detected (DPDP-014)',
-  minor_data_rule_fired: "Children's Data Violation (DPDP-005)",
-  max_rule_score: 'Max Rule Score Magnitude',
-  max_prevalence_ratio: 'Max Prevalence Ratio',
-  consent_violation_count: 'Consent Violations Count',
-  retention_violation_count: 'Retention Violations Count',
-  encryption_violation_count: 'Encryption Violations Count',
-  access_violation_count: 'Unauthorized Access Count',
-  policy_violation_count: 'Internal Policy Violations Count'
+  n_violations: 'Total compliance findings',
+  n_warnings: 'Total warnings',
+  n_critical_rules_fired: 'Critical rules triggered',
+  n_high_rules_fired: 'High-severity rules triggered',
+  breach_rule_fired: 'Personal-data breach detected',
+  minor_data_rule_fired: "Children's data violation detected",
+  max_rule_score: 'Highest rule score',
+  max_prevalence_ratio: 'Highest prevalence ratio',
+  consent_violation_count: 'Consent-related findings',
+  retention_violation_count: 'Retention-related findings',
+  encryption_violation_count: 'Encryption-related findings',
+  access_violation_count: 'Unauthorised access findings',
+  policy_violation_count: 'Internal policy findings',
+  total_penalty_exposure: 'Maximum statutory exposure (₹ crore)',
 };
 
+/**
+ * Format a feature value for display. Binary features show Yes/No,
+ * currency features show ₹ prefix, others show the number.
+ */
+function formatFeatureValue(featureName, value) {
+  if (featureName === 'breach_rule_fired' || featureName === 'minor_data_rule_fired') {
+    return value >= 1 ? 'Yes' : 'No';
+  }
+  if (featureName === 'total_penalty_exposure') {
+    return `₹${Number(value).toLocaleString()} Cr`;
+  }
+  return Number(value).toLocaleString();
+}
+
+/**
+ * Determine human-friendly impact level from LIME coefficient magnitude.
+ */
+function getLimeImpactLabel(coeff) {
+  const abs = Math.abs(coeff);
+  if (abs >= 0.15) return { label: 'High Impact Driver', badgeClass: 'bg-red-500/20 text-red-300 border-red-500/30' };
+  if (abs >= 0.05) return { label: 'Moderate Impact Driver', badgeClass: 'bg-orange-500/20 text-orange-300 border-orange-500/30' };
+  return { label: 'Low Impact Driver', badgeClass: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' };
+}
+
+/**
+ * Parse a raw LIME condition string (e.g. "n_violations > 221.00") to
+ * extract the underlying feature name and map it to a readable label.
+ */
+function parseLimeCondition(rawCondition) {
+  for (const [key, label] of Object.entries(FEATURE_LABEL_MAP)) {
+    if (rawCondition.includes(key)) {
+      return { label, featureName: key };
+    }
+  }
+  return { label: rawCondition, featureName: null };
+}
+
+/**
+ * Determine the comparison message when ML and deterministic tiers differ.
+ */
+function tierComparisonMessage(mlTier, detTier) {
+  const mlRank = TIER_RANK[mlTier] ?? 0;
+  const detRank = TIER_RANK[detTier] ?? 0;
+  if (mlRank > detRank) {
+    return 'The ML cross-check is more cautious than the primary assessment.';
+  }
+  if (mlRank < detRank) {
+    return 'The ML cross-check is less cautious than the primary assessment.';
+  }
+  return 'Both assessments agree.';
+}
+
 export default function MLPredictionSection({ mlData, deterministicTier, deterministicScore }) {
+  const [showShapDetails, setShowShapDetails] = useState(false);
+
   if (!mlData || mlData.ml_available === false) {
     return (
       <motion.section 
@@ -60,22 +121,32 @@ export default function MLPredictionSection({ mlData, deterministicTier, determi
     probabilities = {},
     shap_explanation = {},
     lime_explanation = {},
-    model_metadata = {},
+    feature_vector = {},
   } = mlData;
   const predStyle = TIER_COLORS[predicted_tier] || TIER_COLORS.MEDIUM;
   const detStyle = TIER_COLORS[deterministicTier] || TIER_COLORS.MEDIUM;
 
-  const shapContributions = shap_explanation.feature_contributions || [];
-  const topPositive = shapContributions
+  // Filter SHAP to ignore 0-impact items
+  const shapContributions = (shap_explanation.feature_contributions || [])
+    .filter((item) => Math.abs(item.shap_value) > 0.0001);
+  const topPositiveShap = shapContributions
     .filter((item) => item.direction === 'positive')
-    .slice(0, 3);
-  const topNegative = shapContributions
+    .slice(0, 5);
+  const topNegativeShap = shapContributions
     .filter((item) => item.direction === 'negative')
-    .slice(0, 3);
-  const limeContributions = (lime_explanation.feature_contributions || []).slice(0, 10);
+    .slice(0, 5);
 
-  const rawConf = probabilities[predicted_tier] || 0;
-  const confPct = rawConf > 1 ? rawConf : rawConf * 100;
+  // Filter LIME to ignore 0-impact items
+  const limeContributions = (lime_explanation.feature_contributions || [])
+    .filter((item) => Math.abs(item.coefficient) > 0.001)
+    .slice(0, 8);
+  const limePositive = limeContributions.filter((item) => item.direction === 'positive');
+  const limeNegative = limeContributions.filter((item) => item.direction === 'negative');
+
+  // Backend sends probabilities as percentages (0-100) — use directly
+  const confPct = probabilities[predicted_tier] || 0;
+  const probTotal = Object.values(probabilities).reduce((sum, v) => sum + v, 0);
+  const tiersMatch = predicted_tier === deterministicTier;
 
   return (
     <motion.section
@@ -92,78 +163,74 @@ export default function MLPredictionSection({ mlData, deterministicTier, determi
           </div>
           <div>
             <h3 className="text-h3 text-primary flex items-center gap-2">
-              Explainable AI Risk Model
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-                XGBoost + SHAP + LIME
-              </span>
+              AI Risk Cross-Check
             </h3>
             <p className="text-caption text-secondary">
-              Independent machine learning verification trained with isolated cross-validation and strict holdout evaluation.
+              An advisory machine-learning prediction that cross-verifies your compliance score.
             </p>
           </div>
         </div>
-
-        {model_metadata?.test_macro_f1 && (
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-elevated border border-subtle text-caption text-secondary">
-            <span>Model Holdout Macro-F1:</span>
-            <strong className="text-low font-mono">{model_metadata.test_macro_f1}</strong>
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* CARD 1: Model Prediction & Tier Alignment (4 cols) */}
+        {/* CARD 1: Primary Assessment & ML Cross-Check (4 cols) */}
         <Card className="lg:col-span-4 p-6 bg-surface border border-subtle flex flex-col justify-between">
           <div>
-            <h4 className="text-h4 text-primary mb-4 flex items-center gap-2">
-              <HiOutlineChartBar className="text-brand-primary" />
-              Risk Classification
-            </h4>
+            {/* Primary Compliance Assessment */}
+            <div className="p-4 rounded-xl border border-subtle bg-base/50 mb-4">
+              <div className="text-caption text-secondary uppercase font-semibold tracking-wider flex items-center gap-1.5">
+                <HiOutlineShieldCheck className="text-sm" />
+                Primary Compliance Assessment
+              </div>
+              <div className={`text-lg font-bold font-mono mt-1 ${detStyle.text}`}>
+                {deterministicTier} — Score {deterministicScore}/100
+              </div>
+              <p className="text-caption text-secondary mt-1">
+                Calculated from the organisation&apos;s DPDP assessment findings.
+              </p>
+            </div>
 
-            {/* Model Predicted Tier */}
+            {/* ML Risk Cross-Check */}
             <div className={`p-4 rounded-xl border mb-4 ${predStyle.bg} ${predStyle.border}`}>
-              <div className="text-caption text-secondary uppercase font-semibold tracking-wider">
-                ML Predicted Tier
+              <div className="text-caption text-secondary uppercase font-semibold tracking-wider flex items-center gap-1.5">
+                <HiOutlineCpuChip className="text-sm" />
+                AI Risk Cross-Check
               </div>
               <div className={`text-2xl font-bold font-mono mt-1 ${predStyle.text}`}>
                 {predicted_tier}
               </div>
               <div className="text-caption text-secondary mt-1">
-                Prediction Confidence: <strong className="text-primary font-mono">{confPct.toFixed(1)}%</strong>
+                <strong className="text-primary font-mono">{confPct.toFixed(1)}%</strong> AI confidence
               </div>
             </div>
 
-            {/* Deterministic Rule Engine Alignment */}
-            <div className="p-4 rounded-xl border border-subtle bg-base/50">
-              <div className="text-caption text-secondary uppercase font-semibold tracking-wider">
-                Deterministic Rule Tier
-              </div>
-              <div className={`text-lg font-bold font-mono mt-0.5 ${detStyle.text}`}>
-                {deterministicTier} (Score: {deterministicScore}/100)
-              </div>
-              <div className="text-caption text-secondary mt-1 flex items-center gap-1.5">
-                {predicted_tier === deterministicTier ? (
+            {/* Tier comparison */}
+            <div className="p-3 rounded-lg bg-base/50 border border-subtle">
+              <div className="text-caption text-secondary flex items-center gap-1.5">
+                {tiersMatch ? (
                   <span className="text-low flex items-center gap-1">
-                    <HiOutlineCheckCircle className="text-sm" /> 100% Tier Consensus
+                    <HiOutlineCheckCircle className="text-sm" /> Both assessments agree
                   </span>
                 ) : (
-                  <span className="text-medium flex items-center gap-1">
-                    <HiOutlineExclamationTriangle className="text-sm" /> Multi-Layer Variance
-                  </span>
+                  <>
+                    <HiOutlineExclamationTriangle className="text-sm text-medium" />
+                    <span className="text-medium">
+                      {tierComparisonMessage(predicted_tier, deterministicTier)}
+                    </span>
+                  </>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Probabilities Distribution */}
+          {/* Probability Distribution */}
           <div className="mt-6 pt-4 border-t border-subtle">
             <span className="text-caption text-secondary block mb-2 font-medium">
-              Multi-Class Probability Distribution
+              Probability Distribution
             </span>
             <div className="space-y-2">
               {['COMPLIANT', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map((tier) => {
-                const rawProb = probabilities[tier] || 0;
-                const prob = rawProb > 1 ? rawProb : rawProb * 100;
+                const prob = probabilities[tier] || 0;
                 const style = TIER_COLORS[tier];
                 return (
                   <div key={tier} className="text-caption">
@@ -181,131 +248,206 @@ export default function MLPredictionSection({ mlData, deterministicTier, determi
                 );
               })}
             </div>
+            <div className="mt-2 text-caption text-muted text-right font-mono">
+              Total: {probTotal.toFixed(1)}%
+            </div>
           </div>
         </Card>
 
-        {/* CARD 2: TreeSHAP Feature Attributions (8 cols) */}
+        {/* CARD 2: Customer-Friendly AI Explanation (LIME - 8 cols) */}
         <Card className="lg:col-span-8 p-6 bg-surface border border-subtle">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between gap-4 mb-4">
             <div>
               <h4 className="text-h4 text-primary flex items-center gap-2">
-                <HiOutlineArrowTrendingUp className="text-red-400" />
-                TreeSHAP Feature Attributions
+                <HiOutlineChartBar className="text-brand-primary" />
+                AI Risk Explanation (LIME Analysis)
               </h4>
               <p className="text-caption text-secondary mt-0.5">
-                Marginal feature contributions to log-odds output computed via Lundberg & Lee (2017) TreeExplainer.
+                500 scenario simulations revealed these key factors driving your {predicted_tier} risk prediction:
               </p>
             </div>
           </div>
 
-          {/* Top Risk Escalators (Positive SHAP) */}
-          <div className="mb-6">
-            <span className="text-caption text-red-400 font-semibold uppercase tracking-wider flex items-center gap-1 mb-3">
-              <HiOutlineArrowTrendingUp className="text-base" />
-              Key Risk Escalators (Positive Attribution)
-            </span>
-            {topPositive.length === 0 ? (
-              <p className="text-caption text-muted italic">No strong risk escalating features detected.</p>
-            ) : (
-              <div className="space-y-2.5">
-                {topPositive.map((item, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-base/60 border border-subtle flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-primary">
-                        {FEATURE_LABEL_MAP[item.feature] || item.feature}
-                      </span>
-                      <span className="text-caption text-muted font-mono">
-                        Feature Value: <strong className="text-secondary">{item.value}</strong>
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-red-500/10 text-red-400 border border-red-500/20">
-                        +{Number(item.shap_value).toFixed(3)} SHAP
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {limeContributions.length === 0 ? (
+            <p className="text-caption text-muted italic">No significant risk drivers detected.</p>
+          ) : (
+            <div className="space-y-5">
+              {/* Factors Pushing Risk Higher */}
+              {limePositive.length > 0 && (
+                <div>
+                  <span className="text-caption text-red-400 font-semibold uppercase tracking-wider flex items-center gap-1 mb-3">
+                    <HiOutlineArrowTrendingUp className="text-base" />
+                    Factors Pushing Risk Higher
+                  </span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {limePositive.map((item, idx) => {
+                      const { label, featureName } = parseLimeCondition(item.feature);
+                      const currentVal = featureName ? feature_vector[featureName] : null;
+                      const displayVal = currentVal !== null && currentVal !== undefined 
+                        ? formatFeatureValue(featureName, currentVal) 
+                        : null;
+                      const { label: impactText } = getLimeImpactLabel(item.coefficient);
 
-          {/* Mitigating Factors (Negative SHAP) */}
-          <div>
-            <span className="text-caption text-green-400 font-semibold uppercase tracking-wider flex items-center gap-1 mb-3">
-              <HiOutlineArrowTrendingDown className="text-base" />
-              Mitigating Factors (Negative Attribution)
-            </span>
-            {topNegative.length === 0 ? (
-              <p className="text-caption text-muted italic">No active mitigating factors detected.</p>
-            ) : (
-              <div className="space-y-2.5">
-                {topNegative.map((item, idx) => (
-                  <div key={idx} className="p-3 rounded-lg bg-base/60 border border-subtle flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-primary">
-                        {FEATURE_LABEL_MAP[item.feature] || item.feature}
-                      </span>
-                      <span className="text-caption text-muted font-mono">
-                        Feature Value: <strong className="text-secondary">{item.value}</strong>
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                        {Number(item.shap_value).toFixed(3)} SHAP
-                      </span>
-                    </div>
+                      return (
+                        <div key={`pos-${idx}`} className="p-3.5 rounded-xl bg-base/60 border border-subtle flex flex-col justify-between gap-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-sm font-medium text-primary leading-snug">
+                              {label}
+                            </span>
+                            <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+                              Risk Increaser
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-caption text-muted pt-1 border-t border-subtle/50">
+                            <span>{impactText}</span>
+                            {displayVal && (
+                              <span className="font-mono text-primary font-semibold">Value: {displayVal}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
+
+              {/* Factors Reducing Risk */}
+              {limeNegative.length > 0 && (
+                <div>
+                  <span className="text-caption text-green-400 font-semibold uppercase tracking-wider flex items-center gap-1 mb-3">
+                    <HiOutlineArrowTrendingDown className="text-base" />
+                    Factors Helping Lower Risk
+                  </span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {limeNegative.map((item, idx) => {
+                      const { label, featureName } = parseLimeCondition(item.feature);
+                      const currentVal = featureName ? feature_vector[featureName] : null;
+                      const displayVal = currentVal !== null && currentVal !== undefined 
+                        ? formatFeatureValue(featureName, currentVal) 
+                        : null;
+                      const { label: impactText } = getLimeImpactLabel(item.coefficient);
+
+                      return (
+                        <div key={`neg-${idx}`} className="p-3.5 rounded-xl bg-base/60 border border-subtle flex flex-col justify-between gap-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-sm font-medium text-primary leading-snug">
+                              {label}
+                            </span>
+                            <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
+                              Risk Reducer
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-caption text-muted pt-1 border-t border-subtle/50">
+                            <span>{impactText}</span>
+                            {displayVal && (
+                              <span className="font-mono text-primary font-semibold">Value: {displayVal}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Collapsible SHAP Panel Toggle Button */}
+          <div className="mt-6 pt-4 border-t border-subtle flex items-center justify-between">
+            <span className="text-caption text-muted">
+              Need detailed mathematical feature attributions?
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowShapDetails(!showShapDetails)}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/10 transition-colors flex items-center gap-1.5"
+            >
+              {showShapDetails ? (
+                <>Hide Mathematical SHAP Breakdown <HiChevronUp className="text-sm" /></>
+              ) : (
+                <>View Mathematical SHAP Breakdown <HiChevronDown className="text-sm" /></>
+              )}
+            </button>
           </div>
         </Card>
       </div>
 
-      <Card className="mt-6 p-6 bg-surface border border-subtle">
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <div>
-            <h4 className="text-h4 text-primary flex items-center gap-2">
-              <HiOutlineChartBar className="text-brand-primary" />
-              LIME Local Explanation
-            </h4>
-            <p className="text-caption text-secondary mt-0.5">
-              A local surrogate explanation showing which feature ranges pushed this individual prediction up or down.
-            </p>
-          </div>
-          <span className="px-2.5 py-1 rounded-md text-xs font-mono bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-            {lime_explanation.num_samples || 0} samples
-          </span>
-        </div>
+      {/* COLLAPSIBLE SHAP ANALYSIS PANEL */}
+      <AnimatePresence>
+        {showShapDetails && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden mt-6"
+          >
+            <Card className="p-6 bg-surface border border-subtle">
+              <div className="mb-4">
+                <h4 className="text-h4 text-primary flex items-center gap-2">
+                  <HiOutlineChartBar className="text-brand-primary" />
+                  Detailed Feature Attributions (SHAP Analysis)
+                </h4>
+                <p className="text-caption text-secondary mt-0.5">
+                  Exact mathematical log-odds feature contributions computed via TreeExplainer.
+                </p>
+              </div>
 
-        {limeContributions.length === 0 ? (
-          <p className="text-caption text-muted italic">LIME explanation is unavailable for this prediction.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {limeContributions.map((item, idx) => {
-              const positive = item.direction === 'positive';
-              return (
-                <div key={`${item.feature}-${idx}`} className="p-3 rounded-lg bg-base/60 border border-subtle flex items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    <span className="text-sm font-medium text-primary block break-words">
-                      {item.feature}
-                    </span>
-                    <span className="text-caption text-muted">
-                      {positive ? 'Raises predicted risk' : 'Lowers predicted risk'}
-                    </span>
-                  </div>
-                  <span className={`shrink-0 px-2.5 py-1 rounded-md text-xs font-mono font-bold border ${positive
-                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                    : 'bg-green-500/10 text-green-400 border-green-500/20'
-                  }`}>
-                    {Number(item.coefficient).toFixed(4)}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Positive SHAP */}
+                <div>
+                  <span className="text-caption text-red-400 font-semibold uppercase tracking-wider block mb-3">
+                    Positive Risk Drivers (SHAP Log-Odds)
                   </span>
+                  <div className="space-y-2">
+                    {topPositiveShap.map((item, idx) => (
+                      <div key={idx} className="p-3 rounded-lg bg-base/60 border border-subtle flex items-center justify-between text-xs">
+                        <span className="text-primary font-medium">
+                          {FEATURE_LABEL_MAP[item.feature] || item.feature}: <strong className="font-mono">{formatFeatureValue(item.feature, item.value)}</strong>
+                        </span>
+                        <span className="font-mono text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                          +{Number(item.shap_value).toFixed(3)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Negative SHAP */}
+                <div>
+                  <span className="text-caption text-green-400 font-semibold uppercase tracking-wider block mb-3">
+                    Negative Risk Drivers (SHAP Log-Odds)
+                  </span>
+                  <div className="space-y-2">
+                    {topNegativeShap.length === 0 ? (
+                      <p className="text-caption text-muted italic">No negative drivers detected.</p>
+                    ) : (
+                      topNegativeShap.map((item, idx) => (
+                        <div key={idx} className="p-3 rounded-lg bg-base/60 border border-subtle flex items-center justify-between text-xs">
+                          <span className="text-primary font-medium">
+                            {FEATURE_LABEL_MAP[item.feature] || item.feature}: <strong className="font-mono">{formatFeatureValue(item.feature, item.value)}</strong>
+                          </span>
+                          <span className="font-mono text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20">
+                            {Number(item.shap_value).toFixed(3)}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         )}
-      </Card>
+      </AnimatePresence>
+
+      {/* XAI Disclaimer Note */}
+      <div className="mt-4 text-caption text-muted flex items-start gap-2">
+        <HiOutlineInformationCircle className="text-base shrink-0 mt-0.5 text-secondary" />
+        <p>
+          SHAP and LIME explain the behavior of the Machine Learning model. They cross-verify the prediction and do not replace the deterministic legal rule results. Raw values are preserved in the JSON download.
+        </p>
+      </div>
     </motion.section>
   );
 }

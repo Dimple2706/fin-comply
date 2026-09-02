@@ -61,7 +61,7 @@ export const loginUser = async (username, password) => {
     return data;
   } catch (error) {
     const detail = error.response?.data?.detail;
-    throw new Error(typeof detail === 'string' ? detail : 'Login failed. Check your credentials.');
+    throw new Error(typeof detail === 'string' ? detail : 'Login failed. Check your credentials.', { cause: error });
   }
 };
 
@@ -71,7 +71,7 @@ export const registerUser = async ({ name, email, username, password, tenant_id,
     return response.data;
   } catch (error) {
     const detail = error.response?.data?.detail;
-    throw new Error(typeof detail === 'string' ? detail : 'Registration failed. Please try again.');
+    throw new Error(typeof detail === 'string' ? detail : 'Registration failed. Please try again.', { cause: error });
   }
 };
 

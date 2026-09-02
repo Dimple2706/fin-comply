@@ -3,7 +3,7 @@ src/modeling/prepare_risk_features.py
 ======================================
 Part 2 of the XGBoost ML training pipeline.
 
-Reads evaluation_results, extracts 13 features from each tenant's
+Reads evaluation_results, extracts 14 features from each tenant's
 result_json, computes total_penalty_exposure independently from the
 clauses table (to prevent leakage), assigns a label, and writes:
   - data/training/training_features.csv   (model input - no tenant_id)
@@ -477,7 +477,7 @@ def main():
         for tid, fields in nan_flags.items():
             print(f"  {tid}: {fields} -> filled with 0")
     else:
-        print("  None - all 13 features fully populated for all tenants.")
+        print("  None - all 14 features fully populated for all tenants.")
 
     # 5. Side-by-side GEN-010 vs GEN-005
     feature_by_tid = {

@@ -348,6 +348,8 @@ class ReportingAgent:
 
             # LLM narration
             try:
+                import time as _time
+                _time.sleep(0.4)
                 narration = narrate_violation(
                     rule_id=v.rule_id,
                     rule_name=v.rule_name,

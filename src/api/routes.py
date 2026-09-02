@@ -1045,14 +1045,15 @@ def list_rules(
             rows = conn.execute(
                 """
                 SELECT rule_id, rule_name, assigned_agent,
-                       severity, enabled, dpdp_section
+                       severity, enabled, dpdp_section, description
                 FROM rules
                 ORDER BY rule_id
                 """
             ).fetchall()
         return [{"rule_id": r["rule_id"], "rule_name": r["rule_name"],
                  "assigned_agent": r["assigned_agent"], "severity": r["severity"],
-                 "enabled": r["enabled"], "dpdp_section": r["dpdp_section"]} for r in rows]
+                 "enabled": r["enabled"], "dpdp_section": r["dpdp_section"],
+                 "description": r["description"]} for r in rows]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch rules: {str(e)}")
 

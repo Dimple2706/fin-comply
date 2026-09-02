@@ -12,7 +12,30 @@ _TRAINING_DATA = None
 _FEATURE_NAMES = None
 _LABEL_MAP = None
 _SHAP_EXPLAINER = None
-_LIME_EXPLAINER = None
+_LIME_CLASS_NAMES = ['COMPLIANT', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
+
+# Expected class labels for probability validation
+_EXPECTED_CLASSES = {'COMPLIANT', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'}
+
+# This order is the inference contract used to train risk_model.json.
+# Keep feature construction name-based so adding a feature cannot silently
+# shift the meaning of every value that follows it.
+RUNTIME_FEATURE_NAMES = [
+    "n_violations",
+    "n_warnings",
+    "n_critical_rules_fired",
+    "n_high_rules_fired",
+    "breach_rule_fired",
+    "minor_data_rule_fired",
+    "max_rule_score",
+    "max_prevalence_ratio",
+    "consent_violation_count",
+    "retention_violation_count",
+    "encryption_violation_count",
+    "access_violation_count",
+    "policy_violation_count",
+    "total_penalty_exposure",
+]
 
 try:
     import joblib
@@ -31,25 +54,103 @@ try:
     
     with open(_PROJECT_ROOT / 'data/training/feature_names.json', 'r', encoding='utf-8') as f:
         _FEATURE_NAMES = json.load(f)
+
+    if _FEATURE_NAMES != RUNTIME_FEATURE_NAMES:
+        raise ValueError(
+            "ML feature contract mismatch between runtime extraction and "
+            "data/training/feature_names.json"
+        )
+
+    model_feature_count = int(_MODEL.get_booster().num_features())
+    if model_feature_count != len(_FEATURE_NAMES):
+        raise ValueError(
+            f"Model expects {model_feature_count} features but the feature "
+            f"contract defines {len(_FEATURE_NAMES)}"
+        )
+
+    if _TRAINING_DATA.ndim != 2 or _TRAINING_DATA.shape[1] != len(_FEATURE_NAMES):
+        raise ValueError(
+            "LIME training data does not match the model feature contract: "
+            f"expected {len(_FEATURE_NAMES)} columns, got "
+            f"{_TRAINING_DATA.shape[1] if _TRAINING_DATA.ndim == 2 else 'invalid shape'}"
+        )
         
     with open(Path(__file__).with_name('label_map.json'), 'r', encoding='utf-8') as f:
         _LABEL_MAP = json.load(f)
 
     _SHAP_EXPLAINER = shap.TreeExplainer(_MODEL)
 
-    _LIME_EXPLAINER = LimeTabularExplainer(
-        _TRAINING_DATA,
-        feature_names=_FEATURE_NAMES,
-        class_names=['COMPLIANT', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
-        mode='classification'
-    )
+    # LIME explainer is created per-call in run_ml_layer for reproducibility
+    # (random_state=42 reset each time). Module-level artifacts stored above.
 except Exception as e:
     logger.error(f"Failed to initialize ML layer components: {e}")
 
 
+def _validate_ml_output(result: dict) -> dict:
+    """
+    Validate ML output contract before returning to the API.
+    Returns the result if valid, or an error dict if any check fails.
+    """
+    probs = result.get('probabilities', {})
+
+    # Check 1: Exactly five class probabilities
+    if set(probs.keys()) != _EXPECTED_CLASSES:
+        return {
+            'ml_available': False,
+            'reason': f'Expected 5 class probabilities {sorted(_EXPECTED_CLASSES)}, '
+                      f'got {sorted(probs.keys())}'
+        }
+
+    # Check 2: Every probability is finite
+    for cls, val in probs.items():
+        if not np.isfinite(val):
+            return {
+                'ml_available': False,
+                'reason': f'Non-finite probability for {cls}: {val}'
+            }
+
+    # Check 3: Every probability is in [0, 100]
+    for cls, val in probs.items():
+        if val < 0 or val > 100:
+            return {
+                'ml_available': False,
+                'reason': f'Probability for {cls} out of range [0, 100]: {val}'
+            }
+
+    # Check 4: Sum ≈ 100 (tolerance ±1.0 for rounding)
+    prob_sum = sum(probs.values())
+    if abs(prob_sum - 100.0) > 1.0:
+        return {
+            'ml_available': False,
+            'reason': f'Probabilities sum to {prob_sum:.2f}, expected ≈100'
+        }
+
+    # Check 5: predicted_tier is the class with the highest probability
+    predicted = result.get('predicted_tier')
+    max_class = max(probs, key=probs.get)
+    if predicted != max_class:
+        return {
+            'ml_available': False,
+            'reason': f'predicted_tier={predicted} but highest probability '
+                      f'class is {max_class} ({probs[max_class]}%)'
+        }
+
+    # Check 6: confidence_percent matches predicted_tier probability
+    conf = result.get('confidence_percent')
+    expected_conf = probs[predicted]
+    if conf is None or abs(conf - expected_conf) > 0.01:
+        return {
+            'ml_available': False,
+            'reason': f'confidence_percent={conf} does not match '
+                      f'probabilities[{predicted}]={expected_conf}'
+        }
+
+    return result
+
+
 def extract_features(report: dict) -> np.ndarray:
     """
-    Extracts exactly 13 features in the order specified by feature_names.json.
+    Extracts the complete model feature contract in training order.
     """
     violation_report = report.get("violation_report", [])
     risk_insights = report.get("risk_insights", {})
@@ -58,8 +159,11 @@ def extract_features(report: dict) -> np.ndarray:
     violations_only = [v for v in violation_report if v.get("outcome") == "VIOLATION"]
     warnings_only = [v for v in violation_report if v.get("outcome") == "WARNING"]
     
-    n_violations = len(violations_only)
-    n_warnings = len(warnings_only)
+    # Training uses the full occurrence counts stored at report level. The
+    # violation_report is intentionally grouped to one entry per rule for
+    # presentation, so its length is only a fallback for small/unit reports.
+    n_violations = int(report.get("total_violations", len(violations_only)))
+    n_warnings = int(report.get("total_warnings", len(warnings_only)))
     
     critical_rules_fired = set(v.get("rule_id") for v in violations_only if v.get("severity") == "CRITICAL")
     n_critical_rules_fired = len(critical_rules_fired)
@@ -101,29 +205,36 @@ def extract_features(report: dict) -> np.ndarray:
         1 for finding in internal_control_findings
         if finding.get("outcome") == "VIOLATION"
     )
-    
-    # Must follow exact order:
-    # ['n_violations', 'n_warnings', 'n_critical_rules_fired', 'n_high_rules_fired', 'breach_rule_fired', 
-    # 'minor_data_rule_fired', 'max_rule_score', 'max_prevalence_ratio', 'consent_violation_count', 
-    # 'retention_violation_count', 'encryption_violation_count', 'access_violation_count', 'policy_violation_count']
-    
-    feature_list = [
-        float(n_violations),
-        float(n_warnings),
-        float(n_critical_rules_fired),
-        float(n_high_rules_fired),
-        float(breach_rule_fired),
-        float(minor_data_rule_fired),
-        float(max_rule_score),
-        float(max_prevalence_ratio),
-        float(consent_violation_count),
-        float(retention_violation_count),
-        float(encryption_violation_count),
-        float(access_violation_count),
-        float(policy_violation_count)
-    ]
-    
-    return np.array(feature_list, dtype=float).reshape(1, 13)
+
+    # The training pipeline derives this value from the maximum statutory
+    # exposure attached to the unique violated DPDP rules. ReportingAgent has
+    # already calculated the same value for the current assessment.
+    total_penalty_exposure = risk_insights.get(
+        "total_penalty_exposure_crore",
+        report.get("total_penalty_exposure_crore", 0.0),
+    )
+    if total_penalty_exposure is None:
+        total_penalty_exposure = 0.0
+
+    feature_values = {
+        "n_violations": n_violations,
+        "n_warnings": n_warnings,
+        "n_critical_rules_fired": n_critical_rules_fired,
+        "n_high_rules_fired": n_high_rules_fired,
+        "breach_rule_fired": breach_rule_fired,
+        "minor_data_rule_fired": minor_data_rule_fired,
+        "max_rule_score": max_rule_score,
+        "max_prevalence_ratio": max_prevalence_ratio,
+        "consent_violation_count": consent_violation_count,
+        "retention_violation_count": retention_violation_count,
+        "encryption_violation_count": encryption_violation_count,
+        "access_violation_count": access_violation_count,
+        "policy_violation_count": policy_violation_count,
+        "total_penalty_exposure": total_penalty_exposure,
+    }
+
+    feature_list = [float(feature_values[name]) for name in RUNTIME_FEATURE_NAMES]
+    return np.asarray(feature_list, dtype=float).reshape(1, len(RUNTIME_FEATURE_NAMES))
 
 
 def run_ml_layer(report: dict) -> dict:
@@ -131,6 +242,14 @@ def run_ml_layer(report: dict) -> dict:
         return {'ml_available': False, 'reason': 'Model artifacts failed to load'}
         
     feature_vector = extract_features(report)
+
+    if _FEATURE_NAMES != RUNTIME_FEATURE_NAMES:
+        raise ValueError("Runtime feature order no longer matches the trained model contract")
+    if feature_vector.shape[1] != len(_FEATURE_NAMES):
+        raise ValueError(
+            f"Feature shape mismatch, expected {len(_FEATURE_NAMES)}, "
+            f"got {feature_vector.shape[1]}"
+        )
     
     prediction_int = int(_MODEL.predict(feature_vector)[0])
     prediction_label = _LABEL_MAP[str(prediction_int)]
@@ -191,9 +310,17 @@ def run_ml_layer(report: dict) -> dict:
     else:
         shap_local = {'error': 'SHAP unavailable'}
         
-    # LIME explanation
-    if _LIME_EXPLAINER is not None:
-        exp = _LIME_EXPLAINER.explain_instance(
+    # LIME explanation — fresh explainer per call for reproducibility
+    if _TRAINING_DATA is not None and _FEATURE_NAMES is not None:
+        from lime.lime_tabular import LimeTabularExplainer as _LimeExplainer
+        _lime_local = _LimeExplainer(
+            _TRAINING_DATA,
+            feature_names=_FEATURE_NAMES,
+            class_names=_LIME_CLASS_NAMES,
+            mode='classification',
+            random_state=42
+        )
+        exp = _lime_local.explain_instance(
             feature_vector[0],
             _MODEL.predict_proba,
             num_samples=500,
@@ -251,11 +378,15 @@ def run_ml_layer(report: dict) -> dict:
             with open(os.path.join(output_dir, 'lime_explanation.json'), 'w', encoding='utf-8') as f:
                 json.dump(lime_explanation, f, indent=2)
             
-    return {
+    confidence_pct = prob_dict.get(prediction_label, 0.0)
+
+    result = {
         'ml_available': True,
         'predicted_tier': prediction_label,
         'predicted_tier_int': prediction_int,
         'probabilities': prob_dict,
+        'probability_unit': 'percent',
+        'confidence_percent': confidence_pct,
         'feature_vector': {
             name: float(val) for name, val in zip(_FEATURE_NAMES, feature_vector[0])
         },
@@ -266,3 +397,5 @@ def run_ml_layer(report: dict) -> dict:
             prediction_label == report.get('risk_tier')
         )
     }
+
+    return _validate_ml_output(result)

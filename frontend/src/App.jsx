@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import AuthPage from './pages/AuthPage';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
-import { getApiToken, getStoredUser, clearAuth, setApiToken } from './services/api';
+import { getApiToken, getStoredUser, clearAuth } from './services/api';
 
 function AppContent() {
   // Auth state — read from session storage on first render so refresh keeps you logged in

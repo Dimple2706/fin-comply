@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { HiOutlineArrowLeft, HiOutlineDocumentArrowDown, HiOutlineCodeBracketSquare } from 'react-icons/hi2';
+import { HiOutlineArrowLeft, HiOutlineBookOpen, HiOutlineDocumentArrowDown, HiOutlineCodeBracketSquare } from 'react-icons/hi2';
 import ExecutiveSummary from '../components/dashboard/ExecutiveSummary';
 import MetricsSection from '../components/dashboard/MetricsSection';
 import MLPredictionSection from '../components/dashboard/MLPredictionSection';
 import ChartsSection from '../components/dashboard/ChartsSection';
 import RemediationSection from '../components/dashboard/RemediationSection';
 import ViolationsSection from '../components/dashboard/ViolationsSection';
+import RulesLibraryModal from '../components/dashboard/RulesLibraryModal';
 import { downloadPdfReport } from '../services/api';
 
 const staticReportSuffix = Date.now().toString().slice(-6);
@@ -14,6 +15,7 @@ const staticGeneratedTime = new Date().toLocaleString('en-GB');
 
 export default function Dashboard({ data, onReset }) {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   if (!data) return null;
 
@@ -56,7 +58,7 @@ export default function Dashboard({ data, onReset }) {
       className="min-h-screen bg-base"
     >
       {/* Sticky Top Nav */}
-      <nav className="sticky top-0 z-40 h-16 bg-surface/80 backdrop-blur-md border-b border-subtle px-6 flex items-center justify-between">
+      <nav className="sticky top-0 z-40 min-h-16 bg-surface/90 backdrop-blur-md border-b border-subtle px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <button 
             onClick={onReset}
@@ -65,7 +67,7 @@ export default function Dashboard({ data, onReset }) {
           >
             <HiOutlineArrowLeft className="text-xl" />
           </button>
-          <div className="flex items-center gap-2 border-l border-subtle pl-4">
+          <div className="hidden min-[430px]:flex items-center gap-2 border-l border-subtle pl-4">
             <span className="font-bold text-lg tracking-tight">Fin-Comply</span>
             <span className="text-caption text-secondary mt-0.5">Compliance Report</span>
           </div>
@@ -76,6 +78,15 @@ export default function Dashboard({ data, onReset }) {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowRules(true)}
+            className="px-3 sm:px-4 py-2 text-sm font-semibold text-primary border border-subtle rounded-md hover:bg-elevated transition-colors inline-flex items-center gap-2"
+            aria-label="View DPDP assessment rules"
+          >
+            <HiOutlineBookOpen className="text-lg" aria-hidden="true" />
+            <span className="hidden lg:inline">DPDP Rules</span>
+          </button>
           <button 
             onClick={onReset}
             className="hidden sm:block px-4 py-1.5 text-sm font-medium text-secondary hover:text-primary border border-subtle rounded-md hover:bg-elevated transition-colors"
@@ -100,19 +111,10 @@ export default function Dashboard({ data, onReset }) {
         </div>
       </nav>
 
+      <RulesLibraryModal isOpen={showRules} onClose={() => setShowRules(false)} />
+
       {/* Main Content */}
       <main className="container-center py-8">
-        {data.regulatory_context && (
-          <section className="mb-6 rounded-lg border border-amber-400/40 bg-amber-400/10 px-5 py-4 text-sm">
-            <p className="font-semibold text-primary">
-              {data.regulatory_context.assessment_type === 'FUTURE_READINESS'
-                ? 'DPDP future-readiness assessment'
-                : 'DPDP operational compliance assessment'}
-            </p>
-            <p className="mt-1 text-secondary">{data.regulatory_context.basis}</p>
-            <p className="mt-1 text-muted">{data.regulatory_context.disclaimer}</p>
-          </section>
-        )}
         <ExecutiveSummary summary={data.executive_summary} tenantId={data.tenant_id} />
         
         <MetricsSection data={data} />
