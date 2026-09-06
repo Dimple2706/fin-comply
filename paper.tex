@@ -9,6 +9,7 @@
 \usepackage{cite}
 \usepackage{url}
 \usepackage{tikz}
+\usepackage{float}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{arrows.meta,positioning,fit}
@@ -65,28 +66,33 @@ Sound metrics cannot repair an invalid oracle. The validation design must first 
 \label{sec:architecture}
 Fig.~\ref{fig:architecture} summarizes the implemented layers. The design is hybrid in a specific sense: statutory and policy findings originate from deterministic rules; a supplementary learned classifier exists in the codebase but is not the legal decision maker and is not evaluated in this paper.
 
-\begin{figure*}[t]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
-    node distance=6mm and 8mm,
-    box/.style={draw, rounded corners, align=center, minimum height=12mm, text width=27mm, fill=blue!5},
-    arrow/.style={-{Latex[length=2mm]}, thick}
+    node distance=7mm and 10mm,
+    box/.style={draw, rounded corners, align=center, minimum height=11mm, text width=58mm, font=\small, fill=blue!5},
+    dbbox/.style={box, text width=45mm, fill=yellow!12},
+    mlbox/.style={box, text width=42mm, fill=gray!12, font=\small},
+    arrow/.style={-{Latex[length=2mm]}, thick},
+    brace/.style={-{Latex[length=1.8mm]}, thick, dashed, gray}
 ]
-\node[box] (input) {Tenant CSV data\\and configuration};
-\node[box, right=of input] (anon) {Field mapping and\\HMAC--SHA-256\\pseudonymization};
-\node[box, right=of anon] (rules) {Four deterministic agents\\16 DPDP + 3 policy rules};
-\node[box, right=of rules] (score) {Evidence aggregation\\and five-tier risk score};
-\node[box, right=of score] (delivery) {FastAPI service, React\\dashboard, and reports};
-\node[box, below=of score, fill=gray!12] (ml) {Supplementary classifier\\(not evaluated here)};
+\node[box] (input) {\textbf{Tenant Data}\\10 structured CSV tables per tenant\\(customers, consent, transactions, access logs, lifecycle, security events, DSAR, policies, systems, governance)};
+\node[box, below=of input] (anon) {\textbf{Anonymization Pipeline}\\CSV loader $\to$ field mapper $\to$ tenant-scoped HMAC--SHA-256 hasher $\to$ DB writer};
+\node[dbbox, below=of anon] (db) {\textbf{PostgreSQL}\\tenant-scoped storage};
+\node[box, below=of db] (agents) {\textbf{Deterministic Rule Engine}\\RegulationAgent, AuditAgent, RiskAgent, PolicyAgent\\16 DPDP rules + 3 policy rules};
+\node[box, below=of agents] (scoring) {\textbf{Risk Scoring \& Orchestrator}\\opportunity-denominator prevalence + severity floors $\to$ five-tier risk category};
+\node[box, below=of scoring] (app) {\textbf{Application Layer}\\FastAPI backend + React dashboard and reports};
+\node[mlbox, right=of scoring] (ml) {\textbf{Supplementary Classifier}\\14-feature XGBoost\\+ TreeSHAP / LIME\\(not evaluated in this paper)};
 \draw[arrow] (input) -- (anon);
-\draw[arrow] (anon) -- (rules);
-\draw[arrow] (rules) -- (score);
-\draw[arrow] (score) -- (delivery);
-\draw[arrow, dashed, gray] (score) -- (ml);
+\draw[arrow] (anon) -- (db);
+\draw[arrow] (db) -- (agents);
+\draw[arrow] (agents) -- (scoring);
+\draw[arrow] (scoring) -- (app);
+\draw[brace] (scoring) -- (ml);
 \end{tikzpicture}
-\caption{Top-level \system{} architecture. The gray branch exists in the implementation but is out of scope for this paper's evaluation; rule findings are the sole authoritative output evaluated here.}
+\caption{End-to-end \system{} architecture. Tenant CSVs are pseudonymized and stored, then evaluated by the four-agent deterministic rule engine and aggregated into a five-tier risk score, which the application layer serves. The gray branch is a supplementary classifier that consumes the same aggregated evidence but is out of scope for this paper's evaluation and does not feed back into the rule engine's output.}
 \label{fig:architecture}
-\end{figure*}
+\end{figure}
 
 \subsection{Ingestion and Pseudonymization}
 The anonymization pipeline comprises a CSV loader, field mapper, tenant-scoped HMAC--SHA-256 hasher, and database writer. Standalone verification utilities exist for post-ingestion integrity checks but are not yet integrated into the automated pipeline. Tenant scoping preserves the ability to join repeated values within one tenant while reducing the possibility of correlating identifiers between tenants. The codebase supports versioned v1 and v2 hash formats so that downstream records can retain provenance about the transformation applied.
@@ -120,7 +126,7 @@ A FastAPI backend exposes analysis functions, and a React frontend provides onbo
 \section{Data Assets and Claim Boundaries}
 The repository contains distinct datasets with different purposes. Table~\ref{tab:data} prevents a common validity error: treating all synthetic material as a single independently labeled benchmark.
 
-\begin{table*}[t]
+\begin{table}[htbp]
 \caption{Repository Data Assets and Permitted Interpretations}
 \label{tab:data}
 \centering
@@ -135,7 +141,7 @@ Deterministic compliance package & Hand-constructed fixtures with an expected-re
 Automated test suite & 175 tests across 42 modules under the repository test directory & Regression detection and reproducibility support & External predictive or legal validity \\
 \bottomrule
 \end{tabularx}
-\end{table*}
+\end{table}
 
 A supplementary ML training/holdout dataset also exists in the repository, built from the same rule-engine logic used to fabricate its features and labels. Because that dataset's evaluation is out of scope for this paper (Section~\ref{sec:classifier}), it is omitted from Table~\ref{tab:data} and no metric derived from it is reported here.
 
@@ -143,7 +149,7 @@ A supplementary ML training/holdout dataset also exists in the repository, built
 \label{sec:validation}
 The evaluation question is: \emph{what evidence is sufficient to justify each type of claim made about \system?} The answer is organized into four tiers. Each tier specifies an oracle, test procedure, output measure, and a strict claim boundary (Table~\ref{tab:tiers}). Passing a lower tier does not imply passing a higher one.
 
-\begin{table*}[t]
+\begin{table}[htbp]
 \caption{Four-Tier Validation Protocol}
 \label{tab:tiers}
 \centering
@@ -157,7 +163,7 @@ Tier & Oracle/evidence & Procedure & Measures & Supported claim \\
 4. Incident replay (optional future work) & Two or three documented Indian fintech incidents mapped to available input fields & Encode only publicly evidenced facts; obtain domain review of the mapping; compare plausible expected flags with engine output & Rule-level coverage and expert disagreement log & External face-validity sanity check, not statistical accuracy \\
 \bottomrule
 \end{tabularx}
-\end{table*}
+\end{table}
 
 \subsection{Tier 1: Deterministic Fixture-Based Verification}
 In regulatory compliance, no universal, regulator-endorsed ground truth exists against which an arbitrary tenant's compliance status can be checked -- this is the test-oracle problem introduced in Section~I \cite{barr}. Tier 1 does not claim to solve that problem; it verifies the engine's logic against a hand-constructed fixture package for which the expected outcome is known \emph{by construction}, not against any external legal authority. The deterministic compliance package is the strongest available internal oracle for this purpose because each scenario is constructed so that the expected violation set is known in advance. Let $E_i$ denote the expected rule identifiers for fixture $i$ and $A_i$ the identifiers actually returned. Aggregating over fixtures gives
@@ -206,7 +212,7 @@ Three named tenants (Tenant A, Tenant B, Tenant E) were evaluated, the underlyin
 \subsubsection{Cross-Tenant Score Spread}
 To confirm that the scoring mechanism is not degenerate -- that is, that it does not collapse distinct evidence profiles onto a single output -- the baseline evaluations of all five named tenants were compared (Table~\ref{tab:spread}). Tenant B, Tenant A, and Tenant C each independently reached the \textsc{High} tier (65.0) because each baseline dataset contains at least one \textsc{Critical} finding that triggers the critical floor; Tenant D and Tenant E each independently reached the \textsc{Medium} tier (45.0) with no \textsc{Critical} finding present. In an earlier clean state prior to threshold-injection testing, Tenant E was separately observed at the \textsc{Low} tier (score 6.4), which is also the baseline used in the sensitivity pilot below. Five independently constructed tenants therefore produced three distinct tiers driven by genuine differences in their underlying evidence, rather than collapsing to one fixed output.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \caption{Baseline Risk Scores, Five Named Demonstration Tenants}
 \label{tab:spread}
 \centering
@@ -228,7 +234,7 @@ Tenant E & 45.0 & \textsc{Medium} \\
 \label{sec:sensitivity}
 A single-tenant sensitivity pilot was conducted to exercise the severity-floor and monotonicity relations directly. Starting from one baseline tenant (Tenant E, clean state, score 6.4, tier \textsc{Low}), five fresh copies of its CSV inputs were prepared, and exactly one controlled change was introduced per copy before re-running the full pipeline; no other evidence was altered. Table~\ref{tab:sensitivity} and Fig.~\ref{fig:sensitivity} report the resulting risk scores and tiers.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \caption{Pilot Sensitivity Study (Baseline Tenant E)}
 \label{tab:sensitivity}
 \centering
@@ -246,7 +252,7 @@ Add \textsc{High} violations to 3+ & 45.0 & $+38.6$ & \textsc{Medium} \\
 \end{tabularx}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
@@ -296,7 +302,7 @@ Public reports are incomplete and enforcement outcomes need not map cleanly to t
 \section{Evaluation Status and Discussion}
 Table~\ref{tab:status} distinguishes available evidence from work that remains to be executed. This status-based presentation prevents a proposed protocol from being misread as a completed result.
 
-\begin{table*}[t]
+\begin{table}[htbp]
 \caption{Current Evaluation Status}
 \label{tab:status}
 \centering
@@ -316,7 +322,7 @@ Incident replay (Tier 4) & Optional future work & No result claim \\
 Supplementary classifier evaluation & Out of scope for this draft & No result claim; planned as follow-up work \\
 \bottomrule
 \end{tabularx}
-\end{table*}
+\end{table}
 
 The validation design offers two advantages. First, it attaches each conclusion to a named oracle: the determinism, isolation, and score-spread results above are meaningful precisely because the tenant, condition, and comparison are stated explicitly rather than left implicit. Second, it provides a path for increasing confidence without overstating the current implementation: regression tests protect known behavior; the pilot studies test specific invariants directly and the planned harness will test them systematically; and incident replay can challenge the system with externally sourced evidence.
 

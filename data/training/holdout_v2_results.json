@@ -1,0 +1,614 @@
+{
+  "n_holdout": 470,
+  "macro_f1": 0.7896,
+  "mcc": 0.7401,
+  "n_misclassified": 101,
+  "misclassified": [
+    {
+      "tenant_id": "GEN-010",
+      "profile_name": "GEN-010",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-025",
+      "profile_name": "GEN-025",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21004",
+      "profile_name": "GEN-21004",
+      "true_label": "CRITICAL",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21005",
+      "profile_name": "GEN-21005",
+      "true_label": "CRITICAL",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21006",
+      "profile_name": "GEN-21006",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21007",
+      "profile_name": "GEN-21007",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21014",
+      "profile_name": "GEN-21014",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21015",
+      "profile_name": "GEN-21015",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21016",
+      "profile_name": "GEN-21016",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21017",
+      "profile_name": "GEN-21017",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21022",
+      "profile_name": "GEN-21022",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21023",
+      "profile_name": "GEN-21023",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21026",
+      "profile_name": "GEN-21026",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21027",
+      "profile_name": "GEN-21027",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21051",
+      "profile_name": "GEN-21051",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21052",
+      "profile_name": "GEN-21052",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21055",
+      "profile_name": "GEN-21055",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21057",
+      "profile_name": "GEN-21057",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21058",
+      "profile_name": "GEN-21058",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21059",
+      "profile_name": "GEN-21059",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21068",
+      "profile_name": "GEN-21068",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21070",
+      "profile_name": "GEN-21070",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21072",
+      "profile_name": "GEN-21072",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21077",
+      "profile_name": "GEN-21077",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21088",
+      "profile_name": "GEN-21088",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21091",
+      "profile_name": "GEN-21091",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21093",
+      "profile_name": "GEN-21093",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21098",
+      "profile_name": "GEN-21098",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21102",
+      "profile_name": "GEN-21102",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21103",
+      "profile_name": "GEN-21103",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21104",
+      "profile_name": "GEN-21104",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21107",
+      "profile_name": "GEN-21107",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21111",
+      "profile_name": "GEN-21111",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21113",
+      "profile_name": "GEN-21113",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21114",
+      "profile_name": "GEN-21114",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21119",
+      "profile_name": "GEN-21119",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21127",
+      "profile_name": "GEN-21127",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21131",
+      "profile_name": "GEN-21131",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21137",
+      "profile_name": "GEN-21137",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21138",
+      "profile_name": "GEN-21138",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21143",
+      "profile_name": "GEN-21143",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21144",
+      "profile_name": "GEN-21144",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21154",
+      "profile_name": "GEN-21154",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21155",
+      "profile_name": "GEN-21155",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21159",
+      "profile_name": "GEN-21159",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21169",
+      "profile_name": "GEN-21169",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21172",
+      "profile_name": "GEN-21172",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21175",
+      "profile_name": "GEN-21175",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21178",
+      "profile_name": "GEN-21178",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21180",
+      "profile_name": "GEN-21180",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21182",
+      "profile_name": "GEN-21182",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21183",
+      "profile_name": "GEN-21183",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21185",
+      "profile_name": "GEN-21185",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21186",
+      "profile_name": "GEN-21186",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21191",
+      "profile_name": "GEN-21191",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21193",
+      "profile_name": "GEN-21193",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21196",
+      "profile_name": "GEN-21196",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21198",
+      "profile_name": "GEN-21198",
+      "true_label": "CRITICAL",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-21203",
+      "profile_name": "GEN-21203",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21204",
+      "profile_name": "GEN-21204",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21205",
+      "profile_name": "GEN-21205",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21207",
+      "profile_name": "GEN-21207",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21208",
+      "profile_name": "GEN-21208",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21209",
+      "profile_name": "GEN-21209",
+      "true_label": "HIGH",
+      "predicted_label": "CRITICAL"
+    },
+    {
+      "tenant_id": "GEN-21210",
+      "profile_name": "GEN-21210",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21212",
+      "profile_name": "GEN-21212",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21213",
+      "profile_name": "GEN-21213",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21217",
+      "profile_name": "GEN-21217",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21218",
+      "profile_name": "GEN-21218",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21221",
+      "profile_name": "GEN-21221",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21222",
+      "profile_name": "GEN-21222",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21235",
+      "profile_name": "GEN-21235",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-21244",
+      "profile_name": "GEN-21244",
+      "true_label": "CRITICAL",
+      "predicted_label": "HIGH"
+    },
+    {
+      "tenant_id": "GEN-22000",
+      "profile_name": "GEN-22000",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22015",
+      "profile_name": "GEN-22015",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22018",
+      "profile_name": "GEN-22018",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22019",
+      "profile_name": "GEN-22019",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22021",
+      "profile_name": "GEN-22021",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22022",
+      "profile_name": "GEN-22022",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22023",
+      "profile_name": "GEN-22023",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22024",
+      "profile_name": "GEN-22024",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22026",
+      "profile_name": "GEN-22026",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22033",
+      "profile_name": "GEN-22033",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22035",
+      "profile_name": "GEN-22035",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22038",
+      "profile_name": "GEN-22038",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22039",
+      "profile_name": "GEN-22039",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22042",
+      "profile_name": "GEN-22042",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22048",
+      "profile_name": "GEN-22048",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22050",
+      "profile_name": "GEN-22050",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22059",
+      "profile_name": "GEN-22059",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22061",
+      "profile_name": "GEN-22061",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22064",
+      "profile_name": "GEN-22064",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22070",
+      "profile_name": "GEN-22070",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22073",
+      "profile_name": "GEN-22073",
+      "true_label": "LOW",
+      "predicted_label": "COMPLIANT"
+    },
+    {
+      "tenant_id": "GEN-22074",
+      "profile_name": "GEN-22074",
+      "true_label": "LOW",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22078",
+      "profile_name": "GEN-22078",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22097",
+      "profile_name": "GEN-22097",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22100",
+      "profile_name": "GEN-22100",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22125",
+      "profile_name": "GEN-22125",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22147",
+      "profile_name": "GEN-22147",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    },
+    {
+      "tenant_id": "GEN-22148",
+      "profile_name": "GEN-22148",
+      "true_label": "HIGH",
+      "predicted_label": "MEDIUM"
+    }
+  ]
+}

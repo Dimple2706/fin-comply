@@ -45,22 +45,29 @@ NATIVE_QUERIES = {
     "DPDP-010": """
         SELECT p.*,
                CASE WHEN dl.has_active_retention THEN 'not_deleted' ELSE 'deleted' END AS retention_status,
-               dl.has_legal_hold AS legal_hold_flag
+               dl.has_legal_hold AS legal_hold_flag,
+               dl.erasure_requested AS erasure_requested
         FROM dsar_requests p
         LEFT JOIN LATERAL (
-            SELECT 
+            SELECT
                 EXISTS (
-                    SELECT 1 FROM data_lifecycle d 
-                    WHERE d.customer_hash = p.customer_hash 
-                      AND d.tenant_id = p.tenant_id 
+                    SELECT 1 FROM data_lifecycle d
+                    WHERE d.customer_hash = p.customer_hash
+                      AND d.tenant_id = p.tenant_id
                       AND d.retention_status <> 'deleted'
                 ) AS has_active_retention,
                 EXISTS (
-                    SELECT 1 FROM data_lifecycle d 
-                    WHERE d.customer_hash = p.customer_hash 
-                      AND d.tenant_id = p.tenant_id 
+                    SELECT 1 FROM data_lifecycle d
+                    WHERE d.customer_hash = p.customer_hash
+                      AND d.tenant_id = p.tenant_id
                       AND d.legal_hold_flag = true
-                ) AS has_legal_hold
+                ) AS has_legal_hold,
+                EXISTS (
+                    SELECT 1 FROM data_lifecycle d
+                    WHERE d.customer_hash = p.customer_hash
+                      AND d.tenant_id = p.tenant_id
+                      AND d.erasure_requested = true
+                ) AS erasure_requested
         ) dl ON true
         WHERE p.tenant_id = %s
     """,

@@ -186,6 +186,10 @@ def generate_governance_config(profile: dict) -> List[dict]:
         "audit_frequency_days": fd.get("audit_frequency_days", 90),
         "last_audit_date": fd.get("last_audit_date", _random_past_date()),
         "risk_level": fd.get("risk_level", "MEDIUM"),
+        # DPDP-012 evidence: this column exists in the DB schema and
+        # field_mapper.py already reads it, but the generator never wrote
+        # it, so every tenant's DPDP-012 came back NOT_ASSESSABLE.
+        "is_significant_data_fiduciary": _pick_bool(fd.get("is_significant_data_fiduciary", False)),
     }]
 
 
@@ -404,8 +408,16 @@ def generate_transaction_events(profile: dict, consent_rows: List[dict], system_
                 shared = False
 
         transfer_country = ""
+        transfer_restriction_compliant = ""
+        transfer_assessment_reference = ""
         if is_cross_border:
             transfer_country = fd.get("transfer_country_for_cross_border", "US")
+            # DPDP-015 evidence: these two columns exist in the DB schema and
+            # field_mapper.py already reads them, but the generator never
+            # wrote them, so every cross-border tenant's DPDP-015 came back
+            # NOT_ASSESSABLE instead of PASS/VIOLATION.
+            transfer_restriction_compliant = _pick_bool(fd.get("transfer_restriction_compliant", True))
+            transfer_assessment_reference = fd.get("transfer_assessment_reference", f"S16-ASSESS-{tenant_id}-{i}")
 
         # DPDP-001 fires when a transaction's timestamp falls after its own
         # consent's expiry date. Sampling the event timestamp fully
@@ -437,6 +449,8 @@ def generate_transaction_events(profile: dict, consent_rows: List[dict], system_
             "third_party_id": third_party_id,
             "is_cross_border": is_cross_border,
             "transfer_country": transfer_country,
+            "transfer_restriction_compliant": transfer_restriction_compliant,
+            "transfer_assessment_reference": transfer_assessment_reference,
             "additional_attributes": "{}",
         })
     return rows
@@ -481,6 +495,25 @@ def generate_access_logs(profile: dict, customer_rows: List[dict]) -> List[dict]
 
         pii_fields = "name,email,phone" if accessed_pii else ""
 
+        # DPDP-007/DPDP-013 evidence: both columns exist in the DB schema
+        # and field_mapper.py already reads them as top-level columns (not
+        # from additional_attributes), but the generator never wrote them,
+        # so every tenant's DPDP-007/DPDP-013 came back NOT_ASSESSABLE.
+        # Default: authorised access to justified PII fields is fine;
+        # unauthorised-role access is neither justified nor authorized.
+        if accessed_pii:
+            pii_fields_justified = _pick_bool(
+                fd.get("pii_fields_justified_when_unauthorised", False) if is_unauthorised
+                else fd.get("pii_fields_justified_when_authorised", True)
+            )
+            access_authorized = _pick_bool(
+                fd.get("access_authorized_when_unauthorised", False) if is_unauthorised
+                else fd.get("access_authorized_when_authorised", True)
+            )
+        else:
+            pii_fields_justified = ""
+            access_authorized = ""
+
         # additional_attributes for unauthorised high/bulk PII access
         add_attr = "{}"
         if (employee_role not in AUTHORISED_ROLES
@@ -496,6 +529,8 @@ def generate_access_logs(profile: dict, customer_rows: List[dict]) -> List[dict]
             "employee_role": employee_role,
             "accessed_pii": accessed_pii,
             "pii_fields_accessed": pii_fields,
+            "pii_fields_justified": pii_fields_justified,
+            "access_authorized": access_authorized,
             "access_reason": access_reason,
             "access_outcome": access_outcome,
             "data_volume_accessed": data_volume,

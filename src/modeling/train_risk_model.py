@@ -39,7 +39,15 @@ def train_pipeline():
     print("==================================================\n")
 
     # STEP 1: Load and validate dataset
-    features_csv = "data/training/training_features.csv"
+    # NOTE: Must be a training-only pool that excludes the OOD holdout tenants
+    # (personas GEN-001-025 plus the covering-array-generated holdout v2 set --
+    # see evaluate_holdout_v2.py) or their leakage into the 80/20 split below
+    # would silently invalidate the OOD evaluation this project's validation
+    # methodology depends on. train_features_v2.csv is the expanded Phase 4
+    # diversification pool (1602 tenants: the original 225-tenant family plus
+    # the ~1377 pilot/full-batch/topup tenants that were generated but never
+    # previously assembled into a features file -- see build_train_v2_features.py).
+    features_csv = "data/training/train_features_v2.csv"
     if not os.path.exists(features_csv):
         raise FileNotFoundError(f"Missing {features_csv}. Run prepare_risk_features.py first.")
 
@@ -219,7 +227,9 @@ def train_pipeline():
 
     # STEP 8: Sanity check on sample profiles against their true metadata labels
     print("\nStep 7: Sanity Check on Sample Profiles...")
-    meta_path = "data/training/training_metadata.csv"
+    # Must match features_csv above (same 1602-tenant pool, same row order),
+    # or the per-class sanity check below would compare against the wrong tenant.
+    meta_path = "data/training/train_metadata_v2.csv"
     if os.path.exists(meta_path):
         meta_df = pd.read_csv(meta_path)
         # Sample 1 from each class to verify
