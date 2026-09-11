@@ -4,3 +4,8 @@ __pycache__/
 venv/
 .pytest_*/
 .mpl_*/
+
+# Regenerated synthetic tenant data -- large in volume, reproducible via the
+# generator scripts, and already backed up by OneDrive independently of git.
+data/raw_synthetic/
+data/tenants/
