@@ -105,6 +105,37 @@ class UserPublic(BaseModel):
     created_at: Optional[str] = None
 
 
+class GrantAccessRequest(BaseModel):
+    """
+    Grants an existing user access to a tenant the requesting (granting)
+    user is themselves already authorized for.
+    """
+    username: str = Field(min_length=1, max_length=64)
+    tenant_id: str = Field(min_length=1, max_length=64)
+
+    @field_validator("username")
+    @classmethod
+    def validate_target_username(cls, value: str) -> str:
+        clean = value.strip()
+        if not clean or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", clean):
+            raise ValueError("invalid username format")
+        return clean
+
+    @field_validator("tenant_id")
+    @classmethod
+    def validate_tenant_id(cls, value: str) -> str:
+        clean = value.strip().upper()
+        if not re.fullmatch(r"[A-Z0-9_-]{1,64}", clean):
+            raise ValueError("must use only letters, numbers, underscores, or hyphens")
+        return clean
+
+
+class GrantAccessResponse(BaseModel):
+    username: str
+    authorized_tenants: List[str]
+    already_had_access: bool
+
+
 # ── Analyze Request ──────────────────────────────────────
 
 class AnalyzeRequest(BaseModel):

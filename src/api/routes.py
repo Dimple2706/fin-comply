@@ -19,12 +19,14 @@ from src.api.auth import (
     require_admin, require_reviewer, require_authenticated,
     AuthUser, verify_tenant_access, authenticate_user,
     create_user_in_db, get_user_by_username, verify_password, create_access_token,
+    grant_tenant_access,
 )
 
 from src.api.schemas import (
     AnalyzeRequest, AnalyzeResponse, ViolationItem,
     FullExplanation, SignalDetail, AgentBreakdown, RemediationItem,
     UserRegisterRequest, UserLoginRequest, TokenResponse, UserPublic,
+    GrantAccessRequest, GrantAccessResponse,
 )
 from src.legal_context import build_regulatory_context
 from src.anonymization.csv_loader import load_tenant_csvs, TenantValidationError, MissingColumnError
@@ -589,6 +591,22 @@ def get_current_user(current_user: AuthUser = Depends(authenticate_user)):
         role=current_user.role,
         tenant_id=tenants[0] if tenants else None,
     )
+
+
+@router.post("/auth/grant-access", response_model=GrantAccessResponse)
+def grant_access(
+    body: GrantAccessRequest,
+    current_user: AuthUser = Depends(require_admin),
+):
+    """
+    Grants another user access to a tenant. The requesting user must
+    themselves already be authorized for that tenant — this lets a tenant's
+    existing admin share access with a colleague, but not hand out access to
+    tenants unrelated to them.
+    """
+    verify_tenant_access(body.tenant_id, current_user)
+    result = grant_tenant_access(body.username, body.tenant_id)
+    return GrantAccessResponse(**result)
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)

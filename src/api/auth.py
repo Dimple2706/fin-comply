@@ -256,6 +256,70 @@ def create_user_in_db(name: str, email: str, username: str,
         )
 
 
+def grant_tenant_access(target_username: str, tenant_id: str) -> dict:
+    """
+    Appends tenant_id to target_username's authorized_tenants, if not already
+    present. Race-safe: the UPDATE's WHERE guard is evaluated under the row
+    lock Postgres takes for the update, so two concurrent grants for the same
+    (user, tenant) cannot both append a duplicate entry.
+
+    Callers are responsible for checking that the *granting* user is
+    themselves authorized for tenant_id (see verify_tenant_access) — this
+    function only performs the write and does not re-check that invariant.
+
+    Raises HTTPException(404) if target_username does not exist or is inactive.
+    """
+    clean_tid = tenant_id.strip().upper()
+    if not clean_tid or len(clean_tid) > 64 or not all(
+        c.isalnum() or c in "-_" for c in clean_tid
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Tenant ID format. Use only letters, numbers, hyphens (-) and underscores (_), max 64 characters.",
+        )
+
+    with _get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE public.users
+                SET authorized_tenants = array_append(authorized_tenants, %s)
+                WHERE LOWER(username) = LOWER(%s) AND is_active = TRUE
+                  AND NOT (%s = ANY(authorized_tenants))
+                RETURNING username, authorized_tenants
+                """,
+                (clean_tid, target_username.strip(), clean_tid),
+            )
+            row = cur.fetchone()
+            if row:
+                conn.commit()
+                return {
+                    "username": row["username"],
+                    "authorized_tenants": list(row["authorized_tenants"]),
+                    "already_had_access": False,
+                }
+
+            # No row updated: either the user doesn't exist/is inactive, or
+            # they already have this tenant. Disambiguate with a plain read.
+            cur.execute(
+                "SELECT username, authorized_tenants FROM public.users "
+                "WHERE LOWER(username) = LOWER(%s) AND is_active = TRUE",
+                (target_username.strip(),),
+            )
+            existing = cur.fetchone()
+
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User '{target_username}' not found.",
+        )
+    return {
+        "username": existing["username"],
+        "authorized_tenants": list(existing["authorized_tenants"]),
+        "already_had_access": True,
+    }
+
+
 # ── Password & token helpers ──────────────────────────────────────────────────
 
 def verify_password(plain: str, hashed: str) -> bool:
