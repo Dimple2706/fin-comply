@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import AuthPage from './pages/AuthPage';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
+import TaskAssessment from './pages/TaskAssessment';
 import { getApiToken, getStoredUser, clearAuth } from './services/api';
 
 function AppContent() {
@@ -79,6 +80,23 @@ function AppContent() {
               <Navigate to="/" replace />
             )
           }
+        />
+        <Route
+          path="/task-assessment"
+          element={
+            isAuthenticated ? (
+             analysisData ? (
+          <TaskAssessment
+          data={analysisData}
+          onBack={() => navigate('/dashboard')}
+        />
+        ) : (
+          <Navigate to="/onboarding" replace />
+        )
+         ) : (
+         <Navigate to="/" replace />
+          )
+         }
         />
 
         {/* ── Fallback ── */}

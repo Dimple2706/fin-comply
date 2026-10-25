@@ -179,3 +179,59 @@ export const rejectRule = async (proposalId, reason = 'Rejected by reviewer') =>
     throw new Error('Network error. Ensure the backend is running.', { cause: error });
   }
 };
+
+export const getTaskAssignments = async (tenantId, auditRunId) => {
+  try {
+    const response = await api.get(
+      `/tasks/${encodeURIComponent(tenantId)}`,
+      {
+        params: auditRunId
+          ? { audit_run_id: auditRunId }
+          : {},
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const detail = formatDetailError(
+        error.response.data?.detail
+      );
+
+      throw new Error(
+        detail || 'Failed to fetch task assignments.',
+        { cause: error }
+      );
+    }
+
+    throw new Error(
+      'Network error. Ensure the backend is running.',
+      { cause: error }
+    );
+  }
+};
+
+
+export const downloadTaskAssignmentPdf = async (
+  tenantId,
+  auditRunId
+) => {
+  try {
+    const response = await api.get(
+      `/tasks/pdf/${encodeURIComponent(tenantId)}`,
+      {
+        params: auditRunId
+          ? { audit_run_id: auditRunId }
+          : {},
+        responseType: 'blob',
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      'Failed to download Task Assignment PDF.',
+      { cause: error }
+    );
+  }
+};

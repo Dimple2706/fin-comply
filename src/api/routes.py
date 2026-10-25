@@ -43,6 +43,10 @@ from src.anonymization.field_mapper import (
 )
 from src.anonymization.db_writer import write_tenant_data, CrossFileValidationError
 from src.agent_layer.orchestrator import run_compliance_analysis
+from src.api.task_assessment_service import (
+    save_task_evidence,
+    get_task_assignments,
+)
 from src.explainability.service import enrich_violations, generate_executive_summary, RULE_EXPLANATIONS
 from src.explainability.report_builder import URGENCY_ORDER, SEVERITY_TO_URGENCY
 
@@ -744,6 +748,21 @@ def analyze_tenant(
                     "VALUES (%s, %s, %s, %s)",
                     (clean_tenant_id, json.dumps(serializable_payload, default=str), float(response["risk_score"]), audit_run_id)
                 )
+
+                task_count = save_task_evidence(
+                    conn=conn,
+                    tenant_id=clean_tenant_id,
+                    audit_run_id=audit_run_id,
+                    raw_violations=analysis_result.get("violations", []),
+                )
+
+                logging.info(
+                    "Task Assessment: saved %s task evidence entries "
+                    "for tenant=%s audit_run=%s",
+                    task_count,
+                    clean_tenant_id,
+                    audit_run_id,
+                )
             conn.commit()
 
         return AnalyzeResponse(**response)
@@ -1011,12 +1030,142 @@ async def analyze_upload(
                     "VALUES (%s, %s, %s, %s)",
                     (tenant_id, json.dumps(serializable_payload, default=str), float(response["risk_score"]), audit_run_id)
                 )
+                                # Save Task Assessment evidence for uploaded tenant
+                task_count = save_task_evidence(
+                    conn=conn,
+                    tenant_id=tenant_id,
+                    audit_run_id=audit_run_id,
+                    raw_violations=analysis_result.get("violations", []),
+                )
+
+                logging.info(
+                    "Task Assessment: saved %s evidence entries "
+                    "for uploaded tenant=%s audit_run=%s",
+                    task_count,
+                    tenant_id,
+                    audit_run_id,
+                )
             conn.commit()
     except Exception as db_ex:
         logging.warning(f"evaluation_results / audit_runs insert failed: {db_ex}")
 
     return AnalyzeResponse(**response)
 
+
+@router.get("/tasks/{tenant_id}")
+def get_tenant_tasks(
+    tenant_id: str,
+    audit_run_id: Optional[str] = None,
+    current_user: AuthUser = Depends(authenticate_user),
+):
+    """
+    Return Task Assessment assignments for a tenant's audit run.
+
+    Uses the existing tenant access controls and audit-run
+    resolution. Does not modify compliance results.
+    """
+    try:
+        verify_tenant_access(tenant_id, current_user)
+
+        with get_db_connection() as conn:
+            resolved_run_id = resolve_audit_run_id(
+                tenant_id,
+                audit_run_id,
+                conn,
+            )
+
+            assignments = get_task_assignments(
+                conn=conn,
+                tenant_id=tenant_id,
+                audit_run_id=resolved_run_id,
+            )
+
+        return {
+            "tenant_id": tenant_id,
+            "audit_run_id": resolved_run_id,
+            "total_tasks": len(assignments),
+            "tasks": assignments,
+        }
+
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        )
+    except Exception:
+        logging.exception(
+            "Failed to retrieve Task Assessment for tenant %s",
+            tenant_id,
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to retrieve Task Assessment",
+        )
+
+@router.get("/tasks/pdf/{tenant_id}")
+def download_task_assignment_pdf(
+    tenant_id: str,
+    audit_run_id: Optional[str] = None,
+    current_user: AuthUser = Depends(authenticate_user),
+):
+    """
+    Download Task Assessment assignments for a specific
+    tenant and audit run as a PDF.
+    """
+    try:
+        verify_tenant_access(tenant_id, current_user)
+
+        from src.report.task_assignment_pdf import (
+            generate_task_assignment_pdf,
+        )
+
+        with get_db_connection() as conn:
+            resolved_run_id = resolve_audit_run_id(
+                tenant_id,
+                audit_run_id,
+                conn,
+            )
+
+            assignments = get_task_assignments(
+                conn=conn,
+                tenant_id=tenant_id,
+                audit_run_id=resolved_run_id,
+            )
+
+        pdf_buffer = generate_task_assignment_pdf(
+            tenant_id=tenant_id,
+            audit_run_id=resolved_run_id,
+            tasks=assignments,
+        )
+
+        return Response(
+            content=pdf_buffer.getvalue(),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="FinComply_TaskAssignment_{resolved_run_id}.pdf"'
+                )
+            },
+        )
+
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        )
+    except Exception:
+        logging.exception(
+            "Task Assignment PDF generation failed for tenant %s",
+            tenant_id,
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate Task Assignment PDF",
+        )
 
 @router.get("/report/pdf/{tenant_id}")
 def download_pdf(

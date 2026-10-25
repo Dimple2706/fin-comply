@@ -9,11 +9,13 @@ import RemediationSection from '../components/dashboard/RemediationSection';
 import ViolationsSection from '../components/dashboard/ViolationsSection';
 import RulesLibraryModal from '../components/dashboard/RulesLibraryModal';
 import { downloadPdfReport } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const staticReportSuffix = Date.now().toString().slice(-6);
 const staticGeneratedTime = new Date().toLocaleString('en-GB');
 
 export default function Dashboard({ data, onReset }) {
+  const navigate = useNavigate();
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [showRules, setShowRules] = useState(false);
 
@@ -51,7 +53,7 @@ export default function Dashboard({ data, onReset }) {
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -60,7 +62,7 @@ export default function Dashboard({ data, onReset }) {
       {/* Sticky Top Nav */}
       <nav className="sticky top-0 z-40 min-h-16 bg-surface/90 backdrop-blur-md border-b border-subtle px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={onReset}
             className="p-2 text-secondary hover:text-primary hover:bg-elevated rounded-md transition-colors"
             title="Back to Upload"
@@ -87,18 +89,18 @@ export default function Dashboard({ data, onReset }) {
             <HiOutlineBookOpen className="text-lg" aria-hidden="true" />
             <span className="hidden lg:inline">DPDP Rules</span>
           </button>
-          <button 
+          <button
             onClick={onReset}
             className="hidden sm:block px-4 py-1.5 text-sm font-medium text-secondary hover:text-primary border border-subtle rounded-md hover:bg-elevated transition-colors"
           >
             New Analysis
           </button>
-          <button 
+          <button
             onClick={handleDownloadPdf}
             disabled={downloadingPdf}
             className={`px-4 py-1.5 text-sm font-medium text-white rounded-md transition-all flex items-center gap-2
-              ${downloadingPdf 
-                ? 'bg-elevated text-muted cursor-not-allowed' 
+              ${downloadingPdf
+                ? 'bg-elevated text-muted cursor-not-allowed'
                 : 'btn-gradient shadow-glow hover:opacity-90'}`}
           >
             {downloadingPdf ? (
@@ -116,35 +118,52 @@ export default function Dashboard({ data, onReset }) {
       {/* Main Content */}
       <main className="container-center py-8">
         <ExecutiveSummary summary={data.executive_summary} tenantId={data.tenant_id} />
-        
+
         <MetricsSection data={data} />
 
         {/* Explainable AI / ML Prediction Layer */}
-        <MLPredictionSection 
-          mlData={data.ml_layer} 
-          deterministicTier={data.risk_tier} 
-          deterministicScore={data.risk_score} 
+        <MLPredictionSection
+          mlData={data.ml_layer}
+          deterministicTier={data.risk_tier}
+          deterministicScore={data.risk_score}
         />
-        
-        <ChartsSection 
-          breakdown={data.agent_breakdown} 
-          contributions={data.risk_contributions} 
-          violations={data.violations} 
+
+        <ChartsSection
+          breakdown={data.agent_breakdown}
+          contributions={data.risk_contributions}
+          violations={data.violations}
         />
-        
+
         <RemediationSection items={data.remediation_priority} />
-        
+
         <ViolationsSection violations={data.violations} />
+{/* Task Assessment navigation */}
+<div className="mt-8 flex flex-col items-center gap-3">
+  <button
+    type="button"
+    onClick={() => navigate('/task-assessment')}
+    className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold text-white btn-gradient shadow-glow hover:opacity-90 transition-all"
+  >
+    View Task Assessment & Assignments
+    <span aria-hidden="true">→</span>
+  </button>
+
+  <p className="text-sm text-secondary text-center">
+    View remediation tasks, responsible teams,
+    priorities, and recommended corrective actions.
+  </p>
+</div>
+
 
         {/* SECTION 6: DOWNLOAD BUTTONS */}
-        <motion.section 
+        <motion.section
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           className="mt-16 mb-12 flex flex-col items-center"
         >
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
-            <button 
+            <button
               onClick={handleDownloadPdf}
               disabled={downloadingPdf}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium text-white btn-gradient shadow-glow hover:opacity-90 transition-all min-w-[220px]"
@@ -152,7 +171,7 @@ export default function Dashboard({ data, onReset }) {
               <HiOutlineDocumentArrowDown className="text-xl" />
               {downloadingPdf ? 'Generating PDF...' : 'Download PDF Report'}
             </button>
-            <button 
+            <button
               onClick={handleDownloadJson}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium text-brand-primary border border-brand-primary/50 hover:bg-brand-primary/10 transition-colors min-w-[220px]"
             >
