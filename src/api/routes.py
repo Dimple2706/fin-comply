@@ -19,7 +19,7 @@ from src.api.auth import (
     require_admin, require_reviewer, require_authenticated,
     AuthUser, verify_tenant_access, authenticate_user,
     create_user_in_db, get_user_by_username, verify_password, create_access_token,
-    grant_tenant_access,
+    grant_tenant_access, require_rule_admin,
 )
 
 from src.api.schemas import (
@@ -763,9 +763,13 @@ def analyze_tenant(
                 conn_err.commit()
         except Exception:
             pass
+        # The failure may happen before audit_run_id is assigned (e.g. while
+        # resolving an existing run), so don't assume it exists.
+        failed_run_id = locals().get("audit_run_id", "n/a")
+        logging.error("Analysis failed for tenant '%s' (run %s): %s", request.tenant_id, failed_run_id, e)
         raise HTTPException(
             status_code=500,
-            detail=f"Analysis failed: {str(e)}"
+            detail=f"Analysis failed due to an internal error. Reference run ID: {failed_run_id}"
         )
 
 
@@ -938,7 +942,8 @@ async def analyze_upload(
         elif isinstance(validation_err, CrossFileValidationError):
             raise HTTPException(status_code=400, detail={"error": "Cross-file validation failed", "error_code": "CROSS_FILE_VALIDATION_FAILED", "details": validation_err.errors})
         else:
-            raise HTTPException(status_code=500, detail=f"CSV ingestion failed: {str(validation_err)}")
+            logging.error("CSV ingestion failed for tenant '%s' (run %s): %s", tenant_id, audit_run_id, validation_err)
+            raise HTTPException(status_code=500, detail=f"CSV ingestion failed due to an internal error. Reference run ID: {audit_run_id}")
 
     finally:
         if temp_dir and os.path.exists(temp_dir):
@@ -964,9 +969,10 @@ async def analyze_upload(
                 conn_err.commit()
         except Exception:
             pass
+        logging.error("Analysis engine failed for tenant '%s' (run %s): %s", tenant_id, audit_run_id, analysis_error)
         raise HTTPException(
             status_code=500,
-            detail=f"Analysis engine failed: {str(analysis_error)}"
+            detail=f"Analysis engine failed due to an internal error. Reference run ID: {audit_run_id}"
         )
 
     try:
@@ -1073,7 +1079,8 @@ def list_rules(
                  "enabled": r["enabled"], "dpdp_section": r["dpdp_section"],
                  "description": r["description"]} for r in rows]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch rules: {str(e)}")
+        logging.error("Failed to fetch rules: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch rules.")
 
 
 @router.get("/rules/proposed")
@@ -1103,15 +1110,16 @@ def list_proposed_rules(
                  "status": r["status"], "proposed_by": r["proposed_by"],
                  "created_at": str(r["created_at"])} for r in rows]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch proposed rules: {str(e)}")
+        logging.error("Failed to fetch proposed rules: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch proposed rules.")
 
 
 @router.post("/rules/approve/{proposal_id}")
 def approve_rule(
     proposal_id: int,
-    current_user: AuthUser = Depends(require_admin),
+    current_user: AuthUser = Depends(require_rule_admin),
 ):
-    """Activates a pending proposed rule. Requires admin role."""
+    """Activates a pending proposed rule. Requires a platform rule administrator."""
     try:
         with get_db_connection() as conn:
             row = conn.execute(
@@ -1205,16 +1213,17 @@ def approve_rule(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Approval failed: {str(e)}")
+        logging.error("Approval of proposal %s failed: %s", proposal_id, e)
+        raise HTTPException(status_code=500, detail="Approval failed due to an internal error.")
 
 
 @router.post("/rules/reject/{proposal_id}")
 def reject_rule(
     proposal_id: int,
     reason: str = "No reason provided",
-    current_user: AuthUser = Depends(require_reviewer),
+    current_user: AuthUser = Depends(require_rule_admin),
 ):
-    """Rejects a pending proposed rule. Requires reviewer or admin role."""
+    """Rejects a pending proposed rule. Requires a platform rule administrator."""
     try:
         with get_db_connection() as conn:
             row = conn.execute(
@@ -1254,7 +1263,8 @@ def reject_rule(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Rejection failed: {str(e)}")
+        logging.error("Rejection of proposal %s failed: %s", proposal_id, e)
+        raise HTTPException(status_code=500, detail="Rejection failed due to an internal error.")
 
 
 _bias_report_cache = None
@@ -1301,7 +1311,8 @@ def get_dashboard_data(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error("Failed to load dashboard for tenant '%s': %s", tenant_id, e)
+        raise HTTPException(status_code=500, detail="Failed to load dashboard data.")
 
 
 @router.get("/report/history/{tenant_id}")
@@ -1356,4 +1367,5 @@ def get_report_history(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error("Failed to load report history for tenant '%s': %s", tenant_id, e)
+        raise HTTPException(status_code=500, detail="Failed to load report history.")

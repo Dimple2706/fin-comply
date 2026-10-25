@@ -33,6 +33,7 @@ export const getStoredUser = () => {
 export const clearAuth = () => {
   window.sessionStorage.removeItem(TOKEN_STORAGE_KEY);
   window.sessionStorage.removeItem(USER_STORAGE_KEY);
+  window.sessionStorage.removeItem('fincomply_last_analysis');
 };
 
 // Attach JWT from session storage to every request automatically.
@@ -115,10 +116,44 @@ export const runAnalysisExisting = async (tenantId) => {
   }
 };
 
-export const downloadPdfReport = async (tenantId) => {
+// Remembers which run the dashboard is showing, so a page refresh can reload it.
+const LAST_ANALYSIS_KEY = 'fincomply_last_analysis';
+
+export const saveLastAnalysis = (tenantId, auditRunId) => {
+  if (typeof window === 'undefined' || !tenantId) return;
+  window.sessionStorage.setItem(LAST_ANALYSIS_KEY, JSON.stringify({ tenant_id: tenantId, audit_run_id: auditRunId || null }));
+};
+
+export const getLastAnalysis = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(LAST_ANALYSIS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+};
+
+export const clearLastAnalysis = () => {
+  if (typeof window === 'undefined') return;
+  window.sessionStorage.removeItem(LAST_ANALYSIS_KEY);
+};
+
+export const getDashboardData = async (tenantId, auditRunId) => {
+  try {
+    const response = await api.get(`/dashboard/${encodeURIComponent(tenantId)}`, {
+      params: auditRunId ? { audit_run_id: auditRunId } : {},
+    });
+    return response.data;
+  } catch (error) {
+    const errMsg = formatDetailError(error.response?.data?.detail) || 'Failed to load dashboard';
+    throw new Error(errMsg, { cause: error });
+  }
+};
+
+export const downloadPdfReport = async (tenantId, auditRunId) => {
   try {
     const response = await api.get(`/report/pdf/${tenantId}`, {
       responseType: 'blob',
+      params: auditRunId ? { audit_run_id: auditRunId } : {},
     });
     return response.data;
   } catch (error) {

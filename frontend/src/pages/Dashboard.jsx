@@ -10,8 +10,11 @@ import ViolationsSection from '../components/dashboard/ViolationsSection';
 import RulesLibraryModal from '../components/dashboard/RulesLibraryModal';
 import { downloadPdfReport } from '../services/api';
 
-const staticReportSuffix = Date.now().toString().slice(-6);
-const staticGeneratedTime = new Date().toLocaleString('en-GB');
+const formatEvaluatedAt = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString('en-GB');
+};
 
 export default function Dashboard({ data, onReset }) {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
@@ -34,7 +37,7 @@ export default function Dashboard({ data, onReset }) {
   const handleDownloadPdf = async () => {
     setDownloadingPdf(true);
     try {
-      const blob = await downloadPdfReport(data.tenant_id);
+      const blob = await downloadPdfReport(data.tenant_id, data.audit_run_id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -115,7 +118,7 @@ export default function Dashboard({ data, onReset }) {
 
       {/* Main Content */}
       <main className="container-center py-8">
-        <ExecutiveSummary summary={data.executive_summary} tenantId={data.tenant_id} />
+        <ExecutiveSummary summary={data.executive_summary} tenantId={data.tenant_id} evaluatedAt={data.run_metadata?.evaluated_at} />
         
         <MetricsSection data={data} />
 
@@ -161,8 +164,8 @@ export default function Dashboard({ data, onReset }) {
             </button>
           </div>
           <div className="text-center text-caption text-muted">
-            <p className="font-mono mb-1">Report ID: {data.tenant_id}-{staticReportSuffix}</p>
-            <p>Generated: {staticGeneratedTime}</p>
+            <p className="font-mono mb-1">Audit run ID: {data.audit_run_id || '—'}</p>
+            <p>Evaluated: {formatEvaluatedAt(data.run_metadata?.evaluated_at)}</p>
           </div>
         </motion.section>
       </main>
