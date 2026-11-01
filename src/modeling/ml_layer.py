@@ -198,13 +198,12 @@ def extract_features(report: dict) -> np.ndarray:
     encryption_violation_count = sum(1 for v in violations_only if v.get("rule_id") == 'DPDP-008')
     access_violation_count = sum(1 for v in violations_only if v.get("rule_id") == 'DPDP-013')
     
-    internal_control_findings = (
-        report.get("internal_controls", {}).get("findings", [])
-    )
-    policy_violation_count = sum(
-        1 for finding in internal_control_findings
-        if finding.get("outcome") == "VIOLATION"
-    )
+    # Must match prepare_risk_features.extract_features exactly: count POLICY-*
+    # violations in violation_report. Internal-control findings are reported
+    # separately and never appear there, so this is 0 in all training data;
+    # counting them at inference would feed the model values it never saw.
+    policy_rules = {'POLICY-001', 'POLICY-002', 'POLICY-003'}
+    policy_violation_count = sum(1 for v in violations_only if v.get("rule_id") in policy_rules)
 
     # The training pipeline derives this value from the maximum statutory
     # exposure attached to the unique violated DPDP rules. ReportingAgent has

@@ -1,6 +1,12 @@
 import { motion } from 'framer-motion';
 
-export default function ExecutiveSummary({ summary, tenantId }) {
+const formatEvaluatedDate = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-GB');
+};
+
+export default function ExecutiveSummary({ summary, tenantId, evaluatedAt }) {
   return (
     <motion.section 
       initial={{ opacity: 0, y: 10 }}
@@ -16,7 +22,7 @@ export default function ExecutiveSummary({ summary, tenantId }) {
       
       <div className="text-right flex-shrink-0 hidden md:block">
         <div className="text-caption text-muted font-mono mb-1">ID: REP-{(tenantId || '').toUpperCase()}</div>
-        <div className="text-caption text-muted">Generated: {new Date().toLocaleDateString('en-GB')}</div>
+        <div className="text-caption text-muted">Evaluated: {formatEvaluatedDate(evaluatedAt)}</div>
       </div>
     </motion.section>
   );

@@ -458,3 +458,25 @@ def verify_tenant_access(tenant_id: str, user: AuthUser) -> AuthUser:
 require_admin         = require_role(["admin"])
 require_reviewer      = require_role(["admin", "reviewer"])
 require_authenticated = require_role(["admin", "reviewer", "auditor"])
+
+
+def _rule_admin_usernames() -> set:
+    raw = os.getenv("FINCOMPLY_RULE_ADMINS", "")
+    return {name.strip().lower() for name in raw.split(",") if name.strip()}
+
+
+def require_rule_admin(user: AuthUser = Depends(require_admin)) -> AuthUser:
+    """
+    Approving or rejecting a proposed rule changes the engine for every tenant,
+    but every self-registered account is a tenant 'admin'. So outside the test
+    environment, rule governance is limited to usernames listed in
+    FINCOMPLY_RULE_ADMINS; with the variable unset, nobody can change rules.
+    """
+    if os.getenv("ENVIRONMENT", "").strip().lower() == "test":
+        return user
+    if user.username.lower() not in _rule_admin_usernames():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: rule approval is restricted to platform rule administrators.",
+        )
+    return user
